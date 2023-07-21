@@ -1,0 +1,43 @@
+﻿package com.company.assembleegameclient.objects {
+import com.company.assembleegameclient.ui.tooltip.TextToolTip;
+import com.company.assembleegameclient.ui.tooltip.ToolTip;
+import com.company.assembleegameclient.util.Currency;
+import com.company.assembleegameclient.util.GuildUtil;
+
+import flash.display.BitmapData;
+
+public class PetMerchant extends SellableObject implements IInteractiveObject {
+
+    public var description_:String;
+
+    public function PetMerchant(_arg1:XML) {
+        super(_arg1);
+        price_ = int(_arg1.Price);
+        currency_ = Currency.GOLD;
+        this.description_ = _arg1.Description;
+    }
+
+    override public function soldObjectName():String {
+        return (ObjectLibrary.typeToDisplayId_[objectType_]);
+    }
+
+    override public function soldObjectInternalName():String {
+        var _local1:XML = ObjectLibrary.xmlLibrary_[objectType_];
+        return (_local1.@id.toString());
+    }
+
+    override public function getTooltip():ToolTip {
+        return (new TextToolTip(0x2B2B2B, 0x7B7B7B, this.soldObjectName(), this.description_, 200));
+    }
+
+    override public function getSellableType():int {
+        return (objectType_);
+    }
+
+    override public function getIcon():BitmapData {
+        return (ObjectLibrary.getRedrawnTextureFromType(objectType_, 80, true));
+    }
+
+
+}
+}

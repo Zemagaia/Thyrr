@@ -1,0 +1,14 @@
+package thyrr.assets.utility {
+
+import thyrr.assets.*;
+
+import mx.core.*;
+
+[Embed(source="EmbeddedAssets_starsEmbed_.png")]
+public class EmbeddedAssets_starsEmbed_ extends BitmapAsset {
+    public function EmbeddedAssets_starsEmbed_() {
+        super();
+        return;
+    }
+}
+}
