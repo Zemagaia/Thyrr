@@ -64,23 +64,6 @@ namespace GameServer.realm.entities
         public Inventory Inventory { get; private set; }
         public int[] BagOwners { get; set; }
 
-        protected override void ImportStats(StatsType stats, object val)
-        {
-            if (Inventory == null) return;
-
-            switch (stats)
-            {
-                case StatsType.Inventory:
-                    var items = (ItemData[])val;
-                    for (var i = 0; i < items.Length; i++)
-                        Inventory[i] = items[i];
-                    break;
-                case StatsType.OwnerAccountId: break; // BagOwner = (int)val == -1 ? (int?)null : (int)val; break;
-            }
-
-            base.ImportStats(stats, val);
-        }
-
         protected override void ExportStats(IDictionary<StatsType, object> stats)
         {
             if (Inventory == null) return;

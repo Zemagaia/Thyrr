@@ -1,11 +1,11 @@
-﻿using System;
-using Shared;
+﻿using Shared;
 using Shared.resources;
 using GameServer.realm.entities;
 using GameServer.networking.packets;
 using GameServer.networking.packets.incoming;
 using GameServer.networking.packets.outgoing;
 using GameServer.realm;
+using Newtonsoft.Json;
 
 namespace GameServer.networking.handlers
 {
@@ -31,6 +31,29 @@ namespace GameServer.networking.handlers
                 return;
             var itemData = player.Inventory[1];
 
+            if (player.IsInvalidTime(time.TotalElapsedMs, packet.Time))
+            {
+                // number of times random is called on projectile creation
+                player.DropNextRandom(2);
+                return;
+            }
+            
+            // reset shot counter
+            if (packet.Time != player.AcClientLastShot && player.AcShotNum >= item.NumProjectiles)
+                player.AcShotNum = 0;
+
+            var arcGap = item.ArcGap * Math.PI / 180;
+            var startAngle = packet.Angle - (item.NumProjectiles - 1) / 2 * arcGap;
+            var nextShotMs = 1 / player.DexRateOfFire() * 1 / item.RateOfFire;
+            // validate shots, number of shots and etc
+            if ((packet.Time < player.AcClientLastShot + nextShotMs && player.AcClientLastShot != 0 &&
+                 packet.Time != player.AcClientLastShot) ||
+                player.AcShotNum >= item.NumProjectiles || player.HasConditionEffect(ConditionEffects.Stunned))
+            {
+                player.DropNextRandom(2);
+                return;
+            }
+
             var tenMod = 1d - (double)player.Stats[13] / 100;
             if (!player.HasConditionEffect(ConditionEffects.Suppressed))
                 if (item.Power == "Unstable Mind") // make this a switch when this gets big
@@ -45,48 +68,57 @@ namespace GameServer.networking.handlers
                 player.NextAttackMpRefill = 0;
             }
 
+            var poisonTippedProjs = player.PoisonTippedProjectiles;
+            PoisonTippedProjectiles poison = null;
+            foreach (var tip in poisonTippedProjs)
+            {
+                poison = tip;
+                tip.Times--;
+                if (tip.Times < 1)
+                    poisonTippedProjs.RemoveAt(0);
+                break;
+            }
+
+            player.PoisonTippedProjectiles = poisonTippedProjs;
             // create projectile and show other players
             var prjDesc = item.Projectiles[0]; //Assume only one
-            var nextShotMs = 1 / player.DexRateOfFire() * 1 / item.RateOfFire;
-
-            if (player.IsInvalidTime(time.TotalElapsedMs, packet.Time))
+            var overrideProjs = player.OverrideWeaponProjDescs;
+            foreach (var proj in overrideProjs)
             {
-                // number of times random is called on projectile creation
-                player.DropNextRandom(2);
-                return;
-            }
-
-            // reset shot counter
-            if (packet.Time != player.AcClientLastShot && player.AcShotNum >= item.NumProjectiles)
-                player.AcShotNum = 0;
-
-            var arcGap = item.ArcGap * Math.PI / 180;
-            var startAngle = packet.Angle - (item.NumProjectiles - 1) / 2 * arcGap;
-            // validate shots, number of shots and etc
-            if ((packet.Time > player.AcClientLastShot + nextShotMs || player.AcClientLastShot == 0 || packet.Time == player.AcClientLastShot) &&
-                player.AcShotNum < item.NumProjectiles && !player.HasConditionEffect(ConditionEffects.Stunned))
-            {
-                if (player.AcClientLastShot == 0) player.AcClientLastShot = packet.Time;
-
-                var prj = player.PlayerShootProjectile(
-                    packet.BulletId, prjDesc, item.ObjectType,
-                    packet.Time, packet.StartingPos, (float)(startAngle + arcGap * player.AcShotNum), itemData,
-                    player.AcShotNum);
-                player.Owner?.EnterWorld(prj);
-                player.Owner?.BroadcastPacketNearby(new AllyShoot()
+                if (player.UpdateOverrideProjectile)
                 {
-                    OwnerId = player.Id,
-                    Angle = prj.Angle,
-                    ContainerType = item.ObjectType,
-                    BulletId = packet.BulletId
-                }, player, player);
-                player.FameCounter.Shoot(prj);
-                player.AcShotNum++;
-                player.AcClientLastShot = packet.Time;
-                return;
+                    player.OverrideWeaponProjDesc = ProjectileDesc.Import(proj.ProjDesc.Export(), new ProjectileDesc(prjDesc.Root));
+                    player.UpdateOverrideProjectile = false;
+                }
+
+                prjDesc = player.OverrideWeaponProjDesc;
+                proj.Times--;
+                if (proj.Times < 1)
+                {
+                    overrideProjs.RemoveAt(0);
+                    player.UpdateOverrideProjectile = true;
+                }
+
+                break;
             }
-            
-            player.DropNextRandom(2);
+
+            player.OverrideWeaponProjDescs = overrideProjs;
+            if (player.AcClientLastShot == 0) player.AcClientLastShot = packet.Time;
+            var prj = player.PlayerShootProjectile(
+                packet.BulletId, prjDesc, item.ObjectType,
+                packet.Time, packet.StartingPos, (float)(startAngle + arcGap * player.AcShotNum), itemData,
+                player.AcShotNum, poison);
+            player.Owner?.EnterWorld(prj);
+            player.Owner?.BroadcastPacketNearby(new AllyShoot()
+            {
+                OwnerId = player.Id,
+                Angle = prj.Angle,
+                ContainerType = item.ObjectType,
+                BulletId = packet.BulletId
+            }, player, player);
+            player.FameCounter.Shoot(prj);
+            player.AcShotNum++;
+            player.AcClientLastShot = packet.Time;
         }
     }
 }

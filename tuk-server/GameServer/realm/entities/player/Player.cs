@@ -297,7 +297,6 @@ namespace GameServer.realm.entities
         public AccountMails Mails { get; private set; }
 
         private readonly SV<int> _offensiveAbility;
-
         public int OffensiveAbility
         {
             get => _offensiveAbility.GetValue();
@@ -305,73 +304,16 @@ namespace GameServer.realm.entities
         }
 
         private readonly SV<int> _defensiveAbility;
-
         public int DefensiveAbility
         {
             get => _defensiveAbility.GetValue();
             set => _defensiveAbility.SetValue(value);
         }
-
-        protected override void ImportStats(StatsType stats, object val)
-        {
-            var items = Manager.Resources.GameData.Items;
-            base.ImportStats(stats, val);
-            switch (stats)
-            {
-                case StatsType.AccountId: AccountId = ((string)val).ToInt32(); break;
-                case StatsType.Experience: Experience = (int)val; break;
-                case StatsType.ExperienceGoal: ExperienceGoal = (int)val; break;
-                case StatsType.Level: Level = (int)val; break;
-                case StatsType.Fame: Fame = (int)val; break;
-                case StatsType.CurrentFame: CurrentFame = (int)val; break;
-                case StatsType.FameGoal: FameGoal = (int)val; break;
-                case StatsType.Stars: Stars = (int)val; break;
-                case StatsType.Guild: Guild = (string)val; break;
-                case StatsType.GuildRank: GuildRank = (int)val; break;
-                case StatsType.Credits: Credits = (int)val; break;
-                case StatsType.NameChosen: NameChosen = (int)val != 0; break;
-                case StatsType.Texture1: Texture1 = (int)val; break;
-                case StatsType.Texture2: Texture2 = (int)val; break;
-                case StatsType.Skin: Skin = (int)val; break;
-                case StatsType.Glow: Glow = (int)val; break;
-                case StatsType.MP: MP = (int)val; break;
-                case StatsType.Inventory: Inventory.GetItems(); break;
-                case StatsType.MaximumHP: Stats.Base[0] = (int)val; break;
-                case StatsType.MaximumMP: Stats.Base[1] = (int)val; break;
-                case StatsType.Strength: Stats.Base[2] = (int)val; break;
-                case StatsType.Armor: Stats.Base[3] = (int)val; break;
-                case StatsType.Agility: Stats.Base[4] = (int)val; break;
-                case StatsType.Dexterity: Stats.Base[5] = (int)val; break;
-                case StatsType.Stamina: Stats.Base[6] = (int)val; break;
-                case StatsType.Intelligence: Stats.Base[7] = (int)val; break;
-                case StatsType.Luck: Stats.Base[10] = (int)val; break;
-                case StatsType.Haste: Stats.Base[11] = (int)val; break;
-                case StatsType.Shield: Stats.Base[12] = (int)val; break;
-                case StatsType.Tenacity: Stats.Base[13] = (int)val; break;
-                case StatsType.CriticalStrike: Stats.Base[14] = (int)val; break;
-                case StatsType.LifeSteal: Stats.Base[15] = (int)val; break;
-                case StatsType.ManaLeech: Stats.Base[16] = (int)val; break;
-                case StatsType.LifeStealKill: Stats.Base[17] = (int)val; break;
-                case StatsType.ManaLeechKill: Stats.Base[18] = (int)val; break;
-                case StatsType.Resistance: Stats.Base[19] = (int)val; break;
-                case StatsType.Wit: Stats.Base[20] = (int)val; break;
-                case StatsType.Lethality: Stats.Base[21] = (int)val; break;
-                case StatsType.Piercing: Stats.Base[22] = (int)val; break;
-                case StatsType.ShieldPoints: Shield = (int)val; break;
-                case StatsType.ShieldPointsMax: ShieldMax = (int)val; break;
-                case StatsType.HealthStackCount: HealthPots.Count = (int)val; break; 
-                case StatsType.MagicStackCount: MagicPots.Count = (int)val; break;
-                case StatsType.HasBackpack: HasBackpack = (int)val == 1; break;
-                case StatsType.XPBoostTime: XPBoostTime = (int)val * 1000; break;
-                case StatsType.LDBoostTime: LDBoostTime = (int)val * 1000; break;
-                case StatsType.LTBoostTime: LTBoostTime = (int)val * 1000; break;
-                case StatsType.Rank: Rank = (int)val; break; 
-                case StatsType.Admin: Admin = (int)val; break;
-                case StatsType.Tokens: Tokens = (int)val; break;
-                case StatsType.UnholyEssence: UnholyEssence = (int)val; break;
-                case StatsType.DivineEssence: DivineEssence = (int)val; break;
-            }
-        }
+        
+        public List<PoisonTippedProjectiles> PoisonTippedProjectiles;
+        public List<OverrideWeaponProjectile> OverrideWeaponProjDescs;
+        public ProjectileDesc OverrideWeaponProjDesc;
+        public bool UpdateOverrideProjectile = true;
 
         protected override void ExportStats(IDictionary<StatsType, object> stats)
         {
@@ -528,6 +470,8 @@ namespace GameServer.realm.entities
             _lightMax = new SV<int>(this, StatsType.LightMax, -1, true);
             _light = new SV<int>(this, StatsType.Light, client.Character.Light, true);
 
+            PoisonTippedProjectiles = new List<PoisonTippedProjectiles>();
+            OverrideWeaponProjDescs = new List<OverrideWeaponProjectile>();
             AvailableQuests = client.Character.AvailableQuests ?? new QuestData[0];
             CharacterQuests = client.Character.CharacterQuests ?? new AcceptedQuestData[0];
             _offensiveAbility = new SV<int>(this, StatsType.OffensiveAbility, client.Character.OffensiveAbility, true);
@@ -546,9 +490,9 @@ namespace GameServer.realm.entities
             if (gameData.Skins.Keys.Contains(s))
             {
                 SetDefaultSkin(s);
-                PrevSkin = client.Character.Skin;
+                PrevSkin = Skin;
                 SetDefaultSize(gameData.Skins[s].Size);
-                PrevSize = gameData.Skins[s].Size;
+                PrevSize = Size;
             }
 
             var guild = Manager.Database.GetGuild(client.Account.GuildId);
@@ -575,8 +519,7 @@ namespace GameServer.realm.entities
                 if (uiid == 0) continue;
                 if (uiids.Add(uiid)) continue;
 
-                Log.Error(
-                    $"{Name} ({AccountId}) had duplicate UIID ({uiid}) on inventory slot {i}, duping?");
+                Log.Error($"{Name} ({AccountId}) had duplicate UIID ({uiid}) on inventory slot {i}, duping?");
                 inventory[i] = new ItemData();
             }
 

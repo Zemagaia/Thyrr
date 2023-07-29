@@ -40,6 +40,7 @@ public class ActivationType {
     public static const MISC_BOOSTS:String = "MiscBoosts";
     public static const BACKPACK:String = "Backpack";
     public static const FAME:String = "Fame";
+    public static const POISON_TIP:String = "PoisonTip";
 
 
 }

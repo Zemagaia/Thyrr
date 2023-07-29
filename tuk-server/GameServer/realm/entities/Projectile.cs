@@ -26,6 +26,7 @@ namespace GameServer.realm.entities
         public float Angle { get; set; }
         public int Damage { get; set; }
         public DamageTypes DamageType { get; set; }
+        public PoisonTippedProjectiles PoisonTip;
 
         private readonly HashSet<Entity> _hit = new();
 

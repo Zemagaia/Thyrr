@@ -25,14 +25,5 @@ namespace GameServer.networking.packets.incoming
             StartingPos = Position.Read(rdr);
             Angle = rdr.ReadSingle();
         }
-
-        protected override void Write(NWriter wtr)
-        {
-            wtr.Write(Time);
-            wtr.Write(BulletId);
-            wtr.Write(ContainerType);
-            StartingPos.Write(wtr);
-            wtr.Write(Angle);
-        }
     }
 }

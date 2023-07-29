@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Xml.Linq;
 using Shared.terrain;
 using NLog;
@@ -11,17 +9,21 @@ namespace Shared.resources
     {
         public ConditionEffectIndex Effect;
         public int DurationMS;
-        public float Range;
 
         public ConditionEffect()
         {
+        }
+
+        public ConditionEffect(ConditionEffectIndex effect, int duration)
+        {
+            Effect = effect;
+            DurationMS = duration;
         }
 
         public ConditionEffect(XElement e)
         {
             Effect = Utils.GetEffect(e.Value);
             DurationMS = (int)(e.GetAttribute<float>("duration") * 1000);
-            Range = e.GetAttribute<float>("range");
         }
     }
 
@@ -29,12 +31,12 @@ namespace Shared.resources
     {
         public readonly int BulletType;
         public readonly string ObjectId;
-        public readonly DamageTypes DamageType;
-        public readonly float LifetimeMS;
-        public readonly float Speed;
+        [Description("0")] public DamageTypes DamageType;
+        [Description("1")] public float LifetimeMS;
+        [Description("2")] public float Speed;
         public readonly int Size;
-        public readonly int MinDamage;
-        public readonly int MaxDamage;
+        [Description("3")] public int MinDamage;
+        [Description("4")] public int MaxDamage;
 
         public readonly bool MultiHit;
         public readonly bool PassesCover;
@@ -43,18 +45,22 @@ namespace Shared.resources
         public readonly bool ParticleTrail;
         public readonly bool Wavy;
 
-        public readonly ConditionEffect[] Effects;
+        [Description("5")] public ConditionEffect[] Effects;
 
-        public readonly float Amplitude;
-        public readonly float Frequency;
+        [Description("6")] public float Amplitude;
+        [Description("7")] public float Frequency;
         public readonly float Magnitude;
 
         public readonly float Acceleration;
         public readonly float MSPerAcceleration;
         public readonly float SpeedCap;
 
+        public readonly XElement Root;
+        public ProjectileDesc() {}
+        
         public ProjectileDesc(XElement e)
         {
+            Root = e;
             BulletType = e.GetAttribute<int>("id");
             ObjectId = e.GetValue<string>("ObjectId");
             DamageType = e.ParseDamageType("DamageType");
@@ -90,6 +96,28 @@ namespace Shared.resources
             Acceleration = e.ParseFloat("Acceleration");
             MSPerAcceleration = e.ParseFloat("MSPerAcceleration", 50);
             SpeedCap = e.ParseFloat("SpeedCap", Speed + Acceleration * 10);
+        }
+
+        public byte[] Export(bool server = false)
+        {
+            using (var stream = new MemoryStream())
+            using (var rdr = new NReader(stream))
+            {
+                return Utils.ByteArrayExport(this, server);
+            }
+        }
+
+        public static ProjectileDesc Import(byte[] data, ProjectileDesc ret)
+        {
+            using (var stream = new MemoryStream(data))
+            using (var rdr = new NReader(stream))
+            {
+                var key = rdr.ReadUInt32();
+                var key2 = rdr.ReadUInt32();
+                Utils.ByteArrayImport(ret, key, rdr, 0);
+            }
+
+            return ret;
         }
     }
 

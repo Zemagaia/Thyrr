@@ -5,8 +5,8 @@ namespace GameServer.realm.entities
     public partial class Player
     {
         internal Projectile PlayerShootProjectile(
-            byte id, ProjectileDesc desc, ushort objType,
-            long time, Position position, float angle, ItemData itemData, int projectileId)
+            byte id, ProjectileDesc desc, ushort objType, long time, Position position,
+            float angle, ItemData itemData, int projectileId, PoisonTippedProjectiles poison)
         {
             bulletId = id;
             int dmg;
@@ -14,8 +14,7 @@ namespace GameServer.realm.entities
                 dmg = (int)(Stats.GetAttackDamage(desc) * itemData.Quality);
             else
                 dmg = (int)Stats.GetAttackDamage(desc);
-            return CreateProjectile(desc, objType, dmg,
-                time, position, angle, projectileId);
+            return CreateProjectile(desc, objType, dmg, time, position, angle, projectileId, poison);
         }
     }
 }

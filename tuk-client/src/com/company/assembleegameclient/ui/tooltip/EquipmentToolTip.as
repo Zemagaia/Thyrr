@@ -1099,6 +1099,9 @@ public class EquipmentToolTip extends ToolTip {
                     case ActivationType.VIAL:
                         this.getVial(activate, thisActivate);
                         break;
+                    case ActivationType.POISON_TIP:
+                        this.getPoisonTip(activate, thisActivate);
+                        break;
                     case ActivationType.ORB:
                         this.getOrb(activate, thisActivate);
                         break;
@@ -2092,6 +2095,32 @@ public class EquipmentToolTip extends ToolTip {
             "throwTime":
                     wrapColor(TooltipHelper.getPlural(throwTime.a, "sec"),
                             TooltipHelper.getTextColor(throwTime.b - throwTime.a))
+        }));
+    }
+
+    private function getPoisonTip(activate:XML, thisActivate:XML = null): void
+    {
+        var wis:int = ((this.player != null) ? this.player.intelligence_ : 10);
+        var wisRes:Number = Math.max(0, (wis - 50));
+        var wismodMult:Number = this.GetFloatArgument(activate, "wismodMult", 1.0);
+
+        var totalDmg:ComPair = new ComPair(activate, thisActivate, "totalDamage");
+        var modTotalDmg:int = MathUtil.round((totalDmg.a / 10 * (wisRes / 3)) * wismodMult, 1);
+        totalDmg.add(modTotalDmg);
+
+        var duration:ComPair = new ComPair(activate, thisActivate, "duration");
+
+        var vialText:String = colorByTier("-Poison Tip: ", this.objectXML);
+        vialText += "tips your next {count} to deal {totalDamage} over {duration}";
+
+        this.AEs.push(new Effect(vialText, {
+            "count": TooltipHelper.getPlural(1, "projectile"),
+            "duration":
+                    wrapColor(TooltipHelper.getPlural(duration.a, "sec"),
+                            TooltipHelper.getTextColor(duration.b - duration.a)),
+            "totalDamage":
+                    wrapColor(totalDmg.a + colorWisBonus(modTotalDmg) + "damage",
+                            TooltipHelper.getTextColor(totalDmg.a - totalDmg.b))
         }));
     }
 

@@ -91,6 +91,10 @@ namespace GameServer.realm.entities
                 projectile.ProjectileOwner is not Player p)
                 return false;
 
+            var poison = projectile.PoisonTip;
+            if (poison != null)
+                p.PoisonEnemy(Owner, this, poison.TotalDamage, poison.DurationMS, poison.WisMult, poison.DamageType);
+            
             int[] fDamages = null;
             var inv = p.Inventory;
             for (var i = 0; i < 6; i++)

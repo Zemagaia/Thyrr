@@ -113,11 +113,7 @@ public class StatData {
     public static const PIERCING_BOOST:int = 87;
     public static const IMMUNITIES:int = 88;
 
-    // unimplemented
-    public static const DAMAGE_MIN:int = 98;
-    public static const DAMAGE_MAX:int = 99;
-    public static const DAMAGE_MIN_BONUS:int = 100;
-    public static const DAMAGE_MAX_BONUS:int = 101;
+    // 98-101 unused
 
     public var statType_:uint = 0;
     public var statValue_:int;

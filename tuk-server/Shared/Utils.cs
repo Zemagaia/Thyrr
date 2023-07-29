@@ -378,6 +378,8 @@ public static class Utils
                 Dynamic.InvokeSet(target, name, rdr.ReadInt32());
             else if (type == typeof(byte))
                 Dynamic.InvokeSet(target, name, rdr.ReadByte());
+            else if (type == typeof(DamageTypes))
+                Dynamic.InvokeSet(target, name, (DamageTypes)rdr.ReadByte());
             else if (type == typeof(ushort))
                 Dynamic.InvokeSet(target, name, rdr.ReadUInt16());
             else if (type == typeof(bool))
@@ -426,6 +428,14 @@ public static class Utils
                     arr[j] = new KeyValuePair<byte, short>(rdr.ReadByte(), rdr.ReadInt16());
                 Dynamic.InvokeSet(target, name, arr);
             }
+            else if (type == typeof(ConditionEffect[]))
+            {
+                len = rdr.ReadInt16();
+                var arr = new ConditionEffect[len];
+                for (j = 0; j < len; j++)
+                    arr[j] = new ConditionEffect((ConditionEffectIndex)rdr.ReadByte(), rdr.ReadInt32());
+                Dynamic.InvokeSet(target, name, arr);
+            }
             else if (type == typeof(ItemData[]))
                 Dynamic.InvokeSet(target, name, (ItemData[])rdr.ReadObject(typeof(ItemData[])));
         }
@@ -459,7 +469,7 @@ public static class Utils
                 var type = field.FieldType;
                 if (type == typeof(string) && val != null)
                     wtr.WriteUTF((string)val);
-                else if (type == typeof(byte) && (byte)val != default)
+                else if ((type == typeof(byte) || type == typeof(DamageTypes)) && (byte)val != default)
                     wtr.Write((byte)val);
                 else if (type == typeof(int) && (int)val != default)
                     wtr.Write((int)val);
@@ -514,6 +524,16 @@ public static class Utils
                     {
                         wtr.Write(arr[i].Key);
                         wtr.Write(arr[i].Value);
+                    }
+                }
+                else if (type == typeof(ConditionEffect[]) && val != null)
+                {
+                    var arr = (ConditionEffect[])val;
+                    wtr.Write((short)arr.Length);
+                    for (i = 0; i < arr.Length; i++)
+                    {
+                        wtr.Write((byte)arr[i].Effect);
+                        wtr.Write(arr[i].DurationMS);
                     }
                 }
                 else if (type == typeof(ItemData[]) && val != null)

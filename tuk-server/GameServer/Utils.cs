@@ -1,11 +1,30 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections;
+using Shared;
+using Shared.resources;
 
 namespace GameServer
 {
+    public class OverrideWeaponProjectile
+    {
+        public int Times;
+        public ProjectileDesc ProjDesc;
+    }
+    
+    public class PoisonTippedProjectiles
+    {
+        public int Times;
+        public int TotalDamage;
+        public int DurationMS;
+        public float WisMult;
+        public DamageTypes DamageType;
+
+        public PoisonTippedProjectiles()
+        {
+            WisMult = 1f;
+            DamageType = DamageTypes.Magical;
+        }
+    }
+    
     static class EnumerableUtils
     {
         public static T RandomElement<T>(this IEnumerable<T> source,

@@ -395,7 +395,10 @@ namespace GameServer.realm.entities
                         AELightning(time, item, target, eff);
                         break;
                     case ActivateEffects.Vial:
-                        AEVial(time, item, target, eff);
+                        AEVial(time, target, eff);
+                        break;
+                    case ActivateEffects.PoisonTip:
+                        AEPoisonTip(time, target, eff);
                         break;
                     case ActivateEffects.RemoveNegativeConditions:
                         AERemoveNegativeConditions(time, item, target, eff);
@@ -1027,7 +1030,19 @@ namespace GameServer.realm.entities
             }, p => this.DistSqr(p) < RadiusSqr);
         }
 
-        private void AEVial(RealmTime time, Item item, Position target, ActivateEffect eff)
+        private void AEPoisonTip(RealmTime time, Position target, ActivateEffect eff)
+        {
+            PoisonTippedProjectiles.Add(new PoisonTippedProjectiles()
+            {
+                Times = 1,
+                TotalDamage = eff.TotalDamage,
+                DurationMS = eff.DurationMS,
+                WisMult = eff.WismodMult,
+                DamageType = eff.DamageType,
+            });
+        }
+        
+        private void AEVial(RealmTime time, Position target, ActivateEffect eff)
         {
             BroadcastSync(new ShowEffect
             {
@@ -1059,22 +1074,23 @@ namespace GameServer.realm.entities
                     {
                         if (eff.ImpactDamage > 0)
                             enemy?.Damage(this, time, PoisonWismod(eff.ImpactDamage, eff.WismodMult), true, true);
-                        PoisonEnemy(world, enemy, eff, time);
+                        PoisonEnemy(world, enemy, eff.TotalDamage, eff.DurationMS, eff.WismodMult, eff.DamageType);
                     }
             }));
         }
 
-        private void PoisonEnemy(World world, Enemy enemy, ActivateEffect eff, RealmTime time)
+        public void PoisonEnemy(World world, Enemy enemy, int totalDamage, int duration, float wisMult = 1,
+            DamageTypes damageType = DamageTypes.Magical)
         {
-            var remainingDmg = (int)StatsManager.GetDefenseDamage(enemy, PoisonWismod(eff.TotalDamage, eff.WismodMult), DamageTypes.True, this);
-            var perDmg = remainingDmg * 1000 / eff.DurationMS;
-
+            var remainingDmg =
+                (int)StatsManager.GetDefenseDamage(enemy, PoisonWismod(totalDamage, wisMult), DamageTypes.True, this);
+            var perDmg = remainingDmg * 1000 / duration;
+            Console.WriteLine(perDmg);
             WorldTimer tmr = null;
             var x = 0;
-
             Func<World, RealmTime, bool> poisonTick = (w, t) =>
             {
-                if (enemy.Owner == null || w == null)
+                if (enemy?.Owner == null || w == null)
                     return true;
 
                 /*w.BroadcastPacketConditional(new ShowEffect()
@@ -1090,18 +1106,16 @@ namespace GameServer.realm.entities
                     if (remainingDmg < thisDmg)
                         thisDmg = remainingDmg;
 
-                    enemy.Damage(this, t, thisDmg, true, true, eff.DamageType);
+                    enemy.Damage(this, t, thisDmg, true, true, damageType);
                     remainingDmg -= thisDmg;
                     if (remainingDmg <= 0)
                         return true;
                 }
 
                 x++;
-
                 tmr.Reset();
                 return false;
             };
-
             tmr = new WorldTimer(250, poisonTick);
             world.Timers.Add(tmr);
         }
@@ -1583,6 +1597,19 @@ namespace GameServer.realm.entities
         private void AEShoot(RealmTime time, Item item, ItemData itemData, Position target, ActivateEffect eff,
             long clientTime)
         {
+            /*
+            // use item.Projectiles[0] instead, copying from ability xml
+            // check ProjectileDesc fields that have a Description attribute
+            var desc = new ProjectileDesc()
+            {
+                MinDamage = 10000,
+                MaxDamage = 11111,
+            };
+            OverrideWeaponProjDescs.Add(new OverrideWeaponProjectile()
+            {
+                Times = 1,
+                ProjDesc = desc,
+            });*/
             var arcGap = item.ArcGap * Math.PI / 180;
             var startAngle = Math.Atan2(target.Y - Y, target.X - X) - (item.NumProjectiles - 1) / 2 * arcGap;
             var prjDesc = item.Projectiles[0]; //Assume only one

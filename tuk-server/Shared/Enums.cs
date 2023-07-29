@@ -233,5 +233,6 @@ namespace Shared
         Card,
         Orb,
         Tome,
+        PoisonTip,
     }
 }

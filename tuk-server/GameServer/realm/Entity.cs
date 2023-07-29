@@ -187,19 +187,6 @@ namespace GameServer.realm
             }
         }
 
-        protected virtual void ImportStats(StatsType stats, object val)
-        {
-            switch (stats)
-            {
-                case StatsType.Name: Name = (string)val; break;
-                case StatsType.Size: Size = (int)val; break;
-                case StatsType.AltTextureIndex: AltTextureIndex = (int)val; break;
-                case StatsType.Effects: ConditionEffects = (ConditionEffects)(ulong)val; break;
-                case StatsType.PetData: PetData = new PetData((byte[])val); break;
-                case StatsType.Immunities: Immunities = (int[])val ?? new int[ImmunityCount]; break;
-            }
-        }
-
         protected virtual void ExportStats(IDictionary<StatsType, object> stats)
         {
             stats[StatsType.Name] = Name;
@@ -209,23 +196,6 @@ namespace GameServer.realm
             stats[StatsType.Effects2] = _conditionEffects2.GetValue();
             stats[StatsType.PetData] = _petData.GetValue();
             stats[StatsType.Immunities] = Immunities;
-        }
-
-        public void FromDefinition(ObjectDef def)
-        {
-            ObjectType = def.ObjectType;
-            ImportStats(def.Stats);
-        }
-
-        public void ImportStats(ObjectStats stat)
-        {
-            Id = stat.Id;
-            (this is Enemy ? Owner.EnemiesCollision : Owner.PlayersCollision)
-                .Move(this, stat.Position.X, stat.Position.Y);
-            X = stat.Position.X;
-            Y = stat.Position.Y;
-            foreach (var i in stat.Stats)
-                ImportStats(i.Key, i.Value);
         }
 
         public ObjectStats ExportStats()
@@ -736,7 +706,7 @@ namespace GameServer.realm
         }
 
         public Projectile CreateProjectile(ProjectileDesc desc, ushort container, int dmg, long time, Position pos,
-            float angle, int projectileId)
+            float angle, int projectileId, PoisonTippedProjectiles poison = null)
         {
             var ret = new Projectile(Manager, desc) //Assume only one
             {
@@ -746,6 +716,7 @@ namespace GameServer.realm
                 Container = container,
                 Damage = dmg,
                 DamageType = desc.DamageType,
+                PoisonTip = poison,
 
                 CreationTime = time,
                 StartPos = pos,
