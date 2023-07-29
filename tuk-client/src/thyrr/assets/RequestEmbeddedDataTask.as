@@ -7,14 +7,10 @@ import flash.utils.ByteArray;
 
 import kabam.lib.tasks.BaseTask;
 import kabam.rotmg.appengine.api.AppEngineClient;
-import kabam.rotmg.core.signals.SetLoadingMessageSignal;
 
 public class RequestEmbeddedDataTask extends BaseTask {
     
-    [Inject]
-    public var client:AppEngineClient;
-    [Inject]
-    public var setLoadingMessage:SetLoadingMessageSignal;
+    public var client:AppEngineClient = Global.appEngine;
     
     
     override protected function startTask():void {
@@ -50,7 +46,7 @@ public class RequestEmbeddedDataTask extends BaseTask {
     }
     
     private function onTextError(data:String):void {
-        this.setLoadingMessage.dispatch("Load error, retrying");
+        Global.loadingScreen.setTextKey("Load error, retrying");
     }
     
     

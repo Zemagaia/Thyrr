@@ -6,8 +6,6 @@ import flash.events.Event;
 import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
 
-
-
 public class CharacterChangerPanel extends ButtonPanel {
 
     public function CharacterChangerPanel(_arg1:GameSprite) {
@@ -17,7 +15,7 @@ public class CharacterChangerPanel extends ButtonPanel {
     }
 
     override protected function onButtonClick(_arg1:MouseEvent):void {
-        gs_.closed.dispatch();
+        gs_.close();
     }
 
     private function onAddedToStage(_arg1:Event):void {
@@ -30,7 +28,7 @@ public class CharacterChangerPanel extends ButtonPanel {
 
     private function onKeyDown(_arg1:KeyboardEvent):void {
         if ((((_arg1.keyCode == Parameters.data_.interact)) && ((stage.focus == null)))) {
-            gs_.closed.dispatch();
+            gs_.close();
         }
     }
 

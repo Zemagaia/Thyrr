@@ -7,11 +7,7 @@ import com.company.assembleegameclient.ui.StatusBar;
 
 import flash.display.Sprite;
 import flash.display.StageScaleMode;
-import flash.events.Event;
-import flash.events.MouseEvent;
-
 import flash.filters.DropShadowFilter;
-
 
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
@@ -39,7 +35,7 @@ public class QuestToolTip extends Sprite {
             _hpBar.draw(_go.hp_, _go.maxHP_, 0);
         if (stage != null) {
             if (stage.scaleMode == StageScaleMode.NO_SCALE) {
-                this.scaleY = this.scaleX = ((stage.stageWidth < stage.stageHeight ? stage.stageWidth : stage.stageHeight) / WebMain.DefaultHeight) / Parameters.data_["mscale"];
+                this.scaleY = this.scaleX = ((stage.stageWidth < stage.stageHeight ? stage.stageWidth : stage.stageHeight) / Main.DefaultHeight) / Parameters.data_["mscale"];
             }
             else {
                 this.scaleX = 1;

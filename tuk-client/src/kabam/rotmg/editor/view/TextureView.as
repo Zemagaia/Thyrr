@@ -10,6 +10,10 @@ import flash.display.Sprite;
 import flash.events.Event;
 import flash.net.FileReference;
 
+import kabam.rotmg.core.model.PlayerModel;
+
+import kabam.rotmg.editor.model.SearchModel;
+
 import kabam.rotmg.editor.model.TextureData;
 import kabam.rotmg.editor.view.components.ColorPicker;
 import kabam.rotmg.editor.view.components.ModeDropDown;
@@ -29,6 +33,7 @@ import kabam.rotmg.editor.view.components.preview.AnimationPreview;
 import kabam.rotmg.editor.view.components.preview.ObjectPreview;
 import kabam.rotmg.editor.view.components.preview.Preview;
 import kabam.rotmg.editor.view.components.preview.TextilePreview;
+import kabam.rotmg.ui.view.TitleView;
 import kabam.rotmg.ui.view.components.ScreenBase;
 
 import org.osflash.signals.Signal;
@@ -38,9 +43,8 @@ public class TextureView extends Sprite {
     private static const MODE_DROPDOWN_X:int = 240;
     private static const MODE_DROPDOWN_Y:int = 32;
 
-    public const loadDialog:Signal = new Signal();
-    public const saveDialog:Signal = new Signal(TextureData);
-    public const gotoTitle:Signal = new Signal();
+    public var model:PlayerModel = Global.playerModel;
+    public var searchModel:SearchModel = Global.searchModel;
 
     private var commandMenu_:TMCommandMenu;
     private var commandQueue_:CommandQueue;
@@ -49,7 +53,6 @@ public class TextureView extends Sprite {
     private var sizeDropDown_:SizeDropDown;
     private var pixelDrawer_:PixelDrawer;
     private var preview_:Preview;
-    private var loadDialog_:LoadTextureDialog;
     private var name_:String = "";
     private var type_:int = 0;
     private var tags_:String = "";
@@ -63,6 +66,7 @@ public class TextureView extends Sprite {
         this.commandMenu_.y = 40;
         this.commandMenu_.addEventListener(CommandEvent.UNDO_COMMAND_EVENT, this.onUndo);
         this.commandMenu_.addEventListener(CommandEvent.REDO_COMMAND_EVENT, this.onRedo);
+        this.commandMenu_.addEventListener(CommandEvent.LOAD_COMMAND_EVENT, this.onLoad);
         this.commandMenu_.addEventListener(CommandEvent.CLEAR_COMMAND_EVENT, this.onClear);
         this.commandMenu_.addEventListener(CommandEvent.SAVE_COMMAND_EVENT, this.onSave);
         this.commandMenu_.addEventListener(CommandEvent.QUIT_COMMAND_EVENT, this.onQuit);
@@ -81,6 +85,18 @@ public class TextureView extends Sprite {
         this.resetSizeSelector();
         this.resetPixelDrawer();
         this.resetPreview();
+    }
+
+    public function onSetTexture(_arg_1:TextureData):void {
+        this.setTexture(_arg_1);
+    }
+
+    public function onLoad(e:CommandEvent):void {
+        Global.openDialog(new LoadTextureDialog(this.searchModel));
+    }
+
+    private function onGotoTitle():void {
+        Global.setScreen(new TitleView());
     }
 
     protected function clearLoadedAttributes():void {
@@ -273,7 +289,7 @@ public class TextureView extends Sprite {
     }
 
     private function onQuit(_arg_1:CommandEvent):void {
-        this.gotoTitle.dispatch();
+        this.onGotoTitle();
     }
 
     public function setTexture(_arg_1:TextureData):void {

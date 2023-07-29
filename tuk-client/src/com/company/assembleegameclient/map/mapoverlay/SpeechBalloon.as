@@ -21,7 +21,6 @@ import flash.text.TextField;
 import flash.text.TextFieldAutoSize;
 import flash.text.TextFormat;
 
-import kabam.rotmg.core.StaticInjectorContext;
 import kabam.rotmg.ui.model.HUDModel;
 
 public class SpeechBalloon extends Sprite implements IMapOverlayElement {
@@ -90,7 +89,7 @@ public class SpeechBalloon extends Sprite implements IMapOverlayElement {
         var aPlayer:Player;
         var playerObjectId:int = this.go_.objectId_;
         try {
-            hmod = StaticInjectorContext.getInjector().getInstance(HUDModel);
+            hmod = Global.hudModel;
             if (((((!((hmod.gameSprite.map.goDict_[playerObjectId] == null))) && ((hmod.gameSprite.map.goDict_[playerObjectId] is Player)))) && (!((hmod.gameSprite.map.player_.objectId_ == playerObjectId))))) {
                 aPlayer = (hmod.gameSprite.map.goDict_[playerObjectId] as Player);
                 hmod.gameSprite.addChatPlayerMenu(aPlayer, e.stageX, e.stageY);

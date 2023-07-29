@@ -7,6 +7,8 @@ import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.filters.DropShadowFilter;
 
+import kabam.rotmg.game.view.SellableObjectPanel;
+
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 
 import kabam.rotmg.util.ItemWithTooltip;
@@ -31,18 +33,16 @@ public class ConfirmBuyModal extends Sprite {
     private const buyButton:LegacyBuyButton = new LegacyBuyButton("Buy for {cost}", 16, 0, Currency.INVALID);
 
     private var owner_:SellableObject;
-    public var buyItem:Signal;
     public var open:Boolean;
     public var buttonWidth:int;
     private var item_:ItemWithTooltip;
     private var nameText_:TextFieldDisplayConcrete;
     private var background_:PopupWindowBackground = new PopupWindowBackground();
 
-    public function ConfirmBuyModal(buyItem:Signal, owner:SellableObject, width:Number):void {
+    public function ConfirmBuyModal(owner:SellableObject, width:Number):void {
         var textField:TextFieldConcreteBuilder;
         super();
         ConfirmBuyModal.free = false;
-        this.buyItem = buyItem;
         this.owner_ = owner;
         this.buttonWidth = width;
         this.events();
@@ -79,8 +79,8 @@ public class ConfirmBuyModal extends Sprite {
         this.buyButton.y = this.nameText_.y + this.nameText_.height + 12;
         var height:int = this.buyButton.y + this.buyButton.height + 12;
         makeModalBackground(ConfirmBuyModal.WIDTH, height);
-        this.x = -WebMain.DefaultWidth / 2 + WIDTH / 4 - 10;
-        this.y = -WebMain.DefaultHeight / 2 + ((200 - height) / 2);
+        this.x = -Main.DefaultWidth / 2 + WIDTH / 4 - 10;
+        this.y = -Main.DefaultHeight / 2 + ((200 - height) / 2);
     }
 
     private function events():void {
@@ -99,7 +99,7 @@ public class ConfirmBuyModal extends Sprite {
     }
 
     public function onBuyClick(event:MouseEvent):void {
-        this.buyItem.dispatch(this.owner_);
+        (parent as SellableObjectPanel).onBuyItem(this.owner_);
         this.close();
     }
 

@@ -24,7 +24,7 @@ public class TextAndBarButton extends TextButton
         var sSize:int = width_ > height_ ? height_ / SIZE : width_ / SIZE;
         graphics.beginFill(color_);
         graphics.drawRect(11 * sSize, 0, 2 * sSize, height_);
-        graphics.beginFill(Utils.color(color_, 1 / 1.3));
+        graphics.beginFill(Utils.color(color_, 1 / 1.35));
         graphics.drawRect(11 * sSize, 0, 2 * sSize, 1 * sSize);
         graphics.drawRect(11 * sSize, height_ - 1 * sSize, 2 * sSize, 1 * sSize);
         graphics.endFill();

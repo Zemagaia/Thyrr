@@ -1,22 +1,16 @@
 ﻿package thyrr.oldui {
-import com.company.util.AssetLibrary;
-
-import flash.display.Bitmap;
-import flash.display.BitmapData;
 import flash.display.Sprite;
-import flash.events.MouseEvent;
-import flash.geom.ColorTransform;
 
 import org.osflash.signals.Signal;
 
+import thyrr.ui.buttons.HoldableButton;
+
 public class TabSwitchButtons extends Sprite {
 
-    private const FADE:ColorTransform = new ColorTransform(0.5, 0.5, 0.5);
-    private const NORM:ColorTransform = new ColorTransform(1, 1, 1);
     public const switchTab:Signal = new Signal(int);
 
-    private var tabR:Sprite;
-    private var tabL:Sprite;
+    private var tabR:HoldableButton;
+    private var tabL:HoldableButton;
     private var tabs:int;
     private var tab:int;
 
@@ -24,16 +18,15 @@ public class TabSwitchButtons extends Sprite {
         this.tab = 0;
         this.makeTabR();
         this.makeTabL();
-        this.updateButtons();
     }
 
-    public function setRightButton(x:int, scale:int = 1):void
+    public function setRightButton(x:int, scale:Number = 1):void
     {
         this.tabR.x = x;
         this.tabR.scaleX = this.tabR.scaleY = scale;
     }
 
-    public function setLeftButton(x:int, scale:int = 1):void
+    public function setLeftButton(x:int, scale:Number = 1):void
     {
         this.tabL.x = x;
         this.tabL.scaleX = this.tabL.scaleY = scale;
@@ -52,7 +45,6 @@ public class TabSwitchButtons extends Sprite {
             }
         }
         this.tab = tab;
-        this.updateButtons();
         return (this.tab);
     }
 
@@ -61,38 +53,27 @@ public class TabSwitchButtons extends Sprite {
         if (this.tab >= this.tabs) {
             this.tab = (this.tabs - 1);
         }
-        this.updateButtons();
         return (this.tabs);
     }
 
     private function makeTabR():void {
-        var arrow:Bitmap;
-        var bitmapData:BitmapData = AssetLibrary.getImageFromSet("interfaceSmall", 0x0D);
-        arrow = new Bitmap(bitmapData);
-        arrow.scaleX = arrow.scaleY = 2;
-        this.tabR = new Sprite();
-        this.tabR.x = 16;
-        this.tabR.addChild(arrow);
-        this.tabR.addEventListener(MouseEvent.CLICK, this.onTabR);
+        this.tabR = new HoldableButton(24, 24, 0xaea9a9, 0x03, false);
+        this.tabR.rotation = 90;
+        this.tabR.y -= 24;
+        this.tabR.clicked.add(onTabR);
         addChild(this.tabR);
     }
 
     private function makeTabL():void {
-        var arrow:Bitmap;
-        var bitmapData:BitmapData = AssetLibrary.getImageFromSet("interfaceSmall", 0x0C);
-        arrow = new Bitmap(bitmapData);
-        arrow.scaleX = arrow.scaleY = 2;
-        this.tabL = new Sprite();
-        this.tabL.addChild(arrow);
-        this.tabL.addEventListener(MouseEvent.CLICK, this.onTabL);
+        this.tabL = new HoldableButton(24, 24, 0xaea9a9, 0x03, false);
+        this.tabL.rotation = -90;
+        this.tabL.clicked.add(this.onTabL);
         addChild(this.tabL);
     }
 
-    private function onTabR(event:MouseEvent):void {
-        event.stopPropagation();
+    private function onTabR():void {
         if (this.canTabR()) {
             this.switchTab.dispatch(++this.tab);
-            this.updateButtons();
         }
     }
 
@@ -100,21 +81,14 @@ public class TabSwitchButtons extends Sprite {
         return ((this.tab < (this.tabs - 1)));
     }
 
-    private function onTabL(event:MouseEvent):void {
-        event.stopPropagation();
+    private function onTabL():void {
         if (this.canTabL()) {
             this.switchTab.dispatch(--this.tab);
-            this.updateButtons();
         }
     }
 
     private function canTabL():Boolean {
         return ((this.tab > 0));
-    }
-
-    private function updateButtons():void {
-        this.tabL.transform.colorTransform = ((this.canTabL()) ? this.NORM : this.FADE);
-        this.tabR.transform.colorTransform = ((this.canTabR()) ? this.NORM : this.FADE);
     }
 
 }

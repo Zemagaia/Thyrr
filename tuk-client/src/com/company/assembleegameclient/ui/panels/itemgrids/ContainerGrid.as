@@ -12,18 +12,10 @@ import thyrr.utils.ItemData;
 public class ContainerGrid extends ItemGrid {
 
     private var tiles:Vector.<InteractiveItemTile>;
-    private var _containerBg:DisplayObject = new ContainerGrid_BagBG();
-    public static var PutOnInv:DisplayObject = new PutOnInventory();
     private var slots:int;
 
     public function ContainerGrid(_arg1:GameObject, _arg2:Player) {
         super(_arg1, _arg2, 0);
-        _containerBg.x = -3;
-        _containerBg.y = -2;
-        PutOnInv.x = 10;
-        PutOnInv.y = -100;
-        addChild(_containerBg);
-        addChild(PutOnInv);
     }
 
     override public function setItems(equipment:Vector.<ItemData>, indexOffset:int = 0):void {
@@ -51,7 +43,7 @@ public class ContainerGrid extends ItemGrid {
                     }
                 }
                 else {
-                    if (this.tiles[i].setItem(ItemConstants.DEFAULT_ITEM)) {
+                    if (this.tiles[i].setItem(new ItemData(null))) {
                         tileSet = true;
                     }
                 }

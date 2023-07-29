@@ -28,7 +28,7 @@ public class MailItem extends Sprite {
     public var w_:int;
     public var h_:int;
 
-    private static var INNER_WIDTH:int = WebMain.DefaultWidth / 2 - 12;
+    private static var INNER_WIDTH:int = Main.DefaultWidth / 2 - 12;
 
     public function MailItem(mailData:AccountMailsData, gameSprite:GameSprite, width:int, height:int = 0) {
         this.mailData_ = mailData;

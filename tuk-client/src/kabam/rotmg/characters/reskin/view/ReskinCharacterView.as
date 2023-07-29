@@ -6,10 +6,15 @@ import flash.display.DisplayObject;
 import flash.display.JointStyle;
 import flash.display.LineScaleMode;
 import flash.display.Sprite;
+import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.text.TextFieldAutoSize;
 
+import kabam.rotmg.classes.model.CharacterSkins;
+import kabam.rotmg.classes.model.ClassesModel;
+
 import kabam.rotmg.classes.view.CharacterSkinListView;
+import kabam.rotmg.core.model.PlayerModel;
 
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
@@ -34,9 +39,11 @@ public class ReskinCharacterView extends Sprite {
     private const list:CharacterSkinListView = makeListView();
     private const cancel:DeprecatedTextButton = makeCancelButton();
     private const select:DeprecatedTextButton = makeSelectButton();
-    public const cancelled:Signal = new Signal();
-    public const selected:Signal = new Signal();
 
+    public var player:PlayerModel = Global.playerModel;
+    public var model:ClassesModel = Global.classesModel;
+
+    private var skins:CharacterSkins;
     public var viewHeight:int;
 
     public function ReskinCharacterView()
@@ -44,16 +51,27 @@ public class ReskinCharacterView extends Sprite {
         super ();
         select.addEventListener(MouseEvent.CLICK, onSelect);
         cancel.addEventListener(MouseEvent.CLICK, onCancel);
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
+    }
+
+    public function initialize(e:Event):void {
+        this.skins = this.getCharacterSkins();
+    }
+
+    private function getCharacterSkins():CharacterSkins {
+        return (this.model.getSelected().skins);
     }
 
     private function onSelect(e:MouseEvent):void
     {
-        selected.dispatch();
+        Global.closeDialogs();
+        Global.reskinCharacter(this.skins.getSelectedSkin());
     }
 
     private function onCancel(e:MouseEvent):void
     {
-        cancelled.dispatch();
+        Global.closeDialogs();
     }
 
     private function makeLayoutWaiter():SignalWaiter {

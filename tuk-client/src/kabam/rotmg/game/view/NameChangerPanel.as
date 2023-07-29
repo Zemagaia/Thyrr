@@ -1,4 +1,5 @@
 ﻿package kabam.rotmg.game.view {
+import com.company.assembleegameclient.account.ui.ChooseNameFrame;
 import com.company.assembleegameclient.game.GameSprite;
 import com.company.assembleegameclient.objects.Player;
 import com.company.assembleegameclient.parameters.Parameters;
@@ -14,17 +15,20 @@ import flash.events.MouseEvent;
 import flash.filters.DropShadowFilter;
 import flash.text.TextFormatAlign;
 
+import kabam.rotmg.account.core.Account;
+import kabam.rotmg.account.core.view.RegisterPromptDialog;
+
+import kabam.rotmg.account.web.WebAccount;
+
 
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 import kabam.rotmg.text.view.stringBuilder.StringBuilder;
 import kabam.rotmg.util.components.LegacyBuyButton;
 
-import org.osflash.signals.Signal;
-
 public class NameChangerPanel extends Panel {
 
-    public var chooseName:Signal;
+    public var account:Account = Global.account;
     public var buy_:Boolean;
     private var title_:TextFieldDisplayConcrete;
     private var button_:Sprite;
@@ -32,9 +36,7 @@ public class NameChangerPanel extends Panel {
     public function NameChangerPanel(_arg1:GameSprite, _arg2:int) {
         var _local3:Player;
         var _local4:String;
-        this.chooseName = new Signal();
         super(_arg1);
-        DrawPanelBg();
         if (this.hasMapAndPlayer()) {
             _local3 = gs_.map.player_;
             this.buy_ = _local3.nameChosen_;
@@ -52,6 +54,22 @@ public class NameChangerPanel extends Panel {
             }
         }
         addEventListener(Event.ADDED_TO_STAGE, this.onAddedToStage);
+    }
+
+    private function onChooseName():void {
+        if (this.account.isRegistered()) {
+            Global.openDialog(new ChooseNameFrame(this.gs_, this.buy_));
+        }
+        else {
+            Global.openDialog(new RegisterPromptDialog("In order to choose an account name, you must be registered"));
+        }
+    }
+
+    public function onNameChanged(_arg1:String):void {
+        if ((this.account is WebAccount)) {
+            WebAccount(this.account).userDisplayName = _arg1;
+        }
+        this.updateName(_arg1);
     }
 
     private function onAddedToStage(_arg1:Event):void {
@@ -140,16 +158,12 @@ public class NameChangerPanel extends Panel {
 
     private function onKeyDown(_arg1:KeyboardEvent):void {
         if ((((_arg1.keyCode == Parameters.data_.interact)) && ((stage.focus == null)))) {
-            this.performAction();
+            this.onChooseName();
         }
     }
 
     private function onButtonClick(_arg1:MouseEvent):void {
-        this.performAction();
-    }
-
-    private function performAction():void {
-        this.chooseName.dispatch();
+        this.onChooseName();
     }
 
     public function updateName(_arg1:String):void {

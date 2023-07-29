@@ -1,22 +1,16 @@
 ﻿package com.company.assembleegameclient.ui {
 import com.company.assembleegameclient.game.GameSprite;
-import com.company.assembleegameclient.ui.panels.itemgrids.itemtiles.InventoryBG;
 import com.company.assembleegameclient.util.FilterUtil;
 import com.company.ui.BaseSimpleText;
-
-import flash.display.DisplayObject;
 
 import flash.display.Sprite;
 import flash.events.Event;
 import flash.events.MouseEvent;
-import flash.filters.DropShadowFilter;
 
 import kabam.rotmg.constants.GeneralConstants;
 import kabam.rotmg.messaging.impl.data.TradeItem;
-
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
-import kabam.rotmg.ui.view.EquippedGridBG;
 
 public class TradeInventory extends Sprite {
 
@@ -55,14 +49,6 @@ public class TradeInventory extends Sprite {
         this.taglineText_.filters = FilterUtil.getWeakOutlineFilter();
         addChild(this.taglineText_);
         var _local5:int;
-        var equipmentBG:DisplayObject = new EquippedGridBG();
-        equipmentBG.x = -3;
-        equipmentBG.y = 44;
-        addChild(equipmentBG);
-        var inventoryBG:DisplayObject = new InventoryBG();
-        inventoryBG.x = -3;
-        inventoryBG.y = 88;
-        addChild(inventoryBG);
         while (_local5 < (GeneralConstants.NUM_EQUIPMENT_SLOTS + GeneralConstants.NUM_INVENTORY_SLOTS)) {
             _local6 = _arg3[_local5];
             _local7 = new TradeSlot(_local6.itemData_, _local6.tradeable_, _local6.included_, _local6.slotType_, (_local5 - 3), cuts[_local5], _local5, this.gs_.map.player_);

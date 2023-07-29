@@ -1,29 +1,29 @@
 ﻿package com.company.assembleegameclient.ui.panels {
+import com.company.assembleegameclient.account.ui.CreateGuildFrame;
 import com.company.assembleegameclient.game.GameSprite;
 import com.company.assembleegameclient.objects.Player;
 import com.company.assembleegameclient.parameters.Parameters;
 import com.company.assembleegameclient.ui.DeprecatedTextButton;
+import com.company.assembleegameclient.ui.dialogs.Dialog;
 import com.company.assembleegameclient.util.Currency;
 import com.company.assembleegameclient.util.GuildUtil;
 
 import flash.display.Sprite;
+import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.filters.DropShadowFilter;
 import flash.text.TextFieldAutoSize;
 
-
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
+import kabam.rotmg.ui.model.HUDModel;
 import kabam.rotmg.ui.view.SignalWaiter;
 import kabam.rotmg.util.components.LegacyBuyButton;
 
-import org.osflash.signals.Signal;
-
 public class GuildRegisterPanel extends Panel {
 
-    public const openCreateGuildFrame:Signal = new Signal();
+    public var hudModel:HUDModel = Global.hudModel;
     public const waiter:SignalWaiter = new SignalWaiter();
-    public const renounce:Signal = new Signal();
 
     private var title_:TextFieldDisplayConcrete;
     private var button_:Sprite;
@@ -33,7 +33,6 @@ public class GuildRegisterPanel extends Panel {
         var _local3:String;
         var _local4:LegacyBuyButton;
         super(_arg1);
-        DrawPanelBg();
         if ((((gs_.map == null)) || ((gs_.map.player_ == null)))) {
             return;
         }
@@ -67,7 +66,30 @@ public class GuildRegisterPanel extends Panel {
     }
 
     private function onRenounceClick(_arg1:MouseEvent):void {
-        this.renounce.dispatch();
+        var _local1:GameSprite = this.hudModel.gameSprite;
+        if ((((_local1.map == null)) || ((_local1.map.player_ == null)))) {
+            return;
+        }
+        var _local2:Player = _local1.map.player_;
+        var _local3:Dialog = new Dialog("Renounce Guild", "Are you sure you want to quit:\n{guildName}", "Yes, I'll quit", "No, I'll stay", "/renounceGuild");
+        _local3.setTextParams("Are you sure you want to quit:\n{guildName}", {"guildName": _local2.guildName_});
+        _local3.addEventListener(Dialog.LEFT_BUTTON, this.onRenounce);
+        _local3.addEventListener(Dialog.RIGHT_BUTTON, this.onCancel);
+        Global.openDialog(_local3);
+    }
+
+    private function onCancel(_arg1:Event):void {
+        Global.closeDialogs();
+    }
+
+    private function onRenounce(_arg1:Event):void {
+        var _local2:GameSprite = this.hudModel.gameSprite;
+        if ((((_local2.map == null)) || ((_local2.map.player_ == null)))) {
+            return;
+        }
+        var _local3:Player = _local2.map.player_;
+        _local2.gsc_.guildRemove(_local3.name_);
+        Global.closeDialogs();
     }
 
     private function alignUI():void {
@@ -77,7 +99,7 @@ public class GuildRegisterPanel extends Panel {
 
     public function onCreateClick(_arg1:MouseEvent):void {
         visible = false;
-        this.openCreateGuildFrame.dispatch();
+        Global.openDialog(new CreateGuildFrame(this.hudModel.gameSprite));
     }
 
 

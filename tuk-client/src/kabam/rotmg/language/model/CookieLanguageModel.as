@@ -25,7 +25,8 @@ public class CookieLanguageModel implements LanguageModel {
     }
 
     private function readLanguageFromCookie():String {
-        return (((this.cookie.data.locale) || (DEFAULT_LOCALE)));
+        if (cookie.data.locale != null) return cookie.data.locale;
+        return DEFAULT_LOCALE;
     }
 
     public function setLanguage(_arg1:String):void {

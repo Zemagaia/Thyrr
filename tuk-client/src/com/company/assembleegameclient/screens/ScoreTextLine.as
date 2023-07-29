@@ -9,18 +9,14 @@ import flash.filters.DropShadowFilter;
 import flash.text.TextFieldAutoSize;
 import flash.utils.getTimer;
 
-import kabam.rotmg.core.signals.HideTooltipsSignal;
-import kabam.rotmg.core.signals.ShowTooltipSignal;
-
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.AppendingLineBuilder;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 import kabam.rotmg.text.view.stringBuilder.StaticStringBuilder;
 import kabam.rotmg.text.view.stringBuilder.StringBuilder;
 import kabam.rotmg.tooltips.HoverTooltipDelegate;
-import kabam.rotmg.tooltips.TooltipAble;
 
-public class ScoreTextLine extends Sprite implements TooltipAble {
+public class ScoreTextLine extends Sprite {
 
     public static var textTooltip_:TextToolTip = new TextToolTip(0x2B2B2B, 0x7B7B7B, null, "", 150);
 
@@ -48,14 +44,14 @@ public class ScoreTextLine extends Sprite implements TooltipAble {
         this.nameText_.setBold(true);
         this.nameText_.setAutoSize(TextFieldAutoSize.RIGHT);
         this.nameText_.setStringBuilder(new LineBuilder().setParams(_arg4));
-        this.nameText_.x = WebMain.DefaultWidth / 2;
+        this.nameText_.x = Main.DefaultWidth / 2;
         this.nameText_.filters = [new DropShadowFilter(0, 0, 0, 1, 4, 4, 2)];
         addChild(this.nameText_);
         if (this.number_ != -1) {
             this.numberText_ = new TextFieldDisplayConcrete().setSize(_arg1).setColor(_arg3);
             this.numberText_.setBold(true);
             this.numberText_.setStringBuilder(new StaticStringBuilder((((_arg8 + "0") + " ") + _arg9)));
-            this.numberText_.x = WebMain.DefaultWidth / 2 + 40;
+            this.numberText_.x = Main.DefaultWidth / 2 + 40;
             this.numberText_.filters = [new DropShadowFilter(0, 0, 0, 1, 4, 4, 2)];
             addChild(this.numberText_);
         }
@@ -81,22 +77,6 @@ public class ScoreTextLine extends Sprite implements TooltipAble {
             this.unitIcon_.x = 450;
             this.unitIcon_.y = (((this.nameText_.height / 2) - (this.unitIcon_.height / 2)) + 2);
         }
-    }
-
-    public function setShowToolTipSignal(_arg1:ShowTooltipSignal):void {
-        this.hoverTooltipDelegate.setShowToolTipSignal(_arg1);
-    }
-
-    public function getShowToolTip():ShowTooltipSignal {
-        return (this.hoverTooltipDelegate.getShowToolTip());
-    }
-
-    public function setHideToolTipsSignal(_arg1:HideTooltipsSignal):void {
-        this.hoverTooltipDelegate.setHideToolTipsSignal(_arg1);
-    }
-
-    public function getHideToolTips():HideTooltipsSignal {
-        return (this.hoverTooltipDelegate.getHideToolTips());
     }
 
     public function skip():void {

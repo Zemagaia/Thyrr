@@ -1,10 +1,14 @@
 ﻿package kabam.rotmg.fame.view {
 import com.company.assembleegameclient.objects.ObjectLibrary;
+import com.company.assembleegameclient.objects.TextureData;
 import com.company.assembleegameclient.screens.ScoreTextLine;
 import com.company.assembleegameclient.screens.ScoringBox;
 import com.company.assembleegameclient.screens.TitleMenuOption;
 import com.company.assembleegameclient.sound.SoundEffectLibrary;
+import com.company.assembleegameclient.util.AnimatedChar;
 import com.company.assembleegameclient.util.FameUtil;
+import com.company.assembleegameclient.util.MaskedImage;
+import com.company.assembleegameclient.util.TextureRedrawer;
 import com.company.rotmg.graphics.FameIconBackgroundDesign;
 import com.company.util.BitmapUtil;
 import com.gskinner.motion.GTween;
@@ -13,10 +17,19 @@ import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.display.DisplayObjectContainer;
 import flash.display.Sprite;
+import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.filters.DropShadowFilter;
 import flash.geom.Rectangle;
 import flash.text.TextFieldAutoSize;
+
+import kabam.rotmg.death.model.DeathModel;
+import kabam.rotmg.fame.model.FameModel;
+
+import kabam.rotmg.fame.service.RequestCharacterFameTask;
+
+import kabam.rotmg.legends.view.LegendsView;
+import kabam.rotmg.messaging.impl.incoming.Death;
 
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
@@ -24,9 +37,16 @@ import kabam.rotmg.ui.view.components.ScreenBase;
 
 import org.osflash.signals.Signal;
 
+import thyrr.assets.CharacterFactory;
+
 public class FameView extends Sprite {
 
-    public var closed:Signal;
+    public var fameModel:FameModel = Global.fameModel;
+    public var deathModel:DeathModel = Global.deathModel;
+    public var task:RequestCharacterFameTask;
+    public var factory:CharacterFactory = Global.characterFactory;
+    private var isFreshDeath:Boolean;
+    private var death:Death;
     private var infoContainer:DisplayObjectContainer;
     private var overlayContainer:Bitmap;
     private var title:TextFieldDisplayConcrete;
@@ -43,13 +63,78 @@ public class FameView extends Sprite {
         addChild((this.infoContainer = new Sprite()));
         addChild((this.overlayContainer = new Bitmap()));
         this.continueBtn = new TitleMenuOption("continue", 36, 24);
-        this.closed = new Signal();
         continueBtn.addEventListener(MouseEvent.CLICK, onClose);
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
+        addEventListener(Event.REMOVED_FROM_STAGE, destroy);
+    }
+
+    public function initialize(e:Event):void {
+        task = new RequestCharacterFameTask();
+        this.setViewDataFromDeath();
+        this.requestFameData();
+    }
+
+    public function destroy(e:Event):void {
+        this.clearBackground();
+        ((this.death) && (this.death.disposeBackground()));
+        this.task.finished.removeAll();
+    }
+
+    private function setViewDataFromDeath():void {
+        this.isFreshDeath = this.deathModel.getIsDeathViewPending();
+        this.setIsAnimation(this.isFreshDeath);
+        this.death = this.deathModel.getLastDeath();
+        if (((this.death) && (this.death.background))) {
+            this.setBackground(this.death.background);
+        }
+    }
+
+    private function requestFameData():void {
+        this.task.accountId = this.fameModel.accountId;
+        this.task.charId = this.fameModel.characterId;
+        this.task.finished.addOnce(this.onFameResponse);
+        this.task.start();
+    }
+
+    private function onFameResponse(_arg1:RequestCharacterFameTask, _arg2:Boolean, _arg3:String = ""):void {
+        var _local4:BitmapData = this.makeIcon();
+        this.setCharacterInfo(_arg1.name, _arg1.level, _arg1.type);
+        this.setDeathInfo(_arg1.deathDate, _arg1.killer);
+        this.setIcon(_local4);
+        this.setScore(_arg1.totalFame, _arg1.xml);
+    }
+
+    private function makeIcon():BitmapData {
+        if (((this.isFreshDeath) && (this.death.isZombie))) {
+            return (this.makeZombieTexture());
+        }
+        return (this.makeNormalTexture());
+    }
+
+    private function makeNormalTexture():BitmapData {
+        return (this.factory.makeIcon(this.task.template, this.task.size, this.task.texture1, this.task.texture2));
+    }
+
+    private function makeZombieTexture():BitmapData {
+        var _local1:TextureData = ObjectLibrary.typeToTextureData_[this.death.zombieType];
+        var _local2:AnimatedChar = _local1.animatedChar_;
+        var _local3:MaskedImage = _local2.imageFromDir(AnimatedChar.RIGHT, AnimatedChar.STAND, 0);
+        return (TextureRedrawer.resize(_local3.image_, _local3.mask_, 250, true, this.task.texture1, this.task.texture2));
+    }
+
+    private function onClosed():void {
+        if (this.isFreshDeath) {
+            Global.setLegendsView();
+            Global.setScreen(Global.legendsView);
+        }
+        else {
+            Global.gotoPreviousScreen();
+        }
     }
 
     private function onClose(e:MouseEvent):void
     {
-        closed.dispatch();
+        onClosed();
     }
 
     public function setIsAnimation(_arg1:Boolean):void {
@@ -145,7 +230,7 @@ public class FameView extends Sprite {
     }
 
     public function setScore(_arg1:int, _arg2:XML):void {
-        this.scoringBox = new ScoringBox(new Rectangle(0, 0, WebMain.DefaultWidth - 16, WebMain.DefaultHeight / 2.8), _arg2);
+        this.scoringBox = new ScoringBox(new Rectangle(0, 0, Main.DefaultWidth - 16, Main.DefaultHeight / 2.8), _arg2);
         this.scoringBox.x = 8;
         this.scoringBox.y = 316;
         addChild(this.scoringBox);
@@ -154,7 +239,7 @@ public class FameView extends Sprite {
         _local3 = BitmapUtil.cropToBitmapData(_local3, 6, 6, (_local3.width - 12), (_local3.height - 12));
         this.finalLine = new ScoreTextLine(24, 0xCCCCCC, 0xFFC800, "Total Fame Earned", null, 0, _arg1, "", "", new Bitmap(_local3));
         this.finalLine.x = 10;
-        this.finalLine.y = WebMain.DefaultHeight - 130;
+        this.finalLine.y = Main.DefaultHeight - 130;
         this.infoContainer.addChild(this.finalLine);
         this.isDataPopulated = true;
         if (((!(this.isAnimation)) || (this.isFadeComplete))) {
@@ -164,7 +249,7 @@ public class FameView extends Sprite {
 
     private function makeContinueButton():void {
         this.continueBtn.x = (stage.stageWidth / 2);
-        this.continueBtn.y = WebMain.DefaultHeight - 50;
+        this.continueBtn.y = Main.DefaultHeight - 50;
         this.infoContainer.addChild(this.continueBtn);
         if (this.isAnimation) {
             this.scoringBox.animateScore();

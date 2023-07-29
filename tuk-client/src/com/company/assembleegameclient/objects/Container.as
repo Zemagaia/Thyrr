@@ -6,6 +6,8 @@ import com.company.assembleegameclient.ui.panels.Panel;
 import com.company.assembleegameclient.ui.panels.itemgrids.ContainerGrid;
 import com.company.util.PointUtil;
 
+import thyrr.utils.Utils;
+
 public class Container extends GameObject implements IInteractiveObject {
 
     public var isLoot_:Boolean;
@@ -43,7 +45,11 @@ public class Container extends GameObject implements IInteractiveObject {
 
     public function getPanel(_arg1:GameSprite):Panel {
         var _local2:Player = ((((_arg1) && (_arg1.map))) ? _arg1.map.player_ : null);
-        return (new ContainerGrid(this, _local2));
+        var con:ContainerGrid = new ContainerGrid(this, _local2);
+        con.filters = [Utils.OutlineFilter];
+        con.x -= 2;
+        con.y -= 2;
+        return con;
     }
 
 

@@ -12,7 +12,7 @@ import kabam.rotmg.text.view.stringBuilder.StringBuilder;
 
 public class CharacterRect extends Sprite {
 
-    public static const WIDTH:int = WebMain.DefaultWidth - 60;
+    public static const WIDTH:int = Main.DefaultWidth - 60;
     public static const HEIGHT:int = 59;
 
     public var color:uint;

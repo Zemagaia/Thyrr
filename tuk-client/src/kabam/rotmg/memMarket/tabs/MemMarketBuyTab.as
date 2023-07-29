@@ -213,7 +213,7 @@ public class MemMarketBuyTab extends MemMarketTab
             {
                 for each (w in ObjectLibrary.preloadedCustom_)
                 {
-                    var preData:ItemData = ItemConstants.DEFAULT_ITEM;
+                    var preData:ItemData = new ItemData(null);
                     preData.ObjectType = ObjectLibrary.idToTypeItems_[w];
                     if (!ItemUtils.isBanned(preData))
                     {
@@ -232,7 +232,7 @@ public class MemMarketBuyTab extends MemMarketTab
                 {
                     if (i.indexOf(this.searchField_.text().toLowerCase()) >= 0)
                     {
-                        var data:ItemData = ItemConstants.DEFAULT_ITEM;
+                        var data:ItemData = new ItemData(null);
                         data.ObjectType = ObjectLibrary.idToTypeItems_[i];
                         if (!ItemUtils.isBanned(data))
                         {

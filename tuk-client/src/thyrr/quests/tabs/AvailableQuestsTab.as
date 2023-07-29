@@ -69,8 +69,8 @@ public class AvailableQuestsTab extends DefaultTab {
             this.noQuestsText_ = new TextFieldDisplayConcrete().setColor(0xB3B3B3).setSize(14);
             this.noQuestsText_.setAutoSize(TextFieldAutoSize.CENTER);
             this.noQuestsText_.setStringBuilder(new StaticStringBuilder("You do not have any available quests"));
-            this.noQuestsText_.x = WebMain.DefaultWidth / 2;
-            this.noQuestsText_.y = (WebMain.DefaultWidth / 2 - WebMain.DefaultWidth / 5) - 10;
+            this.noQuestsText_.x = Main.DefaultWidth / 2;
+            this.noQuestsText_.y = (Main.DefaultWidth / 2 - Main.DefaultWidth / 5) - 10;
             this.noQuestsText_.filters = [new DropShadowFilter(0, 0, 0)];
             if (!contains(this.noQuestsText_))
                 addChild(this.noQuestsText_);

@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <OutputPath>../bin/</OutputPath>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <OutputPath>../bin/</OutputPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Update="realm\entities\Character.cs">
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="realm\entities\Container.cs">
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="realm\entities\Enemy.cs">
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="realm\worlds\maps\PetYard0.wmap" />
+      <EmbeddedResource Include="realm\worlds\maps\PetYard1.wmap" />
+      <EmbeddedResource Include="realm\worlds\maps\PetYard2.wmap" />
+      <EmbeddedResource Include="realm\worlds\maps\PetYard3.wmap" />
+      <EmbeddedResource Include="realm\worlds\maps\PetYard4.wmap" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="thyrrIcon.ico" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="GameServer.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\DungeonGen\DungeonGen.csproj" />
+      <ProjectReference Include="..\Shared\Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="NLog">
+        <HintPath>..\..\..\..\.nuget\packages\nlog\5.2.2\lib\netstandard2.0\NLog.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="BouncyCastle.NetCore" Version="1.9.0" />
+    </ItemGroup>
+
+</Project>

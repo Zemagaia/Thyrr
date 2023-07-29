@@ -14,16 +14,14 @@ import com.company.assembleegameclient.util.FreeList;
 import com.company.assembleegameclient.util.MaskedImage;
 import com.company.assembleegameclient.util.TextureRedrawer;
 import com.company.assembleegameclient.util.redrawers.GlowRedrawer;
+import com.company.util.BitmapUtil;
 import com.company.util.CachingColorTransformer;
-import com.company.util.ConversionUtil;
-import com.company.util.ConversionUtil;
 import com.company.util.ConversionUtil;
 import com.company.util.GraphicsUtil;
 import com.company.util.IntPoint;
 import com.company.util.MoreColorUtil;
 import com.company.util.PointUtil;
 import com.company.util.Trig;
-import com.hurlant.util.Base64;
 
 import flash.display.BitmapData;
 import flash.display.GraphicsPath;
@@ -32,33 +30,23 @@ import flash.display.IGraphicsData;
 import flash.geom.ColorTransform;
 import flash.geom.Matrix;
 import flash.geom.Point;
-import flash.utils.ByteArray;
 import flash.utils.Dictionary;
 import flash.utils.getTimer;
 
-import kabam.lib.json.JsonParser;
-import kabam.rotmg.constants.ItemConstants;
-
-import thyrr.assets.CharacterFactory;
 import kabam.rotmg.chat.model.ChatMessage;
 import kabam.rotmg.constants.ActivationType;
 import kabam.rotmg.constants.GeneralConstants;
 import kabam.rotmg.constants.UseType;
-import kabam.rotmg.core.StaticInjectorContext;
 import kabam.rotmg.game.model.PotionInventoryModel;
-import kabam.rotmg.game.signals.AddTextLineSignal;
 import kabam.rotmg.stage3D.GraphicsFillExtra;
-
 import kabam.rotmg.text.view.BitmapTextFactory;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 import kabam.rotmg.text.view.stringBuilder.StaticStringBuilder;
 import kabam.rotmg.text.view.stringBuilder.StringBuilder;
 import kabam.rotmg.ui.model.TabStripModel;
 
-import org.swiftsuspenders.Injector;
-
+import thyrr.assets.CharacterFactory;
 import thyrr.utils.DamageTypes;
-
 import thyrr.utils.ItemData;
 
 public class Player extends Character {
@@ -76,7 +64,6 @@ public class Player extends Character {
     private static const LOW_HEALTH_CT_OFFSET:int = 128;
 
     private static var lowHealthCT:Dictionary = new Dictionary();
-    private static var json_:JsonParser;
     public static var rank:int = 0;
     public static var isAdmin:Boolean = false;
     public static var isMod:Boolean = false;
@@ -147,6 +134,8 @@ public class Player extends Character {
     public var attackPeriod_:int = 0;
     public var nextAltAttack_:int = 0;
     public var lastAltAttack_:int = 0;
+    public var nextAltAttack2_:int = 0;
+    public var lastAltAttack2_:int = 0;
     public var flamePillarReset_:int = 0;
     public var nextTeleportAt_:int = 0;
     public var dropBoost:int = 0;
@@ -158,7 +147,6 @@ public class Player extends Character {
     public var isDefaultAnimatedChar:Boolean = true;
     public var projectileIdSetOverrideNew:String = "";
     public var projectileIdSetOverrideOld:String = "";
-    private var addTextLine:AddTextLineSignal;
     private var factory:CharacterFactory;
     private var ip_:IntPoint;
     private var breathBackFill_:GraphicsSolidFill = null;
@@ -199,10 +187,7 @@ public class Player extends Character {
 
     public function Player(_arg1:XML) {
         this.ip_ = new IntPoint();
-        var injector:Injector = StaticInjectorContext.getInjector();
-        json_ = injector.getInstance(JsonParser);
-        this.addTextLine = injector.getInstance(AddTextLineSignal);
-        this.factory = injector.getInstance(CharacterFactory);
+        this.factory = Global.characterFactory;
         super(_arg1);
         this.strengthMax_ = int(_arg1.Strength.@max);
         this.witMax_ = int(_arg1.Wit.@max);
@@ -309,20 +294,20 @@ public class Player extends Character {
 
     public function teleportTo(_arg1:Player):Boolean {
         if (isPaused()) {
-            this.addTextLine.dispatch(this.makeErrorMessage("Can not teleport while paused"));
+            Global.addTextLine(this.makeErrorMessage("Can not teleport while paused"));
             return (false);
         }
         var _local2:int = this.msUtilTeleport();
         if (_local2 > 0) {
-            this.addTextLine.dispatch(this.makeErrorMessage("You can not teleport for another {seconds} seconds.", {"seconds": int(((_local2 / 1000) + 1))}));
+            Global.addTextLine(this.makeErrorMessage("You can not teleport for another {seconds} seconds.", {"seconds": int(((_local2 / 1000) + 1))}));
             return (false);
         }
         if (!this.isTeleportEligible(_arg1)) {
             if (_arg1.isInvisible()) {
-                this.addTextLine.dispatch(this.makeErrorMessage("Can not teleport to {player} while they are invisible", {"player": _arg1.name_}));
+                Global.addTextLine(this.makeErrorMessage("Can not teleport to {player} while they are invisible", {"player": _arg1.name_}));
             }
             else {
-                this.addTextLine.dispatch(this.makeErrorMessage("Can not teleport to {player}", {"player": _arg1.name_}));
+                Global.addTextLine(this.makeErrorMessage("Can not teleport to {player}", {"player": _arg1.name_}));
             }
             return (false);
         }
@@ -354,10 +339,10 @@ public class Player extends Character {
         else {
             this.levelUpEffect("Level Up!");
         }
-        map_.gs_.hudView._equippedGrid.updateLevelReqIconVisibility(this);
-        map_.gs_.hudView.tabStrip.InventoryTab.Storage.updateLevelReqIconVisibility(this);
-        if (map_.gs_.hudView.tabStrip.BackpackTab != null)
-            map_.gs_.hudView.tabStrip.BackpackTab.Backpack.updateLevelReqIconVisibility(this);
+        map_.gs_.hud._equippedGrid.updateLevelReqIconVisibility(this);
+        map_.gs_.hud.tabStrip.InventoryTab.inv.updateLevelReqIconVisibility(this);
+        if (map_.gs_.hud.tabStrip.BackpackTab != null)
+            map_.gs_.hud.tabStrip.BackpackTab.inv.updateLevelReqIconVisibility(this);
     }
 
     public function levelUpParticleEffect(_arg1:uint = 0xFF00FF00):void {
@@ -493,7 +478,7 @@ public class Player extends Character {
 
     override protected function makeNameBitmapData():BitmapData {
         var _local1:StringBuilder = new StaticStringBuilder(name_);
-        var _local2:BitmapTextFactory = StaticInjectorContext.getInjector().getInstance(BitmapTextFactory);
+        var _local2:BitmapTextFactory = Global.bitmapTextFactory;
         var _local3:BitmapData = _local2.make(_local1, 16, this.getNameColor(), true, NAME_OFFSET_MATRIX, true);
         _local3.draw(FameUtil.numStarsToIcon(this.numStars_, this.admin_), RANK_OFFSET_MATRIX);
         return (_local3);
@@ -879,12 +864,14 @@ public class Player extends Character {
         return hallucinatingMaskedImage_;
     }
 
-    override public function getPortrait():BitmapData {
+    override public function getPortrait(mult:int = 100, flip:Boolean = false):BitmapData {
         var maskedImg:MaskedImage;
         var size:int;
         if (portrait_ == null) {
             maskedImg = animatedChar_.imageFromDir(AnimatedChar.RIGHT, AnimatedChar.STAND, 0);
-            size = ((4 / maskedImg.image_.width) * 100);
+            if (flip)
+                maskedImg.image_ = BitmapUtil.flipBitmapData(maskedImg.image_);
+            size = ((4 / maskedImg.image_.width) * mult);
             portrait_ = TextureRedrawer.resize(maskedImg.image_, maskedImg.mask_, size, true, tex1Id_, tex2Id_);
             portrait_ = GlowRedrawer.outline(portrait_, 0);
         }
@@ -900,7 +887,7 @@ public class Player extends Character {
         if ((((map_ == null)) || (isPaused()))) {
             return (false);
         }
-        var _local4:int = equipment_[1].ObjectType;
+        var _local4:int = equipment_[2].ObjectType;
         if (_local4 == -1) {
             return (false);
         }
@@ -923,7 +910,8 @@ public class Player extends Character {
         }
         time = getTimer();
         if (useType == UseType.START_USE) {
-            if (time < this.nextAltAttack_ || this.isSuppressed()) {
+            if ((time < this.nextAltAttack_ && activateId == 1) ||
+                    (time < this.nextAltAttack2_ && activateId == 2) || this.isSuppressed()) {
                 SoundEffectLibrary.play("error");
                 return false;
             }
@@ -948,18 +936,34 @@ public class Player extends Character {
                 return false;
             }
             cooldown = 500;
-            var cd:Number = item.Cooldown != null ? Number(item.Cooldown) : 0.5;
             if (item.hasOwnProperty("Cooldown"))
             {
+                var cd:Number = item.Cooldown != null ? Number(item.Cooldown) : 0.5;
                 var haste:int = ((this != null) ? this.haste_ : 0);
                 var hasteModCd:Number = cd * (100 / (100 + haste));
                 cooldown = hasteModCd * 1000;
             }
+            if (activateId == 1)
+            {
+                this.nextAltAttack_ = time + cooldown;
+                this.lastAltAttack_ = time;
+            }
+            cooldown = 500;
+            if (item.hasOwnProperty("Cooldown2"))
+            {
+                cd = item.Cooldown2 != null ? Number(item.Cooldown2) : 0.5;
+                haste = ((this != null) ? this.haste_ : 0);
+                hasteModCd = cd * (100 / (100 + haste));
+                cooldown = hasteModCd * 1000;
+            }
+            if (activateId == 2)
+            {
+                this.nextAltAttack2_ = time + cooldown;
+                this.lastAltAttack2_ = time;
+            }
 
             var activateTags:XMLList = item.Activate2;
             if (activateId == 2 && activateTags.length() != 0 || activateId == 1) {
-                this.nextAltAttack_ = time + cooldown;
-                this.lastAltAttack_ = time;
                 if (item.Power == "Pillar of Flame")
                 {
                     this.flamePillarReset_ = this.nextAltAttack_ + cd * 1000;
@@ -970,7 +974,7 @@ public class Player extends Character {
                 }
             }
 
-            map_.gs_.gsc_.useItem(time, objectId_, 1, _local4, _local6.x, _local6.y, activateId);
+            map_.gs_.gsc_.useItem(time, objectId_, 2, _local4, _local6.x, _local6.y, activateId);
             angle = Math.atan2(_arg2, _arg1);
             if (item.Activate == ActivationType.SHOOT && activateId == 1) {
                 this.doShoot(time, _local4, item, (Parameters.data_.cameraAngle + angle), false);
@@ -982,7 +986,7 @@ public class Player extends Character {
         else {
             if (item.hasOwnProperty("MultiPhase") && activateId == 1 ||
                 item.hasOwnProperty("MultiPhase2") && activateId == 2) { // we'll see...
-                map_.gs_.gsc_.useItem(time, objectId_, 1, _local4, _local6.x, _local6.y, activateId);
+                map_.gs_.gsc_.useItem(time, objectId_, 2, _local4, _local6.x, _local6.y, activateId);
                 angle = Math.atan2(_arg2, _arg1);
                 if (int(item.MpEndCost) <= this.mp_ && activateId == 1 && int(item.LightEndCost) <= 0) {
                     this.doShoot(time, _local4, item, (Parameters.data_.cameraAngle + angle), false);
@@ -1045,7 +1049,7 @@ public class Player extends Character {
             return;
         }
 
-        var weapType:int = equipment_[0].ObjectType;
+        var weapType:int = equipment_[1].ObjectType;
         if (weapType == -1) {
             return;
         }
@@ -1087,9 +1091,9 @@ public class Player extends Character {
             }
             minDmg = int(_local12.projProps_.minDamage_);
             maxDmg = int(_local12.projProps_.maxDamage_);
-            var itemData:ItemData = this.equipment_[0];
+            var itemData:ItemData = this.equipment_[1];
             if (!_arg5)
-                itemData = this.equipment_[1];
+                itemData = this.equipment_[2];
             _local12.damageType_ = _local12.projProps_.damageType_;
             _local15 = _arg5 ? this.attackMultiplier(_local12) : 1;
             _local16 = (minDmg == maxDmg ? minDmg : map_.gs_.gsc_.getNextInt(minDmg, maxDmg)) * _local15;

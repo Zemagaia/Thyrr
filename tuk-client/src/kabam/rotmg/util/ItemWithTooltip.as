@@ -11,16 +11,13 @@ import flash.display.Sprite;
 import flash.events.Event;
 import flash.events.MouseEvent;
 
-import kabam.rotmg.core.signals.HideTooltipsSignal;
-import kabam.rotmg.core.signals.ShowTooltipSignal;
 import kabam.rotmg.tooltips.HoverTooltipDelegate;
-import kabam.rotmg.tooltips.TooltipAble;
 
 import org.osflash.signals.Signal;
 
 import thyrr.utils.ItemData;
 
-public class ItemWithTooltip extends Sprite implements TooltipAble {
+public class ItemWithTooltip extends Sprite {
 
     public var hoverTooltipDelegate:HoverTooltipDelegate;
     private var tooltip:ToolTip;
@@ -29,6 +26,8 @@ public class ItemWithTooltip extends Sprite implements TooltipAble {
     public var itemBitmap:Bitmap;
 
     public function ItemWithTooltip(itemType:int, size:int = 100, addListeners:Boolean = false, player:Player = null, itemData:ItemData = null) {
+        itemData = itemData != null ? itemData : new ItemData(null);
+        itemData.ObjectType = itemType;
         this.hoverTooltipDelegate = new HoverTooltipDelegate();
         this.onMouseOver = new Signal();
         this.onMouseOut = new Signal();
@@ -81,22 +80,6 @@ public class ItemWithTooltip extends Sprite implements TooltipAble {
 
     private function onRollOut(event:MouseEvent):void {
         this.onMouseOut.dispatch();
-    }
-
-    public function setShowToolTipSignal(showTooltipSignal:ShowTooltipSignal):void {
-        this.hoverTooltipDelegate.setShowToolTipSignal(showTooltipSignal);
-    }
-
-    public function getShowToolTip():ShowTooltipSignal {
-        return (this.hoverTooltipDelegate.getShowToolTip());
-    }
-
-    public function setHideToolTipsSignal(hideTooltipsSignal:HideTooltipsSignal):void {
-        this.hoverTooltipDelegate.setHideToolTipsSignal(hideTooltipsSignal);
-    }
-
-    public function getHideToolTips():HideTooltipsSignal {
-        return (this.hoverTooltipDelegate.getHideToolTips());
     }
 
 }

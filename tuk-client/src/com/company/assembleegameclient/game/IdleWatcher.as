@@ -5,8 +5,6 @@ import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
 
 import kabam.rotmg.chat.model.ChatMessage;
-import kabam.rotmg.core.StaticInjectorContext;
-import kabam.rotmg.game.signals.AddTextLineSignal;
 
 public class IdleWatcher {
 
@@ -16,11 +14,6 @@ public class IdleWatcher {
 
     public var gs_:GameSprite = null;
     public var idleTime_:int = 0;
-    private var addTextLine:AddTextLineSignal;
-
-    public function IdleWatcher() {
-        this.addTextLine = StaticInjectorContext.getInjector().getInstance(AddTextLineSignal);
-    }
 
     public function start(gs:GameSprite):void {
         this.gs_ = gs;
@@ -36,11 +29,11 @@ public class IdleWatcher {
             return false;
         }
         if (this.idleTime_ >= FIRST_WARNING_MINUTES * MINUTE_IN_MS && idleTime < FIRST_WARNING_MINUTES * MINUTE_IN_MS) {
-            this.addTextLine.dispatch(this.makeFirstWarning());
+            Global.addTextLine(this.makeFirstWarning());
             return false;
         }
         if (this.idleTime_ >= KICK_MINUTES * MINUTE_IN_MS && idleTime < KICK_MINUTES * MINUTE_IN_MS) {
-            this.addTextLine.dispatch(this.makeFinalWarning());
+            Global.addTextLine(this.makeFinalWarning());
             return true;
         }
         return false;

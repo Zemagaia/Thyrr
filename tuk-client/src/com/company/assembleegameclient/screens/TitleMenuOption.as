@@ -38,13 +38,13 @@ public class TitleMenuOption extends Sprite
 
     public function activate():void
     {
-        addEventListener(MouseEvent.CLICK, this.onMouseClick);
+        this.button.clicked.add(onClick);
         this.active = true;
     }
 
     public function deactivate():void
     {
-        removeEventListener(MouseEvent.CLICK, this.onMouseClick);
+        this.button.clicked.remove(onClick);
         this.active = false;
     }
 
@@ -72,7 +72,7 @@ public class TitleMenuOption extends Sprite
         this.button.text_.setStringBuilder(new LineBuilder().setParams(text));
     }
 
-    protected function onMouseClick(_arg1:MouseEvent):void
+    protected function onClick():void
     {
         SoundEffectLibrary.play("button_click");
         this.clicked.dispatch();

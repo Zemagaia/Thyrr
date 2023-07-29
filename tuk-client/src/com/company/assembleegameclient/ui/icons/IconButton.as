@@ -1,7 +1,6 @@
 ﻿package com.company.assembleegameclient.ui.icons {
 import com.company.assembleegameclient.parameters.Parameters;
 import com.company.assembleegameclient.ui.tooltip.TextToolTip;
-import com.company.assembleegameclient.util.TextureRedrawer;
 import com.company.util.KeyCodes;
 import com.company.util.MoreColorUtil;
 
@@ -11,15 +10,11 @@ import flash.display.Sprite;
 import flash.events.MouseEvent;
 import flash.geom.ColorTransform;
 
-import kabam.rotmg.core.signals.HideTooltipsSignal;
-import kabam.rotmg.core.signals.ShowTooltipSignal;
-
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 import kabam.rotmg.tooltips.HoverTooltipDelegate;
-import kabam.rotmg.tooltips.TooltipAble;
 
-public class IconButton extends Sprite implements TooltipAble {
+public class IconButton extends Sprite {
 
     protected static const mouseOverCT:ColorTransform = new ColorTransform(1, (220 / 0xFF), (133 / 0xFF));
     protected static const disableCT:ColorTransform = new ColorTransform(0.6, 0.6, 0.6, 1);
@@ -128,23 +123,6 @@ public class IconButton extends Sprite implements TooltipAble {
     protected function onMouseOut(_arg1:MouseEvent):void {
         this.setColorTransform(null);
     }
-
-    public function setShowToolTipSignal(_arg1:ShowTooltipSignal):void {
-        this.hoverTooltipDelegate.setShowToolTipSignal(_arg1);
-    }
-
-    public function getShowToolTip():ShowTooltipSignal {
-        return (this.hoverTooltipDelegate.getShowToolTip());
-    }
-
-    public function setHideToolTipsSignal(_arg1:HideTooltipsSignal):void {
-        this.hoverTooltipDelegate.setHideToolTipsSignal(_arg1);
-    }
-
-    public function getHideToolTips():HideTooltipsSignal {
-        return (this.hoverTooltipDelegate.getHideToolTips());
-    }
-
 
 }
 }

@@ -1,9 +1,21 @@
 ﻿package kabam.rotmg.classes.view {
+import com.company.assembleegameclient.util.FameUtil;
+
 import flash.display.Bitmap;
 import flash.display.Sprite;
+import flash.events.Event;
+import flash.events.TimerEvent;
 import flash.filters.DropShadowFilter;
+import flash.utils.Timer;
+
+import kabam.rotmg.classes.model.CharacterClass;
+
+import kabam.rotmg.classes.model.CharacterSkin;
+import kabam.rotmg.classes.model.ClassesModel;
+import kabam.rotmg.core.model.PlayerModel;
 
 import thyrr.assets.Animation;
+import thyrr.assets.CharacterFactory;
 import thyrr.assets.IconFactory;
 
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
@@ -19,7 +31,14 @@ public class ClassDetailView extends Sprite {
     private static const TEXT_WIDTH:int = 188;
 
     private const waiter:SignalWaiter = new SignalWaiter();
+    private const skins:Object = new Object();
+    private const nextSkinTimer:Timer = new Timer(250, 1);
 
+    public var classesModel:ClassesModel = Global.classesModel;
+    public var playerModel:PlayerModel = Global.playerModel;
+    public var factory:CharacterFactory = Global.characterFactory;
+    private var character:CharacterClass;
+    private var nextSkin:CharacterSkin;
     private var classNameText:TextFieldDisplayConcrete;
     private var classDescriptionText:TextFieldDisplayConcrete;
     private var questCompletionText:TextFieldDisplayConcrete;
@@ -88,6 +107,50 @@ public class ClassDetailView extends Sprite {
         addChild(this.nextGoalDetailText);
         this.questCompletedStars = new StarsView();
         addChild(this.questCompletedStars);
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
+        addEventListener(Event.REMOVED_FROM_STAGE, destroy);
+    }
+
+    public function initialize(e:Event):void {
+        this.character = this.classesModel.getSelected();
+        this.nextSkinTimer.addEventListener(TimerEvent.TIMER, this.delayedFocusSet);
+        this.setCharacterData();
+        this.onFocusSet();
+    }
+
+    public function destroy(e:Event):void {
+        this.nextSkinTimer.removeEventListener(TimerEvent.TIMER, this.delayedFocusSet);
+        this.setWalkingAnimation(null);
+        this.disposeAnimations();
+    }
+
+    private function setCharacterData():void {
+        var _local1:int = this.playerModel.charList.bestFame(this.character.id);
+        var _local2:int = FameUtil.numStars(_local1);
+        this.setData(this.character.name, this.character.description, _local2, this.playerModel.charList.bestLevel(this.character.id), _local1);
+        var _local3:int = FameUtil.nextStarFame(_local1, 0);
+        this.setNextGoal(this.character.name, _local3);
+    }
+
+    public function onFocusSet(_arg1:CharacterSkin = null):void {
+        _arg1 = ((_arg1) || (this.character.skins.getSelectedSkin()));
+        this.nextSkin = _arg1;
+        this.nextSkinTimer.start();
+    }
+
+    private function delayedFocusSet(_arg1:TimerEvent):void {
+        var _local2:Animation = (this.skins[this.nextSkin.id] = ((this.skins[this.nextSkin.id]) || (this.factory.makeWalkingIcon(this.nextSkin.template, ((this.nextSkin.is16x16) ? 100 : 200)))));
+        this.setWalkingAnimation(_local2);
+    }
+
+    private function disposeAnimations():void {
+        var _local1:String;
+        var _local2:Animation;
+        for (_local1 in this.skins) {
+            _local2 = this.skins[_local1];
+            _local2.dispose();
+            delete this.skins[_local1];
+        }
     }
 
     public function setData(_arg1:String, _arg2:String, _arg3:int, _arg4:int, _arg5:int):void {

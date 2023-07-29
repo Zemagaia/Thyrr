@@ -8,18 +8,11 @@ import kabam.rotmg.account.core.Account;
 import kabam.rotmg.account.core.model.OfferModel;
 import kabam.rotmg.appengine.api.AppEngineClient;
 
-import robotlegs.bender.framework.api.ILogger;
-
 public class GetOffersTask extends BaseTask {
 
-    [Inject]
-    public var account:Account;
-    [Inject]
-    public var model:OfferModel;
-    [Inject]
-    public var logger:ILogger;
-    [Inject]
-    public var client:AppEngineClient;
+    public var account:Account = Global.account;
+    public var model:OfferModel = Global.offerModel;
+    public var client:AppEngineClient = Global.appEngine;
     private var target:String;
     private var guid:String;
 
@@ -69,7 +62,7 @@ public class GetOffersTask extends BaseTask {
     }
 
     private function onTextError(_arg1:String):void {
-        this.logger.error(_arg1);
+        trace(_arg1);
     }
 
 

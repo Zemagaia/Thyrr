@@ -12,19 +12,15 @@ import flash.filters.DropShadowFilter;
 import flash.text.TextFieldAutoSize;
 import flash.text.TextFormatAlign;
 
-
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 import kabam.rotmg.text.view.stringBuilder.StringBuilder;
 import kabam.rotmg.ui.view.SignalWaiter;
 
-import org.osflash.signals.Signal;
-
 public class PortalPanel extends Panel {
 
     private const LOCKED:String = "Locked ";
     private const TEXT_PATTERN:RegExp = /\{"text":"(.+)"}/;
-    public const exitGameSignal:Signal = new Signal();
     private const waiter:SignalWaiter = new SignalWaiter();
 
     public var owner_:Portal;
@@ -34,7 +30,6 @@ public class PortalPanel extends Panel {
 
     public function PortalPanel(gs:GameSprite, owner:Portal) {
         super(gs);
-        DrawPanelBg();
         this.owner_ = owner;
         this.nameText_ = new TextFieldDisplayConcrete().setSize(18).setColor(0xFFFFFF).setBold(true).setHorizontalAlign(TextFormatAlign.CENTER);
         this.nameText_.setTextWidth(WIDTH).setMultiLine(true).setWordWrap(true);
@@ -84,7 +79,7 @@ public class PortalPanel extends Panel {
 
     private function enterPortal():void {
         gs_.gsc_.usePortal(this.owner_.objectId_);
-        this.exitGameSignal.dispatch();
+        Global.exitGame();
     }
 
     override public function draw():void {

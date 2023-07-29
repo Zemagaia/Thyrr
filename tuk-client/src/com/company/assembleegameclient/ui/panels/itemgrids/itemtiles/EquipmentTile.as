@@ -1,11 +1,12 @@
 ﻿package com.company.assembleegameclient.ui.panels.itemgrids.itemtiles
 {
-import flash.display.Bitmap;
-import com.company.assembleegameclient.ui.panels.itemgrids.ItemGrid;
 import com.company.assembleegameclient.objects.ObjectLibrary;
+import com.company.assembleegameclient.objects.Player;
+import com.company.assembleegameclient.ui.panels.itemgrids.ItemGrid;
 import com.company.assembleegameclient.util.EquipmentUtil;
 import com.company.assembleegameclient.util.FilterUtil;
-import com.company.assembleegameclient.objects.Player;
+
+import flash.display.Bitmap;
 
 import thyrr.utils.ItemData;
 

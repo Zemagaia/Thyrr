@@ -6,14 +6,11 @@ import com.company.assembleegameclient.parameters.Parameters;
 import com.company.assembleegameclient.ui.DeprecatedTextButton;
 import com.company.assembleegameclient.util.StageProxy;
 
-import flash.display.DisplayObject;
-
 import flash.events.Event;
 import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
 import flash.filters.DropShadowFilter;
 import flash.text.TextFieldAutoSize;
-
 
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
@@ -32,7 +29,6 @@ public class GuildHallPortalPanel extends Panel {
     public function GuildHallPortalPanel(_arg1:GameSprite, _arg2:GuildHallPortal) {
         var _local3:Player;
         super(_arg1);
-        DrawPanelBg();
         this.stageProxy = new StageProxy(this);
         this.owner_ = _arg2;
         if ((((gs_.map == null)) || ((gs_.map.player_ == null)))) {

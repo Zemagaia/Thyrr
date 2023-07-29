@@ -14,14 +14,10 @@ public class RequestPlayerCreditsTask extends BaseTask {
 
     private static const REQUEST:String = "account/getCredits";
 
-    [Inject]
-    public var account:Account;
-    [Inject]
-    public var client:AppEngineClient;
-    [Inject]
-    public var gameModel:GameModel;
-    [Inject]
-    public var playerModel:PlayerModel;
+    public var account:Account = Global.account;
+    public var client:AppEngineClient = Global.appEngine;
+    public var gameModel:GameModel = Global.gameModel;
+    public var playerModel:PlayerModel = Global.playerModel;
     private var retryTimes:Array;
     private var timer:Timer;
     private var retryCount:int = 0;

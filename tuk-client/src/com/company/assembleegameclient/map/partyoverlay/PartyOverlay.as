@@ -51,8 +51,8 @@ public class PartyOverlay extends Sprite {
             this.questArrow_.draw(time, camera);
         if (stage != null) {
             if (stage.scaleMode == StageScaleMode.NO_SCALE) {
-                this.questToolTip_.x = (-639 * WebMain.sWidth / WebMain.DefaultWidth) / Parameters.data_.mscale;
-                this.questToolTip_.y = (-210 * WebMain.sHeight / WebMain.DefaultHeight) / Parameters.data_.mscale;
+                this.questToolTip_.x = (-639 * Main.sWidth / Main.DefaultWidth) / Parameters.data_.mscale;
+                this.questToolTip_.y = (-210 * Main.sHeight / Main.DefaultHeight) / Parameters.data_.mscale;
             }
             else {
                 this.questToolTip_.x = -639;

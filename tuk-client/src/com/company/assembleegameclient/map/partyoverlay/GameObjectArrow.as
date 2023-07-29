@@ -11,6 +11,7 @@ import flash.display.Graphics;
 import flash.display.Shape;
 import flash.display.Sprite;
 import flash.display.StageScaleMode;
+import flash.events.Event;
 import flash.filters.DropShadowFilter;
 import flash.geom.Point;
 import flash.geom.Rectangle;
@@ -44,6 +45,12 @@ public class GameObjectArrow extends Sprite {
         this.drawArrow();
         filters = [new DropShadowFilter(0, 0, 0, 1, 8, 8)];
         visible = false;
+        addEventListener(Event.ADDED_TO_STAGE, init);
+    }
+
+    private function init(e:Event):void
+    {
+        menuLayer = Global.layers.top;
     }
 
     public static function removeMenu():void {
@@ -72,13 +79,13 @@ public class GameObjectArrow extends Sprite {
     public function correctQuestNote(_arg_1:Rectangle):Rectangle {
         var _local_2:Rectangle = _arg_1.clone();
         if (stage.scaleMode == StageScaleMode.NO_SCALE) {
-            this.scaleY = this.scaleX = ((stage.stageWidth < stage.stageHeight ? stage.stageWidth : stage.stageHeight) / WebMain.DefaultHeight) / Parameters.data_["mscale"];
+            this.scaleY = this.scaleX = ((stage.stageWidth < stage.stageHeight ? stage.stageWidth : stage.stageHeight) / Main.DefaultHeight) / Parameters.data_["mscale"];
         }
         else {
             this.scaleX = 1;
             this.scaleY = 1;
         }
-        _local_2.right = _local_2.right - ((WebMain.DefaultWidth - this.go_.map_.gs_.hudView.x) * stage.stageWidth / WebMain.DefaultWidth) / Parameters.data_["mscale"];
+        _local_2.right = _local_2.right - ((Main.DefaultWidth - this.go_.map_.gs_.hud.x) * stage.stageWidth / Main.DefaultWidth) / Parameters.data_["mscale"];
         _local_2.top /= 3;
         _local_2.left /= 4;
         _local_2.bottom /= 3;

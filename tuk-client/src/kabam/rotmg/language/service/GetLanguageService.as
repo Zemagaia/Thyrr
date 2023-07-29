@@ -5,27 +5,19 @@ import kabam.lib.json.JsonParser;
 
 import kabam.lib.tasks.BaseTask;
 import kabam.rotmg.appengine.api.AppEngineClient;
-import kabam.rotmg.core.StaticInjectorContext;
-import kabam.rotmg.dialogs.control.OpenDialogSignal;
 import kabam.rotmg.language.model.LanguageModel;
 import kabam.rotmg.language.model.StringMap;
 
 public class GetLanguageService extends BaseTask {
 
-    private static const LANGUAGE:String = "LANGUAGE";
+    public var model:LanguageModel = Global.languageModel;
+    public var strings:StringMap = Global.stringMap;
 
-    [Inject]
-    public var model:LanguageModel;
-    [Inject]
-    public var strings:StringMap;
-    [Inject]
-    public var openDialog:OpenDialogSignal;
-    [Inject]
-    public var client:AppEngineClient;
+    public var client:AppEngineClient = Global.appEngine;
     private var language:String;
 
     private static function get json_():JsonParser {
-        return (StaticInjectorContext.getInjector().getInstance(JsonParser));
+        return (Global.jsonParser);
     }
 
     override protected function startTask():void {
@@ -35,29 +27,29 @@ public class GetLanguageService extends BaseTask {
         this.client.sendRequest("/app/glangs", {"languageType": this.language});
     }
 
-    private function onComplete(_arg1:Boolean, _arg2:*):void {
-        if (_arg1) {
-            this.onLanguageResponse(_arg2);
+    private function onComplete(isOk:Boolean, data:*):void {
+        if (isOk) {
+            this.onLanguageResponse(data);
         }
         else {
             this.onLanguageError();
         }
-        completeTask(_arg1, _arg2);
+        completeTask(isOk, data);
     }
 
-    private function onLanguageResponse(_arg1:String):void {
-        var _local3:Array;
+    private function onLanguageResponse(data:String):void {
+        var language:String = this.language;
         this.strings.clear();
-        var _local2:Object = json_.parse(_arg1);
-        for each (_local3 in _local2) {
-            this.strings.setValue(_local3[0], _local3[1], _local3[2]);
+        var keys:Object = json_.parse(data);
+        for (var key:String in keys) {
+            this.strings.setValue(key, keys[key], language);
         }
     }
 
     private function onLanguageError():void {
         this.strings.setValue("ok", "ok", this.model.getLanguageFamily());
-        var _local1:ErrorDialog = new ErrorDialog((("Unable to load language [" + this.language) + "]"));
-        this.openDialog.dispatch(_local1);
+        var dialog:ErrorDialog = new ErrorDialog((("Unable to load language [" + this.language) + "]"));
+        Global.openDialog(dialog);
         completeTask(false);
     }
 

@@ -59,7 +59,7 @@ public class PlayerToolTip extends ToolTip {
         addChild(this.mpBar_);
         _local2 = (_local2 + 24);
         this.eGrid = new EquippedGrid(null, this.player_.slotTypes_, this.player_);
-        this.eGrid.x = 8;
+        this.eGrid.x = 6;
         this.eGrid.y = _local2;
         addChild(this.eGrid);
         _local2 = (_local2 + 52);

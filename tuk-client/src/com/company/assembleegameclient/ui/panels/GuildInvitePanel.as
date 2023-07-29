@@ -9,7 +9,6 @@ import flash.filters.DropShadowFilter;
 import flash.text.TextFieldAutoSize;
 import flash.utils.Timer;
 
-
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 import kabam.rotmg.text.view.stringBuilder.StaticStringBuilder;
@@ -29,7 +28,6 @@ public class GuildInvitePanel extends Panel {
 
     public function GuildInvitePanel(_arg1:GameSprite, _arg2:String, _arg3:String) {
         super(_arg1);
-        DrawPanelBg();
         this.name_ = _arg2;
         this.guildName_ = _arg3;
         this.title_ = new TextFieldDisplayConcrete().setSize(16).setColor(0xFFFFFF).setTextWidth(WIDTH).setBold(true).setAutoSize(TextFieldAutoSize.CENTER).setHTML(true);

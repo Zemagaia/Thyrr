@@ -6,11 +6,7 @@ import com.company.assembleegameclient.ui.dialogs.TOSPopup;
 import flash.events.Event;
 
 import kabam.rotmg.account.core.Account;
-import kabam.rotmg.core.StaticInjectorContext;
-import kabam.rotmg.dialogs.control.OpenDialogSignal;
 import kabam.rotmg.servers.api.LatLong;
-
-import org.swiftsuspenders.Injector;
 
 public class SavedCharactersList extends Event {
 
@@ -58,7 +54,8 @@ public class SavedCharactersList extends Event {
     public var spriteMinRank:int;
     private var account:Account;
 
-    public function SavedCharactersList(_arg1:String) {
+    public function SavedCharactersList(_arg1:String)
+    {
         var _local4:*;
         var _local5:Account;
         this.savedChars_ = new Vector.<SavedCharacter>();
@@ -77,18 +74,14 @@ public class SavedCharactersList extends Event {
         this.parseSalesForceData();
         this.parseTOSPopup();
         this.reportUnlocked();
-        var _local3:Injector = StaticInjectorContext.getInjector();
-        if (_local3) {
-            _local5 = _local3.getInstance(Account);
-            _local5.reportIntStat("BestLevel", this.bestOverallLevel());
-            _local5.reportIntStat("BestFame", this.bestOverallFame());
-            _local5.reportIntStat("NumStars", this.numStars_);
-            _local5.verify(_local2.hasOwnProperty("VerifiedEmail"));
-        }
+        _local5 = Global.account;
+        _local5.reportIntStat("BestLevel", this.bestOverallLevel());
+        _local5.reportIntStat("BestFame", this.bestOverallFame());
+        _local5.reportIntStat("NumStars", this.numStars_);
+        _local5.verify(_local2.hasOwnProperty("VerifiedEmail"));
         this.classAvailability = new Object();
-        for each (_local4 in this.charsXML_.ClassAvailabilityList.ClassAvailability) {
+        for each (_local4 in this.charsXML_.ClassAvailabilityList.ClassAvailability)
             this.classAvailability[_local4.@id.toString()] = _local4.toString();
-        }
     }
 
     public function getCharById(_arg1:int):SavedCharacter {
@@ -185,7 +178,7 @@ public class SavedCharactersList extends Event {
 
     private function parseTOSPopup():void {
         if (this.charsXML_.hasOwnProperty("TOSPopup")) {
-            StaticInjectorContext.getInjector().getInstance(OpenDialogSignal).dispatch(new TOSPopup());
+            Global.openDialog(new TOSPopup());
         }
     }
 
@@ -291,11 +284,8 @@ public class SavedCharactersList extends Event {
     }
 
     private function reportUnlocked():void {
-        var _local1:Injector = StaticInjectorContext.getInjector();
-        if (_local1) {
-            this.account = _local1.getInstance(Account);
-            ((this.account) && (this.updateAccount()));
-        }
+        this.account = Global.account;
+        this.updateAccount();
     }
 
     private function updateAccount():void {

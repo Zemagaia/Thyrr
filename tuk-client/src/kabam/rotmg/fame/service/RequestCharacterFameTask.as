@@ -11,16 +11,12 @@ import thyrr.assets.CharacterTemplate;
 import kabam.rotmg.classes.model.CharacterClass;
 import kabam.rotmg.classes.model.CharacterSkin;
 import kabam.rotmg.classes.model.ClassesModel;
-import kabam.rotmg.dialogs.control.OpenDialogSignal;
 
 public class RequestCharacterFameTask extends BaseTask {
 
-    [Inject]
-    public var client:AppEngineClient;
-    [Inject]
-    public var openDialog:OpenDialogSignal;
-    [Inject]
-    public var classes:ClassesModel;
+    public var client:AppEngineClient = Global.appEngine;
+
+    public var classes:ClassesModel = Global.classesModel;
     public var accountId:String;
     public var charId:int;
     public var xml:XML;
@@ -114,7 +110,7 @@ public class RequestCharacterFameTask extends BaseTask {
         }
         else {
             this.errorRetry = false;
-            this.openDialog.dispatch(new ErrorDialog(_arg1));
+            Global.openDialog(new ErrorDialog(_arg1));
         }
     }
 

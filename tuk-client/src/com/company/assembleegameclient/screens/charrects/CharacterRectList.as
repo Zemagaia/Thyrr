@@ -1,6 +1,7 @@
 ﻿package com.company.assembleegameclient.screens.charrects {
 import com.company.assembleegameclient.appengine.CharacterStats;
 import com.company.assembleegameclient.appengine.SavedCharacter;
+import com.company.assembleegameclient.screens.NewCharacterScreen;
 import com.company.util.ConversionUtil;
 
 import flash.display.Bitmap;
@@ -11,18 +12,14 @@ import flash.events.Event;
 import flash.events.MouseEvent;
 
 import kabam.lib.json.JsonParser;
-
-import thyrr.assets.CharacterFactory;
 import kabam.rotmg.classes.model.CharacterClass;
 import kabam.rotmg.classes.model.CharacterSkin;
 import kabam.rotmg.classes.model.ClassesModel;
-import kabam.rotmg.core.StaticInjectorContext;
 import kabam.rotmg.core.model.PlayerModel;
 
 import org.osflash.signals.Signal;
-import org.swiftsuspenders.Injector;
 
-import thyrr.pets.data.PetData;
+import thyrr.assets.CharacterFactory;
 
 public class CharacterRectList extends Sprite {
 
@@ -43,11 +40,10 @@ public class CharacterRectList extends Sprite {
         var _local10:int;
         var _local11:CreateNewCharacterRect;
         super();
-        var _local1:Injector = StaticInjectorContext.getInjector();
-        this.json_ = _local1.getInstance(JsonParser);
-        this.classes = _local1.getInstance(ClassesModel);
-        this.model = _local1.getInstance(PlayerModel);
-        this.assetFactory = _local1.getInstance(CharacterFactory);
+        this.json_ = Global.jsonParser;
+        this.classes = Global.classesModel;
+        this.model = Global.playerModel;
+        this.assetFactory = Global.characterFactory;
         this.newCharacter = new Signal();
         this.buyCharacterSlot = new Signal();
         var _local2:String = this.model.getName();
@@ -81,6 +77,26 @@ public class CharacterRectList extends Sprite {
         _local6.addEventListener(MouseEvent.MOUSE_DOWN, this.onBuyCharSlot);
         _local6.y = _local3;
         addChild(_local6);
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
+        addEventListener(Event.REMOVED_FROM_STAGE, destroy);
+    }
+
+    public function initialize(e:Event):void {
+        this.newCharacter.add(this.onNewCharacter);
+        this.buyCharacterSlot.add(this.onBuyCharacterSlot);
+    }
+
+    public function destroy(e:Event):void {
+        this.newCharacter.remove(this.onNewCharacter);
+        this.buyCharacterSlot.remove(this.onBuyCharacterSlot);
+    }
+
+    private function onNewCharacter():void {
+        Global.setScreenWithValidData(new NewCharacterScreen());
+    }
+
+    private function onBuyCharacterSlot(_arg1:int):void {
+        Global.buyCharacterSlot(_arg1);
     }
 
     private function getIcon(_arg1:SavedCharacter, _arg2:int = 100):DisplayObject {

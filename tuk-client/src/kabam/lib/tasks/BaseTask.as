@@ -41,12 +41,12 @@ public class BaseTask implements Task {
     protected function onReset():void {
     }
 
-    final protected function completeTask(_arg1:Boolean, _arg2:String = ""):void {
-        this._isOK = _arg1;
-        this._error = _arg2;
+    final protected function completeTask(isOk:Boolean, data:String = ""):void {
+        this._isOK = isOk;
+        this._error = data;
         this._isFinished = true;
-        ((this._finished) && (this._finished.dispatch(this, _arg1, _arg2)));
-        ((this._lastly) && (this._lastly.dispatch(this, _arg1, _arg2)));
+        ((this._finished) && (this._finished.dispatch(this, isOk, data)));
+        ((this._lastly) && (this._lastly.dispatch(this, isOk, data)));
     }
 
     final public function get started():Signal {

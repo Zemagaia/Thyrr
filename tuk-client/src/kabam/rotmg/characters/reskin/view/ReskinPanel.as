@@ -20,12 +20,9 @@ public class ReskinPanel extends Panel {
 
     private var title:TextFieldDisplayConcrete;
     private var button:DeprecatedTextButton;
-    private var click:Signal;
-    public var reskin:Signal = new Signal();
 
     public function ReskinPanel(_arg1:GameSprite = null) {
         super(_arg1);
-        DrawPanelBg();
         this.title = new TextFieldDisplayConcrete().setSize(18).setColor(0xFFFFFF).setAutoSize(TextFieldAutoSize.CENTER);
         this.title.x = int((WIDTH / 2));
         this.title.y = 6;
@@ -36,19 +33,14 @@ public class ReskinPanel extends Panel {
         this.button = new DeprecatedTextButton(16, "Choose");
         this.button.textChanged.addOnce(this.onTextSet);
         addChild(this.button);
-        this.click = new Signal();
-        this.click.add(this.onClick);
         addEventListener(Event.ADDED_TO_STAGE, this.onAddedToStage);
         addEventListener(Event.REMOVED_FROM_STAGE, this.onRemovedFromStage);
         button.addEventListener(MouseEvent.CLICK, onButton);
     }
+
     private function onButton(e:MouseEvent):void
     {
-        click.dispatch();
-    }
-
-    private function onClick():void {
-        this.reskin.dispatch();
+        Global.openReskinDialog();
     }
 
     private function onTextSet():void {
@@ -66,7 +58,7 @@ public class ReskinPanel extends Panel {
 
     private function onKeyDown(_arg1:KeyboardEvent):void {
         if ((((_arg1.keyCode == Parameters.data_.interact)) && ((stage.focus == null)))) {
-            this.reskin.dispatch();
+            Global.openReskinDialog();
         }
     }
 

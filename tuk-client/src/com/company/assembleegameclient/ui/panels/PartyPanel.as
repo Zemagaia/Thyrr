@@ -4,7 +4,6 @@ import com.company.assembleegameclient.objects.Party;
 import com.company.assembleegameclient.objects.Player;
 import com.company.assembleegameclient.ui.GameObjectListItem;
 import com.company.assembleegameclient.ui.PlayerGameObjectListItem;
-import com.company.assembleegameclient.ui.StatusBar;
 import com.company.assembleegameclient.ui.menu.PlayerMenu;
 import com.company.util.MoreColorUtil;
 
@@ -13,7 +12,6 @@ import flash.display.Sprite;
 import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.geom.ColorTransform;
-import flash.geom.Point;
 import flash.utils.getTimer;
 
 public class PartyPanel extends Sprite {
@@ -44,6 +42,7 @@ public class PartyPanel extends Sprite {
     }
 
     private function onAddedToStage(_arg1:Event):void {
+        this.menuLayer = Global.layers.top;
         var _local2:PlayerGameObjectListItem;
         for each (_local2 in this.memberPanels) {
             _local2.addEventListener(MouseEvent.MOUSE_OVER, this.onMouseOver);

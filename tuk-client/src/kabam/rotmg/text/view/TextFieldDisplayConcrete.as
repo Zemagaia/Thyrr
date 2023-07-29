@@ -1,16 +1,19 @@
 ﻿package kabam.rotmg.text.view {
 import flash.display.Sprite;
+import flash.events.Event;
 import flash.text.TextField;
 import flash.text.TextFormat;
 import flash.text.TextLineMetrics;
 
 import kabam.rotmg.language.model.StringMap;
 import kabam.rotmg.text.model.FontInfo;
+import kabam.rotmg.text.model.FontModel;
+import kabam.rotmg.text.model.TextAndMapProvider;
 import kabam.rotmg.text.view.stringBuilder.StringBuilder;
 
 import org.osflash.signals.Signal;
 
-public class TextFieldDisplayConcrete extends Sprite implements TextFieldDisplay {
+public class TextFieldDisplayConcrete extends Sprite {
 
     public static const MIDDLE:String = "middle";
     public static const BOTTOM:String = "bottom";
@@ -38,6 +41,11 @@ public class TextFieldDisplayConcrete extends Sprite implements TextFieldDisplay
     private var leftMargin:int = 0;
     private var indent:int = 0;
     private var leading:int = 0;
+
+    public function TextFieldDisplayConcrete()
+    {
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
+    }
 
     private static function getOnlyTextHeight(_arg1:TextLineMetrics):Number {
         return ((_arg1.height - _arg1.leading));
@@ -155,6 +163,12 @@ public class TextFieldDisplayConcrete extends Sprite implements TextFieldDisplay
 
     public function update():void {
         this.setTextIfAble();
+    }
+
+    public function initialize(e:Event):void {
+        this.setFont(Global.fontModel.getFont());
+        this.setTextField(Global.textAndMapProvider.getTextField());
+        this.setStringMap(Global.textAndMapProvider.getStringMap());
     }
 
     public function setFont(_arg1:FontInfo):void {

@@ -14,8 +14,7 @@ public class TextureFactory {
     private static var flippedTextures:Dictionary = new Dictionary();
     private static var count:int = 0;
 
-    [Inject]
-    public var context3D:Context3DProxy;
+    public var context3D:Context3DProxy = Global.context3DProxy;
 
 
     public static function GetFlippedBitmapData(_arg1:BitmapData):BitmapData {

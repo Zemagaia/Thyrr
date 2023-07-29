@@ -24,7 +24,9 @@ public class FlexibleBox extends UIElement
     protected var texFile_:String;
     protected var drawBottomLine_:Boolean;
     protected var toggleBottomLine_:Boolean;
-    protected var outline_:int;
+    protected var outlineSize_:int;
+    protected var outline_:int = -1;
+    public var preserveColor_:Boolean = false;
 
     public function FlexibleBox(width:int, height:int, color:uint = 0xAEA9A9, texIndex:int = 0, drawBottomLine:Boolean = true, texFile:String = "ui", outline:int = -1)
     {
@@ -34,29 +36,48 @@ public class FlexibleBox extends UIElement
         texIndex_ = texIndex;
         toggleBottomLine_ = drawBottomLine_ = drawBottomLine;
         texFile_ = texFile;
-        outline_ = outline;
+        outlineSize_ = outline;
         draw(2, outline);
+    }
+
+    public function setOutlineSize(outline:int):FlexibleBox
+    {
+        outlineSize_ = outline;
+        draw(0, outlineSize_);
+        return this;
+    }
+
+    public function setOutlineColor(color:int):FlexibleBox
+    {
+        outline_ = color;
+        draw(0, outlineSize_);
+        return this;
     }
 
     public function modify(width:int, height:int, outline:int = -1):void
     {
         width_ = width;
         height_ = height;
-        outline_ = outline;
-        draw(0, outline_);
+        outlineSize_ = outline;
+        draw(0, outlineSize_);
     }
 
     public function toggle(color:uint, bottomLine:Boolean = true, yPlus:int = 2):void
     {
         color_ = color;
         toggleBottomLine_ = bottomLine;
-        draw(yPlus, outline_);
+        draw(yPlus, outlineSize_);
     }
 
     protected function draw(yPlus:int, outline:int):void
     {
-        var oColor:uint = color_ == Utils.color(0xaea9a9, 1/1.3) ? 0xaea9a9 : color_;
-        var tColor:uint = Utils.color(color_, 1 / 1.3);
+        var oColor:uint = outline_ > -1 ? outline_ : color_ == Utils.color(0xaea9a9, 1/1.35) ? 0xaea9a9 : color_;
+        var tColor:uint = Utils.color(color_, 1 / 1.35);
+        if (preserveColor_)
+        {
+            oColor = outline_;
+            tColor = color_;
+        }
         var sSize:int = (width_ > height_ ? height_ : width_) / SIZE;
         if (outline > 0)
             sSize = outline;
@@ -76,7 +97,7 @@ public class FlexibleBox extends UIElement
         {
             if (toggleBottomLine_)
             {
-                graphics.beginFill(Utils.color(tColor, 1 / 1.3));
+                graphics.beginFill(Utils.color(tColor, 1 / 1.35));
                 graphics.drawRect(0, height_, width_, 2 * sSize);
                 graphics.endFill();
                 y -= yPlus * sSize;

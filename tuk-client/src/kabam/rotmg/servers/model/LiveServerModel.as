@@ -10,8 +10,7 @@ public class LiveServerModel implements ServerModel {
 
     private const servers:Vector.<Server> = new <Server>[];
 
-    [Inject]
-    public var model:PlayerModel;
+    public var model:PlayerModel = Global.playerModel;
     private var _descendingFlag:Boolean;
 
 

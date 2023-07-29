@@ -11,12 +11,9 @@ import kabam.rotmg.core.model.PlayerModel;
 
 public class CharacterAnimationFactory {
 
-    [Inject]
-    public var playerModel:PlayerModel;
-    [Inject]
-    public var factory:CharacterFactory;
-    [Inject]
-    public var classesModel:ClassesModel;
+    public var playerModel:PlayerModel = Global.playerModel;
+    public var factory:CharacterFactory = Global.characterFactory;
+    public var classesModel:ClassesModel = Global.classesModel;
     private var currentChar:SavedCharacter;
     private var characterClass:CharacterClass;
     private var skin:CharacterSkin;

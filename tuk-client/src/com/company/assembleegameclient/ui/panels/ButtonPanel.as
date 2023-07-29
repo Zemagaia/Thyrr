@@ -16,7 +16,6 @@ public class ButtonPanel extends Panel {
 
     public function ButtonPanel(_arg1:GameSprite, _arg2:String, _arg3:String) {
         super(_arg1);
-        DrawPanelBg();
         this.titleText_ = new TextFieldDisplayConcrete().setSize(18).setColor(0xFFFFFF).setTextWidth(WIDTH).setHTML(true).setWordWrap(true).setMultiLine(true).setAutoSize(TextFieldAutoSize.CENTER);
         this.titleText_.setBold(true);
         this.titleText_.setStringBuilder(new LineBuilder().setParams(_arg2).setPrefix('<p align="center">').setPostfix("</p>"));

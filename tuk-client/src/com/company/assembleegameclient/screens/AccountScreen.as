@@ -2,17 +2,21 @@
 import com.company.assembleegameclient.ui.GuildText;
 import com.company.assembleegameclient.ui.RankText;
 import com.company.assembleegameclient.ui.tooltip.RankToolTip;
+import com.company.assembleegameclient.ui.tooltip.ToolTip;
 
 import flash.display.DisplayObject;
 import flash.display.Shape;
 import flash.display.Sprite;
+import flash.events.Event;
 import flash.events.MouseEvent;
+
+import kabam.rotmg.core.model.PlayerModel;
 
 import org.osflash.signals.Signal;
 
 public class AccountScreen extends Sprite {
 
-    public var tooltip:Signal;
+    public var playerModel:PlayerModel = Global.playerModel;
     private var rankLayer:Sprite;
     private var guildLayer:Sprite;
     private var guildName:String;
@@ -24,8 +28,25 @@ public class AccountScreen extends Sprite {
     private var guildText:GuildText;
 
     public function AccountScreen() {
-        this.tooltip = new Signal();
         this.makeLayers();
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
+        addEventListener(Event.REMOVED_FROM_STAGE, destroy);
+    }
+
+    public function initialize(e:Event):void
+    {
+        this.setRank(this.playerModel.getNumStars(), this.playerModel.getRank(), this.playerModel.isAdmin());
+        this.setGuild(this.playerModel.getGuildName(), this.playerModel.getGuildRank());
+    }
+
+    public function destroy(e:Event):void
+    {
+        Global.hideTooltip();
+    }
+
+    private function onTooltip(_arg1:ToolTip):void
+    {
+        Global.showTooltip(_arg1);
     }
 
     private function makeLayers():void {
@@ -36,7 +57,7 @@ public class AccountScreen extends Sprite {
     private function returnHeaderBackground():DisplayObject {
         var _local1:Shape = new Shape();
         _local1.graphics.beginFill(0, 0.5);
-        _local1.graphics.drawRect(0, 0, WebMain.DefaultWidth, 35);
+        _local1.graphics.drawRect(0, 0, Main.DefaultWidth, 35);
         return (_local1);
     }
 
@@ -77,11 +98,11 @@ public class AccountScreen extends Sprite {
     }
 
     protected function onMouseOver(_arg1:MouseEvent):void {
-        this.tooltip.dispatch(new RankToolTip(this.stars));
+        onTooltip(new RankToolTip(this.stars));
     }
 
     protected function onRollOut(_arg1:MouseEvent):void {
-        this.tooltip.dispatch(null);
+        Global.hideTooltip();
     }
 
 

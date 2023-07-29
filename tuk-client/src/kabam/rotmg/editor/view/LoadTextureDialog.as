@@ -26,7 +26,6 @@ import flash.utils.ByteArray;
 
 import kabam.rotmg.account.core.Account;
 import kabam.rotmg.appengine.api.AppEngineClient;
-import kabam.rotmg.core.StaticInjectorContext;
 import kabam.rotmg.editor.model.SearchData;
 import kabam.rotmg.editor.model.SearchModel;
 import kabam.rotmg.editor.model.TextureData;
@@ -52,10 +51,9 @@ public class LoadTextureDialog extends Sprite {
     public static const NUM_ROWS:int = 4;
     public static const TYPES:Vector.<int> = new <int>[PictureType.INVALID, PictureType.CHARACTER, PictureType.ITEM, PictureType.ENVIRONMENT, PictureType.PROJECTILE, PictureType.TEXTILE, PictureType.INTERFACE, PictureType.MISCELLANEOUS];
 
-    public const textureSelected:Signal = new Signal(TextureData);
-    public const cancel:Signal = new Signal();
-    public const search:Signal = new Signal(SearchData);
-
+    public var account:Account = Global.account;
+    public var client:AppEngineClient = Global.appEngine;
+    public var searchModel:SearchModel = Global.searchModel;
     public var accountDropDown_:DropDown;
     public var resultsBoxes_:ResultsBoxes;
     public var deletePictureDialog:DeletePictureDialog;
@@ -139,8 +137,52 @@ public class LoadTextureDialog extends Sprite {
         addEventListener(Event.ADDED_TO_STAGE, this.onAddedToStage);
     }
 
+    private function onCancel():void {
+        Global.closeDialogs();
+    }
+
+    private function textureSelected(_arg_1:TextureData):void {
+        Global.setTexture(_arg_1);
+        Global.closeDialogs();
+    }
+
+    private function onSearch(_arg_1:SearchData):void {
+        this.searchModel.searchData = _arg_1;
+        this.client.complete.addOnce(this.onSearchComplete);
+        this.client.sendRequest("/picture/list", this.makeRequest(_arg_1));
+    }
+
+    private function makeRequest(_arg_1:SearchData):Object {
+        var _local_2:Object = {};
+        _local_2["myGUID"] = this.account.getUserId();
+        if (_arg_1.scope == "Mine") {
+            _local_2["guid"] = this.account.getUserId();
+        }
+        else {
+            if (_arg_1.scope == "Wild Shadow") {
+                _local_2["guid"] = "administrator@wildshadow.com";
+            }
+        }
+        if (_arg_1.type != 0) {
+            _local_2["dataType"] = _arg_1.type.toString();
+        }
+        if (_arg_1.tags != "") {
+            _local_2["tags"] = _arg_1.tags;
+        }
+        if (_arg_1.offset != 0) {
+            _local_2["offset"] = _arg_1.offset;
+        }
+        _local_2["num"] = (LoadTextureDialog.NUM_ROWS * LoadTextureDialog.NUM_COLS);
+        return (_local_2);
+    }
+
+    private function onSearchComplete(_arg_1:Boolean, _arg_2:*):void {
+        this.searchModel.data = _arg_2;
+        this.showSearchResults(_arg_1, _arg_2);
+    }
+
     private function onCancelClick(_arg_1:MouseEvent):void {
-        this.cancel.dispatch();
+        this.onCancel();
     }
 
     private function onSearchClick(_arg_1:MouseEvent):void {
@@ -168,7 +210,7 @@ public class LoadTextureDialog extends Sprite {
         _local_2.type = PictureType.nameToType(this.typeDropDown_.getValue());
         _local_2.tags = this.tagSearchField_.getText();
         _local_2.offset = _arg_1;
-        this.search.dispatch(_local_2);
+        this.onSearch(_local_2);
     }
 
     public function showSearchResults(_arg_1:Boolean, _arg_2:*):void {
@@ -202,7 +244,7 @@ public class LoadTextureDialog extends Sprite {
     }
 
     private function onTextureSelected(_arg_1:TextureData):void {
-        this.textureSelected.dispatch(_arg_1);
+        this.textureSelected(_arg_1);
     }
 
     private function onPictureDelete(_arg_1:DeletePictureEvent):void {
@@ -256,11 +298,11 @@ public class LoadTextureDialog extends Sprite {
     }
 
     private function onDelete(_arg_1:Event):void {
-        var _local_2:Account = StaticInjectorContext.getInjector().getInstance(Account);
+        var _local_2:Account = Global.account;
         var _local_3:DeletePictureDialog = (_arg_1.target as DeletePictureDialog);
         _local_3.parent.removeChild(_local_3);
         this.resultsBoxes_.visible = false;
-        var _local_4:AppEngineClient = StaticInjectorContext.getInjector().getInstance(AppEngineClient);
+        var _local_4:AppEngineClient = Global.appEngine;
         _local_4.setSendEncrypted(false);
         _local_4.complete.addOnce(this.onDeleteComplete);
         _local_4.sendRequest("/picture/delete", this.getDeleteParams(_local_3, _local_2));
@@ -302,6 +344,7 @@ public class LoadTextureDialog extends Sprite {
             this.draw();
             this.drawn_ = true;
         }
+        this.showSearchResults(true, this.searchModel.data);
     }
 
     public function getData():String {

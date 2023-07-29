@@ -28,14 +28,10 @@ public class ChatListItemFactory {
     private static const GUILD:String = Parameters.GUILD_CHAT_NAME;
     private static const testField:TextField = makeTestTextField();
 
-    [Inject]
-    public var factory:BitmapTextFactory;
-    [Inject]
-    public var model:ChatModel;
-    [Inject]
-    public var fontModel:FontModel;
-    [Inject]
-    public var stageProxy:StageProxy;
+    public var factory:BitmapTextFactory = Global.bitmapTextFactory;
+    public var model:ChatModel = Global.chatModel;
+    public var fontModel:FontModel = Global.fontModel;
+    public var stageProxy:StageProxy = Global.stageProxy;
     private var message:ChatMessage;
     private var buffer:Vector.<DisplayObject>;
 

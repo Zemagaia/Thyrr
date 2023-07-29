@@ -9,22 +9,16 @@ import com.company.assembleegameclient.ui.panels.itemgrids.EquippedGrid;
 import com.company.assembleegameclient.ui.panels.itemgrids.InventoryGrid;
 import com.company.assembleegameclient.util.FameUtil;
 
-import flash.display.DisplayObject;
-
 import flash.filters.DropShadowFilter;
 
-import thyrr.assets.CharacterFactory;
 import kabam.rotmg.classes.model.CharacterClass;
 import kabam.rotmg.classes.model.CharacterSkin;
 import kabam.rotmg.classes.model.ClassesModel;
 import kabam.rotmg.constants.GeneralConstants;
-import kabam.rotmg.core.StaticInjectorContext;
-import kabam.rotmg.core.model.PlayerModel;
-
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 
-import thyrr.utils.Utils;
+import thyrr.assets.CharacterFactory;
 
 public class MyPlayerToolTip extends ToolTip {
 
@@ -51,12 +45,12 @@ public class MyPlayerToolTip extends ToolTip {
     }
 
     public function createUI():void {
-        this.factory = StaticInjectorContext.getInjector().getInstance(CharacterFactory);
-        this.classes = StaticInjectorContext.getInjector().getInstance(ClassesModel);
+        this.factory = Global.characterFactory;
+        this.classes = Global.classesModel;
         var _local1:int = int(this.charXML.ObjectType);
         var _local2:XML = ObjectLibrary.xmlLibrary_[_local1];
         this.player_ = Player.fromPlayerXML(this.accountName, this.charXML);
-        this.player_.accountId_ = StaticInjectorContext.getInjector().getInstance(PlayerModel).charList.accountId_;
+        this.player_.accountId_ = Global.playerModel.charList.accountId_;
         var _local3:CharacterClass = this.classes.getCharacterClass(this.player_.objectType_);
         var _local4:CharacterSkin = _local3.skins.getSkin(this.charXML.Texture);
         this.player_.animatedChar_ = this.factory.makeCharacter(_local4.template);
@@ -71,13 +65,11 @@ public class MyPlayerToolTip extends ToolTip {
         addChild(this.hpBar_);
         addChild(this.mpBar_);
         this.eGrid = new EquippedGrid(null, this.player_.slotTypes_, this.player_);
-        this.eGrid.x = 2;
-        this.eGrid.y = 88;
+        this.eGrid.y = 86;
         addChild(this.eGrid);
         this.eGrid.setItems(this.player_.equipment_);
         this.iGrid = new InventoryGrid(null, this.player_, GeneralConstants.NUM_EQUIPMENT_SLOTS);
-        this.iGrid.x = 2;
-        this.iGrid.y = 134;
+        this.iGrid.y = 132;
         addChild(this.iGrid);
         this.iGrid.setItems(this.player_.equipment_);
         this.lineBreak_[0] = new LineBreakDesign(width, 0x7B7B7B);

@@ -24,12 +24,9 @@ public class Graphic3D {
             [-0.5, 0.5, 0, 0, 0, 0, 0.01, 0, 1, 0.5, 0.5, 0, 0, 0, 0, 0.3, 1, 1,
              -0.5, -0.5, 0, 0, 0, 0, 0.1, 0, 0, 0.5, -0.5, 0, 0, 0, 0, 0.2, 1, 0]);
 
-    [Inject]
-    public var textureFactory:TextureFactory;
-    [Inject]
-    public var vertexBuffer:VertexBuffer3DProxy;
-    [Inject]
-    public var indexBuffer:IndexBuffer3DProxy;
+    public var textureFactory:TextureFactory = Global.textureFactory;
+    public var vertexBuffer:VertexBuffer3DProxy = Global.vertexBuffer3DProxy;
+    public var indexBuffer:IndexBuffer3DProxy = Global.indexBuffer3DProxy;
 
     public var texture:TextureProxy;
     public var matrix3D:Matrix3D;

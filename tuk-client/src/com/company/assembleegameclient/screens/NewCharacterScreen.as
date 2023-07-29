@@ -7,22 +7,24 @@ import flash.display.Sprite;
 import flash.events.Event;
 import flash.events.MouseEvent;
 
+import kabam.rotmg.classes.model.ClassesModel;
+import kabam.rotmg.classes.view.CharacterSkinView;
 import kabam.rotmg.core.model.PlayerModel;
 import kabam.rotmg.game.view.CreditDisplay;
-import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.ui.view.components.ScreenBase;
 
 import org.osflash.signals.Signal;
 
 public class NewCharacterScreen extends Sprite {
 
+    public var playerModel:PlayerModel = Global.playerModel;
+    public var classesModel:ClassesModel = Global.classesModel;
     private var backButton_:TitleMenuOption;
     private var creditDisplay_:CreditDisplay;
     private var boxes_:Object;
     public var tooltip:Signal;
     public var close:Signal;
     public var selected:Signal;
-    public var buy:Signal;
     private var isInitialized:Boolean = false;
 
     public function NewCharacterScreen() {
@@ -31,9 +33,42 @@ public class NewCharacterScreen extends Sprite {
         this.tooltip = new Signal(Sprite);
         this.selected = new Signal(int);
         this.close = new Signal();
-        this.buy = new Signal(int);
         addChild(new ScreenBase());
         addChild(new AccountScreen());
+        addEventListener(Event.ADDED_TO_STAGE, onAdded);
+        addEventListener(Event.REMOVED_FROM_STAGE, destroy);
+    }
+
+    public function onAdded(e:Event):void {
+        this.selected.add(this.onSelected);
+        this.close.add(this.onClose);
+        this.tooltip.add(this.onTooltip);
+        this.initialize(this.playerModel);
+    }
+
+    public function destroy(e:Event):void {
+        this.selected.remove(this.onSelected);
+        this.close.remove(this.onClose);
+        this.tooltip.remove(this.onTooltip);
+    }
+
+    private function onClose():void {
+        Global.setCharacterSelectionScreen(new CharacterSelectionScreen());
+        Global.setScreen(Global.characterSelectionScreen);
+    }
+
+    private function onSelected(_arg1:int):void {
+        this.classesModel.getCharacterClass(_arg1).setIsSelected(true);
+        Global.setScreen(new CharacterSkinView());
+    }
+
+    private function onTooltip(_arg1:Sprite):void {
+        if (_arg1) {
+            Global.showTooltip(_arg1);
+        }
+        else {
+            Global.hideTooltip();
+        }
     }
 
     public function initialize(_arg1:PlayerModel):void {
@@ -54,7 +89,7 @@ public class NewCharacterScreen extends Sprite {
         this.creditDisplay_.draw(_arg1.getCredits(), _arg1.getFame(), _arg1.getUnholyEssence(), _arg1.getDivineEssence());
         addChild(this.creditDisplay_);
         _local2 = 0;
-        var magic:int = Math.floor((WebMain.DefaultWidth - 75) / 105);
+        var magic:int = Math.floor((Main.DefaultWidth - 75) / 105);
         while (_local2 < ObjectLibrary.playerChars_.length) {
             _local3 = ObjectLibrary.playerChars_[_local2];
             _local4 = int(_local3.@type);
@@ -73,7 +108,7 @@ public class NewCharacterScreen extends Sprite {
             _local2++;
         }
         this.backButton_.x = ((stage.stageWidth / 2) - (this.backButton_.width / 2));
-        this.backButton_.y = WebMain.DefaultHeight - 50;
+        this.backButton_.y = Main.DefaultHeight - 50;
         this.creditDisplay_.x = stage.stageWidth;
         this.creditDisplay_.y = 20;
     }

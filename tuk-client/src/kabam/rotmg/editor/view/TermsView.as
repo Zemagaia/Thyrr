@@ -30,6 +30,18 @@ public class TermsView extends Sprite {
         this.termsDialog.addEventListener(Dialog.LEFT_BUTTON, this.reject);
         this.termsDialog.addEventListener(Dialog.RIGHT_BUTTON, this.agree);
         addChild(this.termsDialog);
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
+    }
+
+    public function initialize(e:Event):void {
+        this.response.addOnce(this.onResponse);
+    }
+
+    private function onResponse(_arg_1:Boolean):void {
+        if (_arg_1) {
+            Global.setTextureView();
+            Global.setScreen(Global.textureView);
+        }
     }
 
     private function agree(_arg_1:Event):void {

@@ -15,7 +15,12 @@ import flash.display.Sprite;
 import flash.events.Event;
 import flash.events.MouseEvent;
 
+import kabam.rotmg.characters.deletion.view.ConfirmDeleteCharacterDialog;
+import kabam.rotmg.characters.model.CharacterModel;
+
 import kabam.rotmg.classes.model.CharacterClass;
+import kabam.rotmg.classes.model.ClassesModel;
+import kabam.rotmg.game.model.GameInitData;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 
 import org.osflash.signals.Signal;
@@ -29,6 +34,8 @@ public class CurrentCharacterRect extends CharacterRect {
     public const showToolTip:Signal = new Signal(Sprite);
     public const hideTooltip:Signal = new Signal();
 
+    public var model:CharacterModel = Global.characterModel;
+    public var classesModel:ClassesModel = Global.classesModel;
     public var charName:String;
     public var charStats:CharacterStats;
     public var char:SavedCharacter;
@@ -59,7 +66,43 @@ public class CurrentCharacterRect extends CharacterRect {
         this.addEventListeners();
     }
 
+    public function initialize(e:Event):void {
+        selected.add(this.onSelected);
+        deleteCharacter.add(this.onDeleteCharacter);
+        showToolTip.add(this.onShow);
+        hideTooltip.add(this.onHide);
+    }
+
+    private function onShow(_arg1:Sprite):void {
+        Global.showTooltip(_arg1);
+    }
+
+    private function onHide():void {
+        Global.hideTooltip();
+    }
+
+    private function onSelected(_arg1:SavedCharacter):void {
+        var _local2:CharacterClass = this.classesModel.getCharacterClass(_arg1.objectType());
+        _local2.setIsSelected(true);
+        _local2.skins.getSkin(_arg1.skinType()).setIsSelected(true);
+        this.launchGame(_arg1);
+    }
+
+    private function launchGame(_arg1:SavedCharacter):void {
+        var _local2:GameInitData = new GameInitData();
+        _local2.createCharacter = false;
+        _local2.charId = _arg1.charId();
+        _local2.isNewGame = true;
+        Global.playGame(_local2);
+    }
+
+    private function onDeleteCharacter(_arg1:SavedCharacter):void {
+        this.model.select(_arg1);
+        Global.openDialog(new ConfirmDeleteCharacterDialog());
+    }
+
     private function addEventListeners():void {
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
         addEventListener(Event.REMOVED_FROM_STAGE, this.onRemovedFromStage);
         selectContainer.addEventListener(MouseEvent.CLICK, this.onSelect);
         this.deleteButton.addEventListener(MouseEvent.CLICK, this.onDelete);
@@ -133,7 +176,7 @@ public class CurrentCharacterRect extends CharacterRect {
         this.removeToolTip();
         var toolTip:MyPlayerToolTip = this.myPlayerToolTipFactory.create(this.charName, this.char.charXML_, this.charStats);
         toolTip.createUI();
-        this.showToolTip.dispatch(toolTip);
+        Global.showTooltip(toolTip);
     }
 
     override protected function onRollOut(_arg1:MouseEvent):void {
@@ -143,6 +186,10 @@ public class CurrentCharacterRect extends CharacterRect {
 
     private function onRemovedFromStage(_arg1:Event):void {
         this.removeToolTip();
+        hideTooltip.remove(this.onHide);
+        showToolTip.remove(this.onShow);
+        selected.remove(this.onSelected);
+        deleteCharacter.remove(this.onDeleteCharacter);
     }
 
     private function removeToolTip():void {

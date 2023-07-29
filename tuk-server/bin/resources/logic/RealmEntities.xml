@@ -64,6 +64,7 @@
 	
 	<BehaviorEntry id="Hobbit Rogue">
 		<State id="root">
+			<!--<BehaviorTemplate coolDown="100">CrazyShotgun</BehaviorTemplate>-->
 			<Behavior radius="3">Shoot</Behavior>
 			<Behavior behavior="Prioritize">
 				<Behavior speed="1.2" acquireRange="15" protectee="Hobbit Mage" protectionRange="9" reprotectRange="2.5">Protect</Behavior>

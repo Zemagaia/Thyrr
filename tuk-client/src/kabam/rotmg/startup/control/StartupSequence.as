@@ -2,23 +2,12 @@
 import kabam.lib.tasks.BaseTask;
 import kabam.lib.tasks.Task;
 import kabam.rotmg.startup.model.api.StartupDelegate;
-import kabam.rotmg.startup.model.impl.SignalTaskDelegate;
+import kabam.rotmg.startup.model.impl.FunctionTaskDelegate;
 import kabam.rotmg.startup.model.impl.TaskDelegate;
-
-import org.swiftsuspenders.Injector;
-
-import robotlegs.bender.framework.api.ILogger;
 
 public class StartupSequence extends BaseTask {
 
     public static const LAST:int = int.MAX_VALUE;
-
-
-    [Inject]
-    public var injector:Injector;
-
-    [Inject]
-    public var logger:ILogger;
 
     private const list:Vector.<StartupDelegate> = new Vector.<StartupDelegate>(0);
 
@@ -28,18 +17,16 @@ public class StartupSequence extends BaseTask {
         super();
     }
 
-    public function addSignal(signalClass:Class, priority:int = 0):void {
-        var delegate:SignalTaskDelegate = new SignalTaskDelegate();
-        delegate.injector = this.injector;
-        delegate.signalClass = signalClass;
+    public function addFunction(func:Function, priority:int = 0):void {
+        var delegate:FunctionTaskDelegate = new FunctionTaskDelegate();
+        delegate.func = func;
         delegate.priority = priority;
         this.list.push(delegate);
     }
 
-    public function addTask(taskClass:Class, priority:int = 0):void {
+    public function addTask(task:Task, priority:int = 0):void {
         var delegate:TaskDelegate = new TaskDelegate();
-        delegate.injector = this.injector;
-        delegate.taskClass = taskClass;
+        delegate.task = task;
         delegate.priority = priority;
         this.list.push(delegate);
     }
@@ -70,13 +57,13 @@ public class StartupSequence extends BaseTask {
     private function doNextTask():void {
         var task:Task = this.list[this.index++].make();
         task.lastly.addOnce(this.onTaskFinished);
-        this.logger.info("StartupSequence start:{0}", [task]);
+        trace("StartupSequence start:" + task);
         task.start();
     }
 
-    private function onTaskFinished(task:Task, isOK:Boolean, error:String):void {
-        if (isOK) {
-            this.logger.info("StartupSequence finish:{0} (isOK: {1})", [task, isOK]);
+    private function onTaskFinished(task:Task, isOk:Boolean, error:String):void {
+        if (isOk) {
+            trace("StartupSequence finish:" + task + " (isOk: " + isOk + ")");
             this.doNextTaskOrComplete();
         }
         else {

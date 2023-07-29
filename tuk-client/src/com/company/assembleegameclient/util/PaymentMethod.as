@@ -5,7 +5,6 @@ import flash.net.URLVariables;
 
 import kabam.rotmg.account.core.Account;
 import kabam.rotmg.application.api.ApplicationSetup;
-import kabam.rotmg.core.StaticInjectorContext;
 
 
 public class PaymentMethod {
@@ -37,8 +36,8 @@ public class PaymentMethod {
 
 
     public function getURL(_arg1:String, _arg2:String, _arg3:Offer):String {
-        var _local4:Account = StaticInjectorContext.getInjector().getInstance(Account);
-        var _local5:ApplicationSetup = StaticInjectorContext.getInjector().getInstance(ApplicationSetup);
+        var _local4:Account = Global.account;
+        var _local5:ApplicationSetup = Global.applicationSetup;
         var _local6:URLVariables = new URLVariables();
         _local6["tok"] = _arg1;
         _local6["exp"] = _arg2;

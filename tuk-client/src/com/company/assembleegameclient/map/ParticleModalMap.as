@@ -148,7 +148,7 @@ public class ParticleModalMap extends Map {
         _local5.x_ = getLocalPos(_arg1);
         _local5.y_ = getLocalPos(_arg2);
         _local6.x_ = getLocalPos(_arg1);
-        _local6.y_ = getLocalPos(WebMain.DefaultHeight);
+        _local6.y_ = getLocalPos(Main.DefaultHeight);
         var _local7:ConfettiEffect = new ConfettiEffect(_local5, _local6, _arg4, _arg3, true);
         this.addObj(_local7, _local5.x_, _local5.y_);
     }

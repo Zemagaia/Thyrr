@@ -13,14 +13,9 @@ import flash.filters.DropShadowFilter;
 import flash.geom.ColorTransform;
 import flash.text.TextFieldAutoSize;
 
-import kabam.rotmg.core.signals.HideTooltipsSignal;
-import kabam.rotmg.core.signals.ShowTooltipSignal;
 import kabam.rotmg.tooltips.HoverTooltipDelegate;
-import kabam.rotmg.tooltips.TooltipAble;
 
-import thyrr.utils.Utils;
-
-public class PlayerGameObjectListItem extends GameObjectListItem implements TooltipAble {
+public class PlayerGameObjectListItem extends GameObjectListItem {
 
     public const hoverTooltipDelegate:HoverTooltipDelegate = new HoverTooltipDelegate();
 
@@ -74,7 +69,7 @@ public class PlayerGameObjectListItem extends GameObjectListItem implements Tool
             this.enabled = _arg1;
             this.hoverTooltipDelegate.tooltip = ((this.enabled) ? new PlayerToolTip(Player(go)) : null);
             if (!this.enabled) {
-                this.hoverTooltipDelegate.getShowToolTip().dispatch(this.hoverTooltipDelegate.tooltip);
+                Global.showTooltip(this.hoverTooltipDelegate.tooltip);
             }
         }
     }
@@ -111,22 +106,6 @@ public class PlayerGameObjectListItem extends GameObjectListItem implements Tool
             return Parameters.NAME_CHOSEN_COLOR;
         }
         return 0xFFFFFF;
-    }
-
-    public function setShowToolTipSignal(_arg1:ShowTooltipSignal):void {
-        this.hoverTooltipDelegate.setShowToolTipSignal(_arg1);
-    }
-
-    public function getShowToolTip():ShowTooltipSignal {
-        return (this.hoverTooltipDelegate.getShowToolTip());
-    }
-
-    public function setHideToolTipsSignal(_arg1:HideTooltipsSignal):void {
-        this.hoverTooltipDelegate.setHideToolTipsSignal(_arg1);
-    }
-
-    public function getHideToolTips():HideTooltipsSignal {
-        return (this.hoverTooltipDelegate.getHideToolTips());
     }
 
 

@@ -1,13 +1,14 @@
 ﻿package com.company.assembleegameclient.ui.menu {
 import com.company.assembleegameclient.map.AbstractMap;
 import com.company.assembleegameclient.objects.Player;
+import com.company.assembleegameclient.parameters.Parameters;
 import com.company.assembleegameclient.ui.GameObjectListItem;
 import com.company.assembleegameclient.ui.LineBreakDesign;
 
 import flash.events.Event;
 import flash.events.MouseEvent;
 
-import org.osflash.signals.Signal;
+import kabam.rotmg.chat.model.ChatMessage;
 
 public class PlayerGroupMenu extends Menu {
 
@@ -17,16 +18,18 @@ public class PlayerGroupMenu extends Menu {
     public var players_:Vector.<Player>;
     public var teleportOption_:MenuOption;
     public var lineBreakDesign_:LineBreakDesign;
-    public var unableToTeleport:Signal;
 
     public function PlayerGroupMenu(_arg1:AbstractMap, _arg2:Vector.<Player>) {
         this.playerPanels_ = new Vector.<GameObjectListItem>();
-        this.unableToTeleport = new Signal();
         super(0x2B2B2B, 0x7B7B7B);
         this.map_ = _arg1;
         this.players_ = _arg2.concat();
         this.createHeader();
         this.createPlayerList();
+    }
+
+    private function onUnableToTeleport():void {
+        Global.addTextLine(ChatMessage.make(Parameters.ERROR_CHAT_NAME, "No players are eligible for teleporting"));
     }
 
     private function createPlayerList():void {
@@ -71,7 +74,7 @@ public class PlayerGroupMenu extends Menu {
             _local2.teleportTo(_local3);
         }
         else {
-            this.unableToTeleport.dispatch();
+            onUnableToTeleport();
         }
         remove();
     }

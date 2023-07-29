@@ -17,8 +17,6 @@ import flash.display.Sprite;
 import flash.events.Event;
 import flash.events.MouseEvent;
 
-
-
 internal class EditBoard extends Sprite {
 
     public static const TEXT_WIDTH:int = 400;
@@ -83,8 +81,8 @@ internal class EditBoard extends Sprite {
 
     private function layoutBackground():void {
         this.h_ = ((TEXT_HEIGHT + this.saveButton_.height) + 8);
-        x = ((WebMain.DefaultWidth / 2) - (this.w_ / 2));
-        y = ((WebMain.DefaultHeight / 2) - (this.h_ / 2));
+        x = ((Main.DefaultWidth / 2) - (this.w_ / 2));
+        y = ((Main.DefaultHeight / 2) - (this.h_ / 2));
         graphics.clear();
         GraphicsUtil.clearPath(this.path_);
         GraphicsUtil.drawCutEdgeRect(-6, -6, (this.w_ + 12), (this.h_ + 12), 4, [1, 1, 1, 1], this.path_);

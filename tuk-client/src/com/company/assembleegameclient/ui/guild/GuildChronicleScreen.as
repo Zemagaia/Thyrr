@@ -9,10 +9,6 @@ import flash.display.Sprite;
 import flash.events.Event;
 import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
-import flash.text.TextFieldAutoSize;
-
-
-import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 
 public class GuildChronicleScreen extends Sprite {
 
@@ -25,7 +21,7 @@ public class GuildChronicleScreen extends Sprite {
         this.gs_ = _arg1;
         graphics.clear();
         graphics.beginFill(0x2B2B2B, 0.8);
-        graphics.drawRect(0, 0, WebMain.DefaultWidth, WebMain.DefaultHeight);
+        graphics.drawRect(0, 0, Main.DefaultWidth, Main.DefaultHeight);
         graphics.endFill();
         addChild((this.container = new Sprite()));
         this.addList();
@@ -103,8 +99,8 @@ public class GuildChronicleScreen extends Sprite {
     }
 
     private function onAddedToStage(_arg1:Event):void {
-        this.continueButton_.x = (WebMain.DefaultWidth / 2);
-        this.continueButton_.y = WebMain.DefaultHeight - 50;
+        this.continueButton_.x = (Main.DefaultWidth / 2);
+        this.continueButton_.y = Main.DefaultHeight - 50;
         stage.addEventListener(KeyboardEvent.KEY_DOWN, this.onKeyDown, false, 1);
         stage.addEventListener(KeyboardEvent.KEY_UP, this.onKeyUp, false, 1);
     }

@@ -6,12 +6,9 @@ import kabam.rotmg.core.model.PlayerModel;
 
 public class VerifyAgeTask extends BaseTask {
 
-    [Inject]
-    public var account:Account;
-    [Inject]
-    public var playerModel:PlayerModel;
-    [Inject]
-    public var client:AppEngineClient;
+    public var account:Account = Global.account;
+    public var playerModel:PlayerModel = Global.playerModel;
+    public var client:AppEngineClient = Global.appEngine;
 
 
     override protected function startTask():void {

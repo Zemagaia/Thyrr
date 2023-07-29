@@ -9,7 +9,6 @@ import flash.events.Event;
 
 import kabam.rotmg.account.core.Account;
 import kabam.rotmg.appengine.api.AppEngineClient;
-import kabam.rotmg.core.StaticInjectorContext;
 
 public class GuildBoardWindow extends Sprite {
 
@@ -27,15 +26,15 @@ public class GuildBoardWindow extends Sprite {
         var _local2:Graphics = this.darkBox_.graphics;
         _local2.clear();
         _local2.beginFill(0, 0.8);
-        _local2.drawRect(0, 0, WebMain.DefaultWidth, WebMain.DefaultHeight);
+        _local2.drawRect(0, 0, Main.DefaultWidth, Main.DefaultHeight);
         _local2.endFill();
         addChild(this.darkBox_);
         this.load();
     }
 
     private function load():void {
-        var _local1:Account = StaticInjectorContext.getInjector().getInstance(Account);
-        this.client = StaticInjectorContext.getInjector().getInstance(AppEngineClient);
+        var _local1:Account = Global.account;
+        this.client = Global.appEngine;
         this.client.complete.addOnce(this.onGetBoardComplete);
         this.client.sendRequest("/guild/getBoard", _local1.getCredentials());
         this.dialog_ = new Dialog(null, "Loading...", null, null, null);
@@ -90,10 +89,10 @@ public class GuildBoardWindow extends Sprite {
     }
 
     private function onEditComplete(_arg1:Event):void {
-        var _local2:Account = StaticInjectorContext.getInjector().getInstance(Account);
+        var _local2:Account = Global.account;
         var _local3:Object = {"board": this.editBoard_.getText()};
         MoreObjectUtil.addToObject(_local3, _local2.getCredentials());
-        this.client = StaticInjectorContext.getInjector().getInstance(AppEngineClient);
+        this.client = Global.appEngine;
         this.client.complete.addOnce(this.onSetBoardComplete);
         this.client.sendRequest("/guild/setBoard", _local3);
         removeChild(this.editBoard_);

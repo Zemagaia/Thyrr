@@ -27,7 +27,6 @@ import flash.utils.ByteArray;
 import flash.utils.Dictionary;
 
 import kabam.lib.json.JsonParser;
-import kabam.rotmg.core.StaticInjectorContext;
 import kabam.rotmg.ui.view.components.ScreenBase;
 
 import org.osflash.signals.Signal;
@@ -69,7 +68,7 @@ public class EditingScreen extends Sprite {
         super();
         addChild(new ScreenBase());
         addChild(new AccountScreen());
-        this.json_ = StaticInjectorContext.getInjector().getInstance(JsonParser);
+        this.json_ = Global.jsonParser;
         this.commandMenu_ = new MECommandMenu();
         this.commandMenu_.x = 15;
         this.commandMenu_.y = MAP_Y - 40;
@@ -85,12 +84,12 @@ public class EditingScreen extends Sprite {
         this.commandQueue_ = new CommandQueue();
         this.meMap_ = new MEMap();
         this.meMap_.addEventListener(TilesEvent.TILES_EVENT, this.onTilesEvent);
-        this.meMap_.x = ((WebMain.DefaultWidth / 2) - (MEMap.SIZE / 2));
+        this.meMap_.x = ((Main.DefaultWidth / 2) - (MEMap.SIZE / 2));
         this.meMap_.y = MAP_Y;
         addChild(this.meMap_);
         this.infoPane_ = new InfoPane(this.meMap_);
         this.infoPane_.x = 4;
-        this.infoPane_.y = (WebMain.DefaultHeight - InfoPane.HEIGHT) - 4;
+        this.infoPane_.y = (Main.DefaultHeight - InfoPane.HEIGHT) - 4;
         addChild(this.infoPane_);
         this.chooserDropDown_ = new DropDown(GroupDivider.GROUP_LABELS, Chooser.WIDTH, 26);
         addChild(this.chooserDropDown_);

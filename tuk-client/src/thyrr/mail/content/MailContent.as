@@ -24,7 +24,7 @@ import thyrr.mail.signals.FetchMailSignal;
 
 public class MailContent extends Sprite {
 
-    private static const X_OFFSET:int = WebMain.DefaultWidth / 2 - WebMain.DefaultWidth / 4 - 5;
+    private static const X_OFFSET:int = Main.DefaultWidth / 2 - Main.DefaultWidth / 4 - 5;
     private static const Y_OFFSET:int = 94;
 
     public const fetchSignal_:FetchMailSignal = new FetchMailSignal();
@@ -45,7 +45,7 @@ public class MailContent extends Sprite {
         this.fetchSignal_.add(this.onFetch);
         this.shape_ = new Shape();
         this.shape_.graphics.beginFill(0);
-        this.shape_.graphics.drawRect(X_OFFSET, Y_OFFSET, WebMain.DefaultWidth / 2 - 8, 570);
+        this.shape_.graphics.drawRect(X_OFFSET, Y_OFFSET, Main.DefaultWidth / 2 - 8, 570);
         this.shape_.graphics.endFill();
         this.resultMask_ = new Sprite();
         this.resultMask_.addChild(this.shape_);
@@ -69,8 +69,8 @@ public class MailContent extends Sprite {
             this.noMailText_ = new TextFieldDisplayConcrete().setColor(0xB3B3B3).setSize(14)
                     .setAutoSize(TextFieldAutoSize.CENTER).setVerticalAlign(TextFieldDisplayConcrete.MIDDLE);
             this.noMailText_.setStringBuilder(new StaticStringBuilder("You do not have any unread mails"));
-            this.noMailText_.x = WebMain.DefaultWidth / 2;
-            this.noMailText_.y = (WebMain.DefaultWidth / 2 - WebMain.DefaultWidth / 5) - 10;
+            this.noMailText_.x = Main.DefaultWidth / 2;
+            this.noMailText_.y = (Main.DefaultWidth / 2 - Main.DefaultWidth / 5) - 10;
             this.noMailText_.filters = [new DropShadowFilter(0, 0, 0)];
             if (!contains(this.noMailText_))
                 addChild(this.noMailText_);
@@ -115,7 +115,7 @@ public class MailContent extends Sprite {
         this.resultBackground_.x = X_OFFSET - 319;
         if (this.resultBackground_.numChildren > 8) {
             this.resultScroll_ = new LegacyScrollbar(16, 540, 0.3);
-            this.resultScroll_.x = WebMain.DefaultWidth / 2 + this.shape_.width / 2 - 18;
+            this.resultScroll_.x = Main.DefaultWidth / 2 + this.shape_.width / 2 - 18;
             this.resultScroll_.y = Y_OFFSET + 30;
             this.resultScroll_.setIndicatorSize(570, this.resultBackground_.height);
             this.resultScroll_.addEventListener(Event.CHANGE, this.onResultScrollChanged);

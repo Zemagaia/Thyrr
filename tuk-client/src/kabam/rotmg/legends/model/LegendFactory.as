@@ -9,12 +9,9 @@ import kabam.rotmg.core.model.PlayerModel;
 
 public class LegendFactory {
 
-    [Inject]
-    public var playerModel:PlayerModel;
-    [Inject]
-    public var classesModel:ClassesModel;
-    [Inject]
-    public var factory:CharacterFactory;
+    public var playerModel:PlayerModel = Global.playerModel;
+    public var classesModel:ClassesModel = Global.classesModel;
+    public var factory:CharacterFactory = Global.characterFactory;
     private var ownAccountId:String;
     private var legends:Vector.<Legend>;
 

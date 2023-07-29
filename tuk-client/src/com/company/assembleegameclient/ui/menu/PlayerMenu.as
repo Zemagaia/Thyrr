@@ -8,13 +8,8 @@ import com.company.assembleegameclient.util.redrawers.GlowRedrawer;
 import com.company.util.AssetLibrary;
 
 import flash.display.BitmapData;
-
 import flash.events.Event;
 import flash.events.MouseEvent;
-
-import kabam.rotmg.chat.control.ShowChatInputSignal;
-import kabam.rotmg.core.StaticInjectorContext;
-
 
 public class PlayerMenu extends Menu {
 
@@ -145,20 +140,17 @@ public class PlayerMenu extends Menu {
     }
 
     private function onPrivateMessage(_arg1:Event):void {
-        var _local2:ShowChatInputSignal = StaticInjectorContext.getInjector().getInstance(ShowChatInputSignal);
-        _local2.dispatch(true, (("/tell " + this.playerName_) + " "));
+        Global.onShowChatInput(true, (("/tell " + this.playerName_) + " "));
         remove();
     }
 
     private function onTradeMessage(_arg1:Event):void {
-        var _local2:ShowChatInputSignal = StaticInjectorContext.getInjector().getInstance(ShowChatInputSignal);
-        _local2.dispatch(true, ("/trade " + this.playerName_));
+        Global.onShowChatInput(true, ("/trade " + this.playerName_));
         remove();
     }
 
     private function onGuildMessage(_arg1:Event):void {
-        var _local2:ShowChatInputSignal = StaticInjectorContext.getInjector().getInstance(ShowChatInputSignal);
-        _local2.dispatch(true, "/g ");
+        Global.onShowChatInput(true, "/g ");
         remove();
     }
 

@@ -4,16 +4,10 @@ import flash.display.Sprite;
 import flash.events.Event;
 import flash.events.MouseEvent;
 
-import kabam.rotmg.core.signals.HideTooltipsSignal;
-import kabam.rotmg.core.signals.ShowTooltipSignal;
-
-public class HoverTooltipDelegate implements TooltipAble {
+public class HoverTooltipDelegate {
 
     public var tooltip:Sprite;
-    private var hideToolTips:HideTooltipsSignal;
-    private var showToolTip:ShowTooltipSignal;
     private var displayObject:DisplayObject;
-
 
     public function setDisplayObject(_arg1:DisplayObject):void {
         this.displayObject = _arg1;
@@ -35,25 +29,9 @@ public class HoverTooltipDelegate implements TooltipAble {
         return (this.displayObject);
     }
 
-    public function setShowToolTipSignal(_arg1:ShowTooltipSignal):void {
-        this.showToolTip = _arg1;
-    }
-
-    public function getShowToolTip():ShowTooltipSignal {
-        return (this.showToolTip);
-    }
-
-    public function setHideToolTipsSignal(_arg1:HideTooltipsSignal):void {
-        this.hideToolTips = _arg1;
-    }
-
-    public function getHideToolTips():HideTooltipsSignal {
-        return (this.hideToolTips);
-    }
-
     private function onRemovedFromStage(_arg1:Event):void {
         if (((!((this.tooltip == null))) && (!((this.tooltip.parent == null))))) {
-            this.hideToolTips.dispatch();
+            Global.hideTooltip();
         }
         this.displayObject.removeEventListener(MouseEvent.MOUSE_OVER, this.onMouseOver);
         this.displayObject.removeEventListener(MouseEvent.MOUSE_OUT, this.onMouseOut);
@@ -61,11 +39,11 @@ public class HoverTooltipDelegate implements TooltipAble {
     }
 
     private function onMouseOut(_arg1:MouseEvent):void {
-        this.hideToolTips.dispatch();
+        Global.hideTooltip();
     }
 
     private function onMouseOver(_arg1:MouseEvent):void {
-        this.showToolTip.dispatch(this.tooltip);
+        Global.showTooltip(this.tooltip);
     }
 
 

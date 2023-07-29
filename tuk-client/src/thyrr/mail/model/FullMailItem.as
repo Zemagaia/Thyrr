@@ -25,7 +25,7 @@ public class FullMailItem extends MailItem {
 
     private var timeText_:BaseSimpleText;
 
-    protected static var INNER_WIDTH:int = WebMain.DefaultWidth / 2 - 10;
+    protected static var INNER_WIDTH:int = Main.DefaultWidth / 2 - 10;
     protected static var INNER_HEIGHT:int = 564;
 
     public function FullMailItem(mailData:AccountMailsData, gameSprite:GameSprite, width:int, height:int = 0) {

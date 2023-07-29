@@ -1,19 +1,36 @@
 ﻿package kabam.rotmg.ui.view {
 
+import com.company.assembleegameclient.mapeditor.MapEditor;
 import com.company.assembleegameclient.screens.AccountScreen;
+import com.company.assembleegameclient.screens.ServersScreen;
 import com.company.assembleegameclient.screens.TitleMenuOption;
 import com.company.assembleegameclient.ui.SoundIcon;
+import com.company.assembleegameclient.ui.dialogs.ConfirmDialog;
+import com.company.assembleegameclient.ui.language.LanguageOptionOverlay;
 
 import flash.display.Sprite;
+import flash.events.Event;
 import flash.events.MouseEvent;
+import flash.external.ExternalInterface;
 import flash.filters.DropShadowFilter;
+import flash.net.URLRequest;
+import flash.net.URLRequestMethod;
+import flash.net.URLVariables;
+import flash.net.navigateToURL;
+import flash.system.Capabilities;
 import flash.text.TextFieldAutoSize;
 
+import kabam.rotmg.account.core.Account;
+import kabam.rotmg.account.web.model.AccountData;
+import kabam.rotmg.account.web.view.WebLoginDialog;
+import kabam.rotmg.account.web.view.WebRegisterDialog;
+import kabam.rotmg.appengine.api.AppEngineClient;
+import kabam.rotmg.application.DynamicSettings;
+import kabam.rotmg.application.api.ApplicationSetup;
 import kabam.rotmg.build.api.BuildData;
-
 import kabam.rotmg.build.api.BuildEnvironment;
-import kabam.rotmg.core.StaticInjectorContext;
-
+import kabam.rotmg.core.model.PlayerModel;
+import kabam.rotmg.core.view.Layers;
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 import kabam.rotmg.text.view.stringBuilder.StaticStringBuilder;
@@ -27,21 +44,26 @@ import thyrr.utils.Utils;
 
 public class TitleView extends Sprite {
 
-    public static const MIDDLE_OF_BOTTOM_BAND:Number = WebMain.DefaultHeight - 11;
+    public static const MIDDLE_OF_BOTTOM_BAND:Number = Main.DefaultHeight - 11;
 
     private static var TitleScreenGraphic:Class = TitleView_TitleScreenGraphic;
     public static var queueEmailConfirmation:Boolean = false;
     public static var queuePasswordPrompt:Boolean = false;
     public static var queuePasswordPromptFull:Boolean = false;
     public static var queueRegistrationPrompt:Boolean = false;
-
+    private static var supportCalledBefore:Boolean = false;
+    
+    public var account:Account = Global.account;
+    public var playerModel:PlayerModel = Global.playerModel;
+    public var setup:ApplicationSetup = Global.applicationSetup;
+    public var layers:Layers = Global.layers;
+    public var client:AppEngineClient = Global.appEngine;
+    private var email:String;
+    private var pass:String;
     private var versionText:TextFieldDisplayConcrete;
     private var copyrightText:TextFieldDisplayConcrete;
     private var menuOptionsBar:MenuOptionsBar;
     private var data:EnvironmentData;
-    private var _login:Signal;
-    private var _register:Signal;
-    private var _reset:Signal;
     private var registerButton:TitleMenuOption;
     private var loginButton:TitleMenuOption;
     private var resetButton:TitleMenuOption;
@@ -67,18 +89,158 @@ public class TitleView extends Sprite {
         addChild(new SoundIcon());
         this.makeUIElements();
         this.makeSignals();
+        addEventListener(Event.ADDED_TO_STAGE, onAdded);
+        addEventListener(Event.REMOVED_FROM_STAGE, destroy);
     }
 
-    public function get login():Signal {
-        return (this._login);
+    public function onAdded(e:Event):void {
+        this.optionalButtonsAdded.add(this.onOptionalButtonsAdded);
+        this.initialize(this.makeEnvironmentData());
+        this.setInfo(this.account.getUserId(), this.account.isRegistered());
+        this.playClicked.add(this.handleIntentionToPlay);
+        this.serversClicked.add(this.showServersScreen);
+        this.accountClicked.add(this.handleIntentionToReviewAccount);
+        this.legendsClicked.add(this.showLegendsScreen);
+        this.supportClicked.add(this.openSupportPage);
     }
 
-    public function get register():Signal {
-        return (this._register);
+    private function openSupportPage():void {
+        var _local1:URLVariables = new URLVariables();
+        var _local2:URLRequest = new URLRequest();
+        var _local3:Boolean;
+        if (((DynamicSettings.settingExists("SalesforceMobile")) && ((DynamicSettings.getSettingValue("SalesforceMobile") == 1)))) {
+            _local3 = true;
+        }
+        var _local4:String = this.playerModel.getSalesForceData();
+        if ((((_local4 == "unavailable")) || (!(_local3)))) {
+            _local1.language = "en_US";
+            _local1.game = "a0Za000000jIBFUEA4";
+            _local1.issue = "Other_Game_Issues";
+            _local2.url = "http://rotmg.decagames.io";
+            _local2.method = URLRequestMethod.GET;
+            _local2.data = _local1;
+            navigateToURL(_local2, "_blank");
+        } else {
+            if ((((Capabilities.playerType == "PlugIn")) || ((Capabilities.playerType == "ActiveX")))) {
+                if (!supportCalledBefore) {
+                    ExternalInterface.call("openSalesForceFirstTime", _local4);
+                    supportCalledBefore = true;
+                } else {
+                    ExternalInterface.call("reopenSalesForce");
+                }
+            } else {
+                _local1.data = _local4;
+                _local2.url = "http://rotmg.decagames.io";
+                _local2.method = URLRequestMethod.GET;
+                _local2.data = _local1;
+                navigateToURL(_local2, "_blank");
+            }
+        }
     }
 
-    public function get reset():Signal {
-        return (this._reset);
+    private function onOptionalButtonsAdded():void {
+        this.editorClicked && this.editorClicked.add(this.showMapEditor);
+        this.textureEditorClicked && this.textureEditorClicked.add(this.showSpriteEditor);
+        this.quitClicked && this.quitClicked.add(this.attemptToCloseClient);
+    }
+
+    public function showLanguagesScreen():void {
+        Global.setScreen(new LanguageOptionOverlay());
+    }
+
+    private function makeEnvironmentData():EnvironmentData {
+        var ed:EnvironmentData = new EnvironmentData();
+        var rank:int = this.playerModel.getRank();
+        ed.isDesktop = Capabilities.playerType == "Desktop";
+        ed.canMapEdit = rank >= this.playerModel.getMapMinRank();
+        ed.canSprite = rank >= this.playerModel.getSpriteMinRank();
+        ed.buildLabel = this.setup.getBuildLabel();
+        return ed;
+    }
+
+    public function destroy(e:Event):void {
+        this.playClicked.remove(this.handleIntentionToPlay);
+        this.serversClicked.remove(this.showServersScreen);
+        this.accountClicked.remove(this.handleIntentionToReviewAccount);
+        this.legendsClicked.remove(this.showLegendsScreen);
+        this.supportClicked.remove(this.openSupportPage);
+        this.optionalButtonsAdded.remove(this.onOptionalButtonsAdded);
+        this.editorClicked && this.editorClicked.remove(this.showMapEditor);
+        this.textureEditorClicked && this.textureEditorClicked.remove(this.showSpriteEditor);
+        this.quitClicked && this.quitClicked.remove(this.attemptToCloseClient);
+    }
+
+    private function handleIntentionToPlay():void {
+        Global.enterGame();
+    }
+
+    private function showServersScreen():void {
+        Global.setScreen(new ServersScreen());
+    }
+
+    private function handleIntentionToReviewAccount():void {
+        Global.openAccountInfo();
+    }
+
+    private function showLegendsScreen():void {
+        Global.setLegendsView();
+        Global.setScreen(Global.legendsView);
+    }
+
+    private function showMapEditor():void {
+        Global.setMapEditor(new MapEditor());
+        Global.setScreen(Global.mapEditor);
+    }
+
+    private function showSpriteEditor():void {
+        Global.setTextureView();
+        Global.setScreen(Global.textureView);
+    }
+
+    private function attemptToCloseClient():void {
+        dispatchEvent(new Event("APP_CLOSE_EVENT"));
+    }
+
+    private function doRegister():void {
+        Global.openDialog(new WebRegisterDialog());
+    }
+
+    private function onLoginToggle():void {
+        if (this.account.isRegistered()) {
+            this.onLogOut();
+        }
+        else {
+            Global.openDialog(new WebLoginDialog());
+        }
+    }
+
+    private function onLogOut():void {
+        Global.logout();
+        this.setInfo("", false);
+    }
+
+    private function onResetComplete(isOk:Boolean, data:*):void {
+        var accountData:AccountData;
+        if (isOk) {
+            accountData = new AccountData();
+            accountData.username = this.email;
+            accountData.password = this.pass;
+            Global.login(accountData);
+        }
+    }
+
+    private function onResetPhase1():void {
+        var _local1:ConfirmDialog = new ConfirmDialog("ResetAccount", "Are you sure you want to reset your account back to realmofthemadgod.com values?", this.onResetPhase2);
+        Global.openDialog(_local1);
+    }
+
+    private function onResetPhase2():void {
+        var credentials:Object = this.account.getCredentials();
+        this.email = this.account.getUserId();
+        this.pass = this.account.getPassword();
+        Global.logout();
+        this.client.complete.addOnce(this.onResetComplete);
+        this.client.sendRequest("/migrate/userAccountReset", credentials);
     }
 
     private function makeUIElements():void {
@@ -88,9 +250,6 @@ public class TitleView extends Sprite {
     }
 
     private function makeSignals():void {
-        this._login = new Signal();
-        this._register = new Signal();
-        this._reset = new Signal();
         loginButton.addEventListener(MouseEvent.CLICK, onLogin);
         registerButton.addEventListener(MouseEvent.CLICK, onRegister);
         resetButton.addEventListener(MouseEvent.CLICK, onReset);
@@ -98,17 +257,17 @@ public class TitleView extends Sprite {
 
     private function onLogin(e:MouseEvent):void
     {
-        _login.dispatch();
+        onLoginToggle();
     }
 
     private function onRegister(e:MouseEvent):void
     {
-        _register.dispatch();
+        doRegister();
     }
 
     private function onReset(e:MouseEvent):void
     {
-        _reset.dispatch();
+        onResetPhase1();
     }
 
     private function makeMenuOptionsBar():MenuOptionsBar {
@@ -142,7 +301,7 @@ public class TitleView extends Sprite {
         this.copyrightText = this.makeText().setAutoSize(TextFieldAutoSize.RIGHT).setVerticalAlign(TextFieldDisplayConcrete.MIDDLE);
         this.copyrightText.setStringBuilder(new LineBuilder().setParams("2022 - Thyrr"));
         this.copyrightText.filters = [Utils.OutlineFilter];
-        this.copyrightText.x = WebMain.DefaultWidth;
+        this.copyrightText.x = Main.DefaultWidth;
         this.copyrightText.y = MIDDLE_OF_BOTTOM_BAND;
         addChild(this.copyrightText);
     }
@@ -205,14 +364,14 @@ public class TitleView extends Sprite {
     }
 
     private function showUIForRegisteredAccount():void {
-        var _local1:BuildData = StaticInjectorContext.getInjector().getInstance(BuildData);
+        var _local1:BuildData = Global.buildData;
         this.loginButton.setTextKey("Log out");
         if ((((_local1.getEnvironment() == BuildEnvironment.TESTING)) || ((_local1.getEnvironment() == BuildEnvironment.LOCALHOST))))
         {
             // reset, login
             addChild(this.resetButton);
             addChild(this.loginButton);
-            this.resetButton.x = WebMain.DefaultWidth - resetButton.width - 4;
+            this.resetButton.x = Main.DefaultWidth - resetButton.width - 4;
             this.resetButton.y = 10;
             this.loginButton.x = this.resetButton.x - loginButton.width - 4;
             this.loginButton.y = 10;
@@ -221,7 +380,7 @@ public class TitleView extends Sprite {
         {
             // login
             addChild(this.loginButton);
-            this.loginButton.x = WebMain.DefaultWidth - loginButton.width - 4;
+            this.loginButton.x = Main.DefaultWidth - loginButton.width - 4;
             this.loginButton.y = 10;
         }
     }
@@ -231,7 +390,7 @@ public class TitleView extends Sprite {
         this.loginButton.setTextKey("Log in");
         addChild(this.registerButton);
         addChild(this.loginButton);
-        this.registerButton.x = WebMain.DefaultWidth - registerButton.width - 4;
+        this.registerButton.x = Main.DefaultWidth - registerButton.width - 4;
         this.registerButton.y = 10;
         this.loginButton.x = this.registerButton.x - loginButton.width - 4;
         this.loginButton.y = 10;

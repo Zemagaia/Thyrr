@@ -7,7 +7,6 @@ import com.company.assembleegameclient.ui.panels.PortalPanel;
 import flash.display.BitmapData;
 import flash.display.IGraphicsData;
 
-import kabam.rotmg.core.StaticInjectorContext;
 import kabam.rotmg.text.view.BitmapTextFactory;
 import kabam.rotmg.text.view.stringBuilder.StringBuilder;
 
@@ -29,7 +28,7 @@ public class Portal extends GameObject implements IInteractiveObject {
     override protected function makeNameBitmapData():BitmapData {
         var _local1:Array = name_.match(NAME_PARSER);
         var _local2:StringBuilder = new PortalNameParser().makeBuilder(name_);
-        var _local3:BitmapTextFactory = StaticInjectorContext.getInjector().getInstance(BitmapTextFactory);
+        var _local3:BitmapTextFactory = Global.bitmapTextFactory;
         return (_local3.make(_local2, 16, 0xFFFFFF, true, IDENTITY_MATRIX, true));
     }
 
@@ -41,7 +40,8 @@ public class Portal extends GameObject implements IInteractiveObject {
     }
 
     public function getPanel(_arg1:GameSprite):Panel {
-        return (new PortalPanel(_arg1, this));
+        Global.setPortalPanel(new PortalPanel(_arg1, this));
+        return Global.portalPanel;
     }
 
 

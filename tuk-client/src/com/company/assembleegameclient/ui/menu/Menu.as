@@ -1,4 +1,5 @@
 ﻿package com.company.assembleegameclient.ui.menu {
+import com.company.assembleegameclient.util.StageProxy;
 import com.company.util.GraphicsUtil;
 import com.company.util.RectangleUtil;
 
@@ -15,10 +16,9 @@ import flash.events.MouseEvent;
 import flash.filters.DropShadowFilter;
 import flash.geom.Rectangle;
 
-import kabam.rotmg.ui.view.UnFocusAble;
+public class Menu extends Sprite {
 
-public class Menu extends Sprite implements UnFocusAble {
-
+    public var stageProxy:StageProxy = Global.stageProxy;
     private var backgroundFill_:GraphicsSolidFill = new GraphicsSolidFill(0, 1);
     private var outlineFill_:GraphicsSolidFill = new GraphicsSolidFill(0, 1);
     private var lineStyle_:GraphicsStroke = new GraphicsStroke(2, false, LineScaleMode.NORMAL, CapsStyle.NONE, JointStyle.ROUND, 3, outlineFill_);
@@ -39,6 +39,10 @@ public class Menu extends Sprite implements UnFocusAble {
         addEventListener(Event.REMOVED_FROM_STAGE, this.onRemovedFromStage);
     }
 
+    private function onMouseUp(_arg1:MouseEvent):void {
+        this.stageProxy.setFocus(null);
+    }
+
     protected function addOption(_arg1:MenuOption):void {
         _arg1.x = 8;
         _arg1.y = this.yOffset;
@@ -51,11 +55,13 @@ public class Menu extends Sprite implements UnFocusAble {
         this.position();
         addEventListener(Event.ENTER_FRAME, this.onEnterFrame);
         addEventListener(MouseEvent.ROLL_OUT, this.onRollOut);
+        this.addEventListener(MouseEvent.MOUSE_UP, this.onMouseUp);
     }
 
     protected function onRemovedFromStage(_arg1:Event):void {
         removeEventListener(Event.ENTER_FRAME, this.onEnterFrame);
         removeEventListener(MouseEvent.ROLL_OUT, this.onRollOut);
+        this.removeEventListener(MouseEvent.MOUSE_UP, this.onMouseUp);
     }
 
     protected function onEnterFrame(_arg1:Event):void {

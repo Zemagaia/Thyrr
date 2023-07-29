@@ -126,7 +126,7 @@ public class LegacyScrollbar extends Sprite {
                 parent.addEventListener(MouseEvent.MOUSE_WHEEL, this.onMouseWheel);
             }
             else {
-                WebMain.STAGE.addEventListener(MouseEvent.MOUSE_WHEEL, this.onMouseWheel);
+                Main.STAGE.addEventListener(MouseEvent.MOUSE_WHEEL, this.onMouseWheel);
             }
         }
     }
@@ -140,7 +140,7 @@ public class LegacyScrollbar extends Sprite {
                 parent.removeEventListener(MouseEvent.MOUSE_WHEEL, this.onMouseWheel);
             }
             else {
-                WebMain.STAGE.removeEventListener(MouseEvent.MOUSE_WHEEL, this.onMouseWheel);
+                Main.STAGE.removeEventListener(MouseEvent.MOUSE_WHEEL, this.onMouseWheel);
             }
         }
         removeEventListener(Event.ADDED_TO_STAGE, this.onAddedToStage);

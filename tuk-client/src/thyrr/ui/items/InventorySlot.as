@@ -12,11 +12,11 @@ public class InventorySlot extends UIElement
         var origColor:uint = 0xAEA9A9;
         // outer outline (dark)
         graphics.clear();
-        graphics.beginFill(Utils.color(origColor, 1 / 1.3));
+        graphics.beginFill(Utils.color(origColor, 1 / 1.35));
         graphics.drawRect(0, 0, 44, 44);
         graphics.endFill();
         // background
-        graphics.beginFill(Utils.color(origColor, 1 / (1.3 * 1.3)));
+        graphics.beginFill(Utils.color(origColor, 1 / (1.35 * 1.35)));
         graphics.drawRect(0, 0, 44, 2);
         graphics.drawRect(0, 2, 2, 42);
         graphics.drawRect(2, 42, 42, 2);
@@ -30,45 +30,45 @@ public class InventorySlot extends UIElement
         graphics.drawRect(40, 4, 2, 36);
         graphics.endFill();
 		// link to the slot to the right
-        if ((i + 1) % int(slots / rows) > 0)
+        if (i + 1 < slots && (i + 1) % int((rows * 6) / rows) > 0)
         {
             graphics.beginFill(origColor);
             graphics.drawRect(40, 11, 4, 22);
             graphics.endFill();
-            graphics.beginFill(Utils.color(origColor, 1 / 1.3));
+            graphics.beginFill(Utils.color(origColor, 1 / 1.35));
             graphics.drawRect(40, 13, 4, 18);
             graphics.endFill();
         }
 		
 		// link with the slot to the left
-        if (i % int(slots / rows) > 0)
+        if (i % int((rows * 6) / rows) > 0)
         {
             graphics.beginFill(origColor);
             graphics.drawRect(0, 11, 4, 22);
             graphics.endFill();
-            graphics.beginFill(Utils.color(origColor, 1 / 1.3));
+            graphics.beginFill(Utils.color(origColor, 1 / 1.35));
             graphics.drawRect(0, 13, 4, 18);
             graphics.endFill();
         }
 		
 		// link with the slot below
-        if (i + int(slots / rows) < slots)
+        if (i + int((rows * 6) / rows) < slots)
         {
             graphics.beginFill(origColor);
             graphics.drawRect(11, 40, 22, 4);
             graphics.endFill();
-            graphics.beginFill(Utils.color(origColor, 1 / 1.3));
+            graphics.beginFill(Utils.color(origColor, 1 / 1.35));
             graphics.drawRect(13, 40, 18, 4);
             graphics.endFill();
         }
 		
 		// link with the slot above
-        if (i - int(slots / rows) >= 0)
+        if (i - int((rows * 6) / rows) >= 0)
         {
             graphics.beginFill(origColor);
             graphics.drawRect(11, 0, 22, 4);
             graphics.endFill();
-            graphics.beginFill(Utils.color(origColor, 1 / 1.3));
+            graphics.beginFill(Utils.color(origColor, 1 / 1.35));
             graphics.drawRect(13, 0, 18, 4);
             graphics.endFill();
         }

@@ -6,15 +6,10 @@ import com.company.assembleegameclient.parameters.Parameters;
 
 import flash.events.MouseEvent;
 
-import kabam.rotmg.core.StaticInjectorContext;
-import kabam.rotmg.game.model.GameModel;
-
 
 import org.osflash.signals.Signal;
 
 public class CreateGuildFrame extends Frame {
-
-    public const close:Signal = new Signal();
 
     private var name_:TextInputField;
     private var gs_:GameSprite;
@@ -35,7 +30,7 @@ public class CreateGuildFrame extends Frame {
     }
 
     private function onCancel(_arg1:MouseEvent):void {
-        this.close.dispatch();
+        Global.closeDialogs();
     }
 
     private function onCreate(_arg1:MouseEvent):void {
@@ -48,11 +43,11 @@ public class CreateGuildFrame extends Frame {
         var _local2:Player;
         this.gs_.removeEventListener(GuildResultEvent.EVENT, this.onResult);
         if (_arg1.success_) {
-            _local2 = StaticInjectorContext.getInjector().getInstance(GameModel).player;
+            _local2 = Global.gameModel.player;
             if (_local2 != null) {
                 _local2.fame_ = (_local2.fame_ - Parameters.GUILD_CREATION_PRICE);
             }
-            this.close.dispatch();
+            Global.closeDialogs();
         }
         else {
             this.name_.setError(_arg1.errorKey, _arg1.errorTokens);

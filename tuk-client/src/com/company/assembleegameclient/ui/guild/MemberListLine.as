@@ -14,17 +14,11 @@ import flash.filters.DropShadowFilter;
 import flash.geom.ColorTransform;
 import flash.text.TextFieldAutoSize;
 
-import kabam.rotmg.core.StaticInjectorContext;
-import kabam.rotmg.dialogs.control.CloseDialogsSignal;
-import kabam.rotmg.dialogs.control.OpenDialogSignal;
-
-import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
-import kabam.rotmg.text.view.stringBuilder.StaticStringBuilder;
 
 internal class MemberListLine extends Sprite {
 
-    public static const WIDTH:int = WebMain.DefaultWidth - 44;
+    public static const WIDTH:int = Main.DefaultWidth - 44;
     public static const HEIGHT:int = 32;
     protected static const mouseOverCT:ColorTransform = new ColorTransform(1, (220 / 0xFF), (133 / 0xFF));
 
@@ -53,7 +47,7 @@ internal class MemberListLine extends Sprite {
         this.placeText_.setAutoSize(TextFieldAutoSize.RIGHT);
         this.placeText_.text = place.toString() + ".";
         this.placeText_.filters = [new DropShadowFilter(0, 0, 0, 1, 8, 8)];
-        this.placeText_.x = WebMain.DefaultWidth / 3 - (60 - this.placeText_.width);
+        this.placeText_.x = Main.DefaultWidth / 3 - (60 - this.placeText_.width);
         this.placeText_.y = 4;
         addChild(this.placeText_);
         this.placeText_.updateMetrics();
@@ -77,7 +71,7 @@ internal class MemberListLine extends Sprite {
         this.guildFameIcon_.y = ((HEIGHT / 2) - (this.guildFameIcon_.height / 2));
         addChild(this.guildFameIcon_);
         this.rankIcon_ = new Bitmap(GuildUtil.rankToIcon(rank, 20));
-        this.rankIcon_.x = WebMain.DefaultWidth / 2;
+        this.rankIcon_.x = Main.DefaultWidth / 2;
         this.rankIcon_.y = ((HEIGHT / 2) - (this.rankIcon_.height / 2));
         addChild(this.rankIcon_);
         this.rankText_ = new BaseSimpleText(22, color);
@@ -151,12 +145,12 @@ internal class MemberListLine extends Sprite {
         _local3.setTitleStringBuilder(new LineBuilder().setParams("Promote {name}", {"name": this.name_}));
         _local3.addEventListener(Dialog.LEFT_BUTTON, this.onCancelDialog);
         _local3.addEventListener(Dialog.RIGHT_BUTTON, this.onVerifiedPromote);
-        StaticInjectorContext.getInjector().getInstance(OpenDialogSignal).dispatch(_local3);
+        Global.openDialog(_local3);
     }
 
     private function onVerifiedPromote(_arg1:Event):void {
         dispatchEvent(new GuildPlayerListEvent(GuildPlayerListEvent.SET_RANK, this.name_, GuildUtil.promotedRank(this.rank_)));
-        StaticInjectorContext.getInjector().getInstance(CloseDialogsSignal).dispatch();
+        Global.closeDialogs();
     }
 
     private function onDemote(_arg1:MouseEvent):void {
@@ -169,12 +163,12 @@ internal class MemberListLine extends Sprite {
         _local3.setTitleStringBuilder(new LineBuilder().setParams("Demote {name}", {"name": this.name_}));
         _local3.addEventListener(Dialog.LEFT_BUTTON, this.onCancelDialog);
         _local3.addEventListener(Dialog.RIGHT_BUTTON, this.onVerifiedDemote);
-        StaticInjectorContext.getInjector().getInstance(OpenDialogSignal).dispatch(_local3);
+        Global.openDialog(_local3);
     }
 
     private function onVerifiedDemote(_arg1:Event):void {
         dispatchEvent(new GuildPlayerListEvent(GuildPlayerListEvent.SET_RANK, this.name_, GuildUtil.demotedRank(this.rank_)));
-        StaticInjectorContext.getInjector().getInstance(CloseDialogsSignal).dispatch();
+        Global.closeDialogs();
     }
 
     private function onRemove(_arg1:MouseEvent):void {
@@ -183,16 +177,16 @@ internal class MemberListLine extends Sprite {
         _local2.setTitleStringBuilder(new LineBuilder().setParams("Remove {name}", {"name": this.name_}));
         _local2.addEventListener(Dialog.LEFT_BUTTON, this.onCancelDialog);
         _local2.addEventListener(Dialog.RIGHT_BUTTON, this.onVerifiedRemove);
-        StaticInjectorContext.getInjector().getInstance(OpenDialogSignal).dispatch(_local2);
+        Global.openDialog(_local2);
     }
 
     private function onVerifiedRemove(_arg1:Event):void {
-        StaticInjectorContext.getInjector().getInstance(CloseDialogsSignal).dispatch();
+        Global.closeDialogs();
         dispatchEvent(new GuildPlayerListEvent(GuildPlayerListEvent.REMOVE_MEMBER, this.name_));
     }
 
     private function onCancelDialog(_arg1:Event):void {
-        StaticInjectorContext.getInjector().getInstance(CloseDialogsSignal).dispatch();
+        Global.closeDialogs();
     }
 
 

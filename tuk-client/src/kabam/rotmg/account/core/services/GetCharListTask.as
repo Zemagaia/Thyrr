@@ -7,45 +7,21 @@ import flash.utils.Timer;
 
 import kabam.lib.tasks.BaseTask;
 import kabam.rotmg.account.core.Account;
-import kabam.rotmg.account.core.signals.CharListDataSignal;
-import kabam.rotmg.account.securityQuestions.data.SecurityQuestionsModel;
 import kabam.rotmg.account.web.WebAccount;
 import kabam.rotmg.account.web.view.MigrationDialog;
 import kabam.rotmg.account.web.view.WebLoginDialog;
 import kabam.rotmg.appengine.api.AppEngineClient;
-import kabam.rotmg.core.StaticInjectorContext;
 import kabam.rotmg.core.model.PlayerModel;
-import kabam.rotmg.core.signals.SetLoadingMessageSignal;
-import kabam.rotmg.dialogs.control.CloseDialogsSignal;
-import kabam.rotmg.dialogs.control.OpenDialogSignal;
 import kabam.rotmg.util.TimerCallback;
-
-
-import robotlegs.bender.framework.api.ILogger;
 
 public class GetCharListTask extends BaseTask {
 
     private static const ONE_SECOND_IN_MS:int = 1000;
     private static const MAX_RETRIES:int = 7;
 
-    [Inject]
-    public var account:Account;
-    [Inject]
-    public var client:AppEngineClient;
-    [Inject]
-    public var model:PlayerModel;
-    [Inject]
-    public var setLoadingMessage:SetLoadingMessageSignal;
-    [Inject]
-    public var charListData:CharListDataSignal;
-    [Inject]
-    public var logger:ILogger;
-    [Inject]
-    public var openDialog:OpenDialogSignal;
-    [Inject]
-    public var closeDialogs:CloseDialogsSignal;
-    [Inject]
-    public var securityQuestionsModel:SecurityQuestionsModel;
+    public var account:Account = Global.account;
+    public var client:AppEngineClient = Global.appEngine;
+    public var model:PlayerModel = Global.playerModel;
     private var requestData:Object;
     private var retryTimer:Timer;
     private var numRetries:int = 0;
@@ -53,7 +29,7 @@ public class GetCharListTask extends BaseTask {
 
 
     override protected function startTask():void {
-        this.logger.info("GetUserDataTask start");
+        trace("GetUserDataTask start");
         this.requestData = this.makeRequestData();
         this.sendRequest();
         Parameters.sendLogin_ = false;
@@ -97,7 +73,7 @@ public class GetCharListTask extends BaseTask {
             this.fromMigration = true;
             _local4.done.addOnce(this.sendRequest);
             _local4.cancel.addOnce(this.clearAccountAndReloadCharacters);
-            this.openDialog.dispatch(_local4);
+            Global.openDialog(_local4);
         }
         else {
             if (_local2.hasOwnProperty("Account")) {
@@ -108,15 +84,8 @@ public class GetCharListTask extends BaseTask {
                         WebAccount(this.account).paymentData = _local2.Account[0].PaymentData;
                     }
                 }
-                if (_local2.Account[0].hasOwnProperty("SecurityQuestions")) {
-                    this.securityQuestionsModel.showSecurityQuestionsOnStartup = (_local2.Account[0].SecurityQuestions[0].ShowSecurityQuestionsDialog[0] == "1");
-                    this.securityQuestionsModel.clearQuestionsList();
-                    for each (_local5 in _local2.Account[0].SecurityQuestions[0].SecurityQuestionsKeys[0].SecurityQuestionsKey) {
-                        this.securityQuestionsModel.addSecurityQuestion(_local5.toString());
-                    }
-                }
             }
-            this.charListData.dispatch(XML(_arg1));
+            Global.onCharListData(XML(_arg1));
             completeTask(true);
         }
         if (this.retryTimer != null) {
@@ -126,19 +95,19 @@ public class GetCharListTask extends BaseTask {
 
     private function onTextError(_arg1:String):void {
         var _local2:WebLoginDialog;
-        this.setLoadingMessage.dispatch("Load error, retrying");
+        Global.loadingScreen.setTextKey("Load error, retrying");
         if (_arg1 == "Account credentials not valid") {
             if (this.fromMigration) {
                 _local2 = new WebLoginDialog();
                 _local2.setError("Invalid password");
                 _local2.setEmail(this.account.getUserId());
-                StaticInjectorContext.getInjector().getInstance(OpenDialogSignal).dispatch(_local2);
+                Global.openDialog(_local2);
             }
             this.clearAccountAndReloadCharacters();
         }
         else {
             if (_arg1 == "Account is under maintenance") {
-                this.setLoadingMessage.dispatch("This account has been banned");
+                Global.loadingScreen.setTextKey("This account has been banned");
                 new TimerCallback(5, this.clearAccountAndReloadCharacters);
             }
             else {
@@ -148,7 +117,7 @@ public class GetCharListTask extends BaseTask {
     }
 
     private function clearAccountAndReloadCharacters():void {
-        this.logger.info("GetUserDataTask invalid credentials");
+        trace("GetUserDataTask invalid credentials");
         this.account.clear();
         this.client.complete.addOnce(this.onComplete);
         this.requestData = this.makeRequestData();
@@ -156,7 +125,7 @@ public class GetCharListTask extends BaseTask {
     }
 
     private function waitForASecondThenRetryRequest():void {
-        this.logger.info("GetUserDataTask error - retrying");
+        trace("GetUserDataTask error - retrying");
         this.retryTimer = new Timer(ONE_SECOND_IN_MS, 1);
         this.retryTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.onRetryTimer);
         this.retryTimer.start();
@@ -176,7 +145,7 @@ public class GetCharListTask extends BaseTask {
         }
         else {
             this.clearAccountAndReloadCharacters();
-            this.setLoadingMessage.dispatch("LoginError.tooManyFails");
+            Global.loadingScreen.setTextKey("Too many failed logins, try again later");
         }
     }
 

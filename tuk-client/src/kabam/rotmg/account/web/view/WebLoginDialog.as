@@ -9,6 +9,11 @@ import flash.events.Event;
 import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
 
+import kabam.lib.tasks.Task;
+
+import kabam.rotmg.account.core.Account;
+import kabam.rotmg.account.web.WebAccount;
+
 import kabam.rotmg.account.web.model.AccountData;
 import kabam.rotmg.messaging.impl.GameServerConnection;
 
@@ -16,10 +21,7 @@ import org.osflash.signals.Signal;
 
 public class WebLoginDialog extends Frame {
 
-    public var cancel:Signal;
-    public var signIn:Signal;
-    public var forgot:Signal;
-    public var register:Signal;
+    public var account:Account = Global.account;
     private var email:TextInputField;
     private var password:TextInputField;
     private var forgotText:DeprecatedClickableText;
@@ -29,23 +31,44 @@ public class WebLoginDialog extends Frame {
     public function WebLoginDialog() {
         super("Sign in", "Cancel", "Sign in");
         this.makeUI();
-        this.forgot = new Signal();
-        this.register = new Signal();
-        this.cancel = new Signal();
-        this.signIn = new Signal(AccountData);
         leftButton_.addEventListener(MouseEvent.CLICK, this.onCancel);
         forgotText.addEventListener(MouseEvent.CLICK, onForgot);
         registerText.addEventListener(MouseEvent.CLICK, onRegister);
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
+        addEventListener(Event.REMOVED_FROM_STAGE, destroy);
     }
 
-    private function onForgot(e:MouseEvent):void
-    {
-        forgot.dispatch();
+    public function initialize(e:Event):void {
+        Global.taskErrorSignal.add(this.onLoginError);
     }
 
-    private function onRegister(e:MouseEvent):void
-    {
-        register.dispatch();
+    public function destroy(e:Event):void {
+        Global.taskErrorSignal.remove(this.onLoginError);
+    }
+
+    private function signIn(_arg1:AccountData):void {
+        if ((this.account is WebAccount)) {
+            WebAccount(this.account).rememberMe = this.isRememberMeSelected();
+        }
+        this.disable();
+        Global.login(_arg1);
+    }
+
+    private function onRegister(e:MouseEvent):void {
+        Global.openDialog(new WebRegisterDialog());
+    }
+
+    private function onCancel(e:Event):void {
+        Global.closeDialogs();
+    }
+
+    private function onForgot(e:MouseEvent):void {
+        Global.openDialog(new WebForgotPasswordDialog());
+    }
+
+    private function onLoginError(_arg1:Task):void {
+        this.setError(_arg1.error);
+        this.enable();
     }
 
     private function makeUI():void {
@@ -75,13 +98,9 @@ public class WebLoginDialog extends Frame {
                 this.onSignInSub();
                 break;
             case KeyCodes.ESCAPE:
-                this.cancel.dispatch();
+                this.onCancel(event);
                 break;
         }
-    }
-
-    private function onCancel(_arg1:MouseEvent):void {
-        this.cancel.dispatch();
     }
 
     private function onSignIn(_arg1:MouseEvent):void {
@@ -94,7 +113,7 @@ public class WebLoginDialog extends Frame {
             _local1 = new AccountData();
             _local1.username = this.email.text();
             _local1.password = GameServerConnection.rsaEncrypt(this.password.text());
-            this.signIn.dispatch(_local1);
+            this.signIn(_local1);
         }
     }
 

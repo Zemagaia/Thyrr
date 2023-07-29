@@ -4,19 +4,14 @@ import com.company.assembleegameclient.ui.panels.Panel;
 import com.company.assembleegameclient.ui.tooltip.TextToolTip;
 import com.company.assembleegameclient.ui.tooltip.ToolTip;
 
-import kabam.rotmg.core.StaticInjectorContext;
-import kabam.rotmg.game.signals.TextPanelMessageUpdateSignal;
 import kabam.rotmg.game.view.TextPanel;
 
 
 public class ClosedGiftChest extends GameObject implements IInteractiveObject {
 
-    private var textPanelUpdateSignal:TextPanelMessageUpdateSignal;
-
     public function ClosedGiftChest(_arg1:XML) {
         super(_arg1);
         isInteractive_ = true;
-        this.textPanelUpdateSignal = StaticInjectorContext.getInjector().getInstance(TextPanelMessageUpdateSignal);
     }
 
     public function getTooltip():ToolTip {
@@ -24,7 +19,7 @@ public class ClosedGiftChest extends GameObject implements IInteractiveObject {
     }
 
     public function getPanel(_arg1:GameSprite):Panel {
-        this.textPanelUpdateSignal.dispatch("Gift Chest Is Empty");
+        Global.textPanelUpdate("Gift Chest Is Empty");
         return (new TextPanel(_arg1));
     }
 

@@ -8,7 +8,6 @@ import flash.text.TextFieldAutoSize;
 import flash.text.TextFormat;
 import flash.text.TextFormatAlign;
 
-import kabam.rotmg.core.StaticInjectorContext;
 import kabam.rotmg.language.model.StringMap;
 import kabam.rotmg.text.model.FontModel;
 
@@ -20,8 +19,8 @@ public class Sign extends GameObject {
     public function Sign(xml:XML) {
         super(xml);
         texture_ = null;
-        this.stringMap = StaticInjectorContext.getInjector().getInstance(StringMap);
-        this.fontModel = StaticInjectorContext.getInjector().getInstance(FontModel);
+        this.stringMap = Global.stringMap;
+        this.fontModel = Global.fontModel;
     }
 
     override protected function getTexture(camera:Camera, currentMS:int):BitmapData {

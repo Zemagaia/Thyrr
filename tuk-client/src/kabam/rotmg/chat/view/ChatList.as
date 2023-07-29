@@ -1,7 +1,13 @@
 ﻿package kabam.rotmg.chat.view {
+import com.company.assembleegameclient.parameters.Parameters;
+
 import flash.display.Sprite;
+import flash.events.Event;
 import flash.events.TimerEvent;
 import flash.utils.Timer;
+
+import kabam.rotmg.application.api.ApplicationSetup;
+import kabam.rotmg.chat.model.ChatMessage;
 
 import kabam.rotmg.chat.model.ChatModel;
 
@@ -9,6 +15,8 @@ public class ChatList extends Sprite {
 
     private const timer:Timer = new Timer(1000);
     private const itemsToRemove:Vector.<ChatListItem> = new Vector.<ChatListItem>();
+    public var model:ChatModel = Global.chatModel;
+    public var appSetup:ApplicationSetup = Global.applicationSetup;
 
     private var listItems:Vector.<ChatListItem>;
     private var visibleItems:Vector.<ChatListItem>;
@@ -29,6 +37,41 @@ public class ChatList extends Sprite {
         this.isCurrent = true;
         this.timer.addEventListener(TimerEvent.TIMER, this.onCheckTimeout);
         this.timer.start();
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
+    }
+
+    public function initialize(e:Event):void {
+        var _local1:ChatMessage;
+        this.setup(this.model);
+        for each (_local1 in this.model.chatMessages) {
+            this.addMessage(Global.chatListItemFactory.make(_local1, true));
+        }
+        this.scrollToCurrent();
+        this.onAddChat(ChatMessage.make(Parameters.CLIENT_CHAT_NAME, this.getChatLabel()));
+    }
+
+    public function onShowChatInput(_arg1:Boolean, _arg2:String):void {
+        this.y = (this.model.bounds.height - ((_arg1) ? this.model.lineHeight : 0));
+    }
+
+    public function onScrollList(_arg1:int):void {
+        if (_arg1 > 0) {
+            this.pageDown();
+        }
+        else {
+            if (_arg1 < 0) {
+                this.pageUp();
+            }
+        }
+    }
+
+    public function onAddChat(_arg1:ChatMessage):void {
+        this.addMessage(Global.chatListItemFactory.make(_arg1));
+    }
+
+    private function getChatLabel():String {
+        var _local1:String = this.appSetup.getBuildLabel();
+        return (_local1.replace(/<font .+>(.+)<\/font>/g, "$1"));
     }
 
     private function onCheckTimeout(_arg1:TimerEvent):void {

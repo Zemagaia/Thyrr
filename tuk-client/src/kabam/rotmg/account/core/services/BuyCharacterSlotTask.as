@@ -3,21 +3,19 @@ import kabam.lib.tasks.BaseTask;
 import kabam.rotmg.account.core.Account;
 import kabam.rotmg.appengine.api.AppEngineClient;
 import kabam.rotmg.core.model.PlayerModel;
-import kabam.rotmg.dialogs.control.OpenDialogSignal;
 
 public class BuyCharacterSlotTask extends BaseTask {
 
-    [Inject]
-    public var account:Account;
-    [Inject]
+    public var account:Account = Global.account;
     public var price:int;
-    [Inject]
-    public var client:AppEngineClient;
-    [Inject]
-    public var openDialog:OpenDialogSignal;
-    [Inject]
-    public var model:PlayerModel;
+    public var client:AppEngineClient = Global.appEngine;
 
+    public var model:PlayerModel = Global.playerModel;
+
+    public function BuyCharacterSlotTask(price:int):void
+    {
+        this.price = price;
+    }
 
     override protected function startTask():void {
         this.client.setMaxRetries(2);

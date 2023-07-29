@@ -212,6 +212,7 @@ public class ObjectLibrary {
     }
 
     public static function getRedrawnTextureFromType(objType:int, size:int, padBottom:Boolean, useCache:Boolean = true, scale:Number = 5, itemData:ItemData = null):BitmapData {
+        itemData = itemData != null ? itemData : new ItemData(null);
         var texture:BitmapData = getBitmapData(objType, itemData);
         if (Parameters.itemTypes16.indexOf(objType) != -1 || texture.height == 16) {
             size *= 0.5;
@@ -230,6 +231,7 @@ public class ObjectLibrary {
     }
 
     public static function getBitmapData(objType:int, itemData:ItemData = null):BitmapData {
+        itemData = itemData != null ? itemData : new ItemData(null);
         var textureData:TextureData = typeToTextureData_[objType];
         var bitmapData:BitmapData = textureData ? textureData.getTexture() : null;
         if (bitmapData && (itemData == null || itemData.TexFile == null)) {

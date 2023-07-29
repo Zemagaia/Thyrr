@@ -2,7 +2,6 @@
 import com.company.assembleegameclient.objects.GameObject;
 import com.company.assembleegameclient.objects.Player;
 import com.company.assembleegameclient.ui.panels.itemgrids.itemtiles.EquipmentTile;
-import com.company.assembleegameclient.ui.panels.itemgrids.itemtiles.ItemTile;
 import com.company.util.ArrayIterator;
 import com.company.util.IIterator;
 
@@ -13,7 +12,7 @@ import thyrr.utils.ItemData;
 
 public class EquippedGrid extends ItemGrid {
 
-    public static const NUM_SLOTS:uint = 4;
+    public static const NUM_SLOTS:uint = 6;
 
     private var tiles:Vector.<EquipmentTile>;
 
@@ -54,7 +53,7 @@ public class EquippedGrid extends ItemGrid {
                     this.tiles[_local4].setItem(items[(_local4 + _arg2)]);
                 }
                 else {
-                    this.tiles[_local4].setItem(ItemConstants.DEFAULT_ITEM);
+                    this.tiles[_local4].setItem(new ItemData(null));
                 }
                 this.tiles[_local4].updateDim(curPlayer);
                 _local4++;

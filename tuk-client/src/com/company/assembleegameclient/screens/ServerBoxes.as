@@ -18,7 +18,7 @@ public class ServerBoxes extends Sprite {
         super();
         _local2 = new ServerBox(null);
         _local2.setSelected(true);
-        _local2.x = (WebMain.DefaultWidth - 800) / 2 + ((ServerBox.WIDTH / 2) + 2);
+        _local2.x = (Main.DefaultWidth - 800) / 2 + ((ServerBox.WIDTH / 2) + 2);
         _local2.addEventListener(MouseEvent.MOUSE_DOWN, this.onMouseDown);
         addChild(_local2);
         this.boxes_.push(_local2);
@@ -28,7 +28,7 @@ public class ServerBoxes extends Sprite {
             if (_local4.name == Parameters.data_.preferredServer) {
                 this.setSelected(_local2);
             }
-            _local2.x = (WebMain.DefaultWidth - 800) / 2 + ((_local3 % 2) * (ServerBox.WIDTH + 4));
+            _local2.x = (Main.DefaultWidth - 800) / 2 + ((_local3 % 2) * (ServerBox.WIDTH + 4));
             _local2.y = (int((_local3 / 2)) * (ServerBox.HEIGHT + 4));
             _local2.addEventListener(MouseEvent.MOUSE_DOWN, this.onMouseDown);
             addChild(_local2);

@@ -1,8 +1,6 @@
 ﻿package com.company.assembleegameclient.ui.dialogs {
 import flash.events.Event;
 
-
-
 public class NotEnoughFameDialog extends Dialog {
 
     public function NotEnoughFameDialog() {

@@ -170,8 +170,6 @@ public class Parameters {
         setDefault("defaultCameraAngle", 0);
         setDefault("showQuestPortraits", true);
         setDefault("fullscreenMode", false);
-        setDefault("showProtips", true);
-        setDefault("protipIndex", 0);
         setDefault("joinDate", MoreDateUtil.getDayStringInPT());
         setDefault("lastDailyAnalytics", null);
         setDefault("allowRotation", true);

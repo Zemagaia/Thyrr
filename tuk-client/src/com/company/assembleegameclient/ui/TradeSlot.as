@@ -11,7 +11,6 @@ import com.company.util.SpriteUtil;
 import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.display.CapsStyle;
-import flash.display.DisplayObject;
 import flash.display.GraphicsPath;
 import flash.display.GraphicsSolidFill;
 import flash.display.GraphicsStroke;
@@ -19,20 +18,18 @@ import flash.display.IGraphicsData;
 import flash.display.JointStyle;
 import flash.display.LineScaleMode;
 import flash.display.Shape;
+import flash.events.Event;
 import flash.geom.Matrix;
 
 import kabam.rotmg.constants.ItemConstants;
 
-import kabam.rotmg.core.signals.HideTooltipsSignal;
-import kabam.rotmg.core.signals.ShowTooltipSignal;
 import kabam.rotmg.text.view.BitmapTextFactory;
 import kabam.rotmg.text.view.stringBuilder.StaticStringBuilder;
 import kabam.rotmg.tooltips.HoverTooltipDelegate;
-import kabam.rotmg.tooltips.TooltipAble;
 
 import thyrr.utils.ItemData;
 
-public class TradeSlot extends Slot implements TooltipAble {
+public class TradeSlot extends Slot {
 
     private static const IDENTITY_MATRIX:Matrix = new Matrix();
     public static const EMPTY:int = -1;
@@ -77,6 +74,11 @@ public class TradeSlot extends Slot implements TooltipAble {
         addChild(this.overlay_);
         this.setIncluded(_arg3);
         this.hoverTooltipDelegate.setDisplayObject(this);
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
+    }
+
+    public function initialize(e:Event):void {
+        this.setBitmapFactory(Global.bitmapTextFactory);
     }
 
     private function drawItemIfAvailable():void {
@@ -158,22 +160,6 @@ public class TradeSlot extends Slot implements TooltipAble {
         GraphicsUtil.drawCutEdgeRect(0, 0, WIDTH, HEIGHT, 4, cuts_, this.overlayPath_);
         _local1.graphics.drawGraphicsData(this.graphicsData_);
         return (_local1);
-    }
-
-    public function setShowToolTipSignal(_arg1:ShowTooltipSignal):void {
-        this.hoverTooltipDelegate.setShowToolTipSignal(_arg1);
-    }
-
-    public function getShowToolTip():ShowTooltipSignal {
-        return (this.hoverTooltipDelegate.getShowToolTip());
-    }
-
-    public function setHideToolTipsSignal(_arg1:HideTooltipsSignal):void {
-        this.hoverTooltipDelegate.setHideToolTipsSignal(_arg1);
-    }
-
-    public function getHideToolTips():HideTooltipsSignal {
-        return (this.hoverTooltipDelegate.getHideToolTips());
     }
 
     public function setPlayer(_arg1:Player):void {

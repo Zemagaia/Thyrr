@@ -1,43 +1,55 @@
 ﻿package kabam.rotmg.characters.deletion.view {
+import com.company.assembleegameclient.appengine.SavedCharacter;
 import com.company.assembleegameclient.ui.dialogs.Dialog;
 
 import flash.display.Sprite;
 import flash.events.Event;
 
-
-
-import org.osflash.signals.Signal;
+import kabam.rotmg.characters.model.CharacterModel;
 
 public class ConfirmDeleteCharacterDialog extends Sprite {
 
     private const CANCEL_EVENT:String = Dialog.LEFT_BUTTON;
     private const DELETE_EVENT:String = Dialog.RIGHT_BUTTON;
 
-    public var deleteCharacter:Signal;
-    public var cancel:Signal;
+    public var model:CharacterModel = Global.characterModel;
+
+    private var character:SavedCharacter;
 
     public function ConfirmDeleteCharacterDialog() {
-        this.deleteCharacter = new Signal();
-        this.cancel = new Signal();
+        addEventListener(Event.ADDED_TO_STAGE, initialize)
     }
 
-    public function setText(_arg1:String, _arg2:String):void {
-        var _local3:Dialog = new Dialog("Verify Deletion", "", "Cancel", "Delete", "/deleteDialog");
-        _local3.setTextParams("Are you really sure you want to delete {name} the {displayID}?", {
-            "name": _arg1,
-            "displayID": _arg2
+    public function initialize(e:Event):void {
+        this.character = this.model.getSelected();
+        this.setText(this.character.name(), this.character.displayId());
+    }
+
+    private function onDeleteCharacter():void {
+        Global.deleteCharacter(this.character);
+    }
+
+    private function closeDialog():void {
+        Global.closeDialogs();
+    }
+
+    public function setText(name:String, displayID:String):void {
+        var dialog:Dialog = new Dialog("Verify Deletion", "", "Cancel", "Delete", "/deleteDialog");
+        dialog.setTextParams("Are you really sure you want to delete {name} the {displayID}?", {
+            "name": name,
+            "displayID": displayID
         });
-        _local3.addEventListener(this.CANCEL_EVENT, this.onCancel);
-        _local3.addEventListener(this.DELETE_EVENT, this.onDelete);
-        addChild(_local3);
+        dialog.addEventListener(this.CANCEL_EVENT, this.onCancel);
+        dialog.addEventListener(this.DELETE_EVENT, this.onDelete);
+        addChild(dialog);
     }
 
-    private function onCancel(_arg1:Event):void {
-        this.cancel.dispatch();
+    private function onCancel(e:Event):void {
+        closeDialog();
     }
 
-    private function onDelete(_arg1:Event):void {
-        this.deleteCharacter.dispatch();
+    private function onDelete(e:Event):void {
+        onDeleteCharacter();
     }
 
 

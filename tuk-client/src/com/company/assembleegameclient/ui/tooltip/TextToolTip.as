@@ -19,7 +19,7 @@ public class TextToolTip extends ToolTip {
             this.configureTextFieldDisplayAndAddChild(this.titleText_, width, titleText);
         }
         if (tipText != null) {
-            this.tipText_ = new TextFieldDisplayConcrete().setSize(14).setColor(0xB3B3B3);
+            this.tipText_ = new TextFieldDisplayConcrete().setSize(14).setColor(0xB3B3B3).setHTML(true);
             this.configureTextFieldDisplayAndAddChild(this.tipText_, width, tipText, tokens);
         }
     }

@@ -20,7 +20,6 @@ public class AgeVerificationDialog extends Dialog {
     private const BIRTH_DATE_BELOW_MINIMUM_ERROR:String = "You must be at least 13 years of age";
     private const BIRTH_DATE_INVALID_ERROR:String = "Birthdate is not a valid date.";
     private const MINIMUM_AGE:uint = 13;
-    public const response:Signal = new Signal(Boolean);
 
     private var ageVerificationField:DateField;
     private var errorLabel:TextFieldDisplayConcrete;
@@ -89,7 +88,25 @@ public class AgeVerificationDialog extends Dialog {
     }
 
     private function onCancel(_arg1:Event):void {
-        this.response.dispatch(false);
+        onResponse(false);
+    }
+
+    private function onResponse(_arg1:Boolean):void {
+        if (_arg1) {
+            this.handleAccepted();
+        }
+        else {
+            this.handleRejected();
+        }
+    }
+
+    private function handleAccepted():void {
+        Global.verifyAge();
+        Global.closeDialogs();
+    }
+
+    private function handleRejected():void {
+        Global.closeDialogs();
     }
 
     private function onVerify(_arg1:Event):void {
@@ -108,7 +125,7 @@ public class AgeVerificationDialog extends Dialog {
             else {
                 _local4 = "";
                 _local3 = false;
-                this.response.dispatch(true);
+                onResponse(true);
             }
         }
         this.errorLabel.setStringBuilder(new LineBuilder().setParams(_local4));

@@ -24,7 +24,7 @@ public class AccountLoadingScreen extends Sprite {
     protected function onAddedToStage(_arg1:Event):void {
         removeEventListener(Event.ADDED_TO_STAGE, this.onAddedToStage);
         this.loadingText_.x = (stage.stageWidth / 2);
-        this.loadingText_.y = WebMain.DefaultHeight - 50;
+        this.loadingText_.y = Main.DefaultHeight - 50;
     }
 
 

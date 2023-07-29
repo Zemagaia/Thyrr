@@ -8,6 +8,7 @@ import com.company.assembleegameclient.screens.CharacterBox;
 import com.company.assembleegameclient.ui.LineBreakDesign;
 import com.company.assembleegameclient.ui.panels.itemgrids.itemtiles.ItemTileSprite;
 import com.company.assembleegameclient.util.FilterUtil;
+import com.company.assembleegameclient.util.MathUtil;
 import com.company.assembleegameclient.util.TextureRedrawer;
 import com.company.rotmg.graphics.StarGraphic;
 import com.company.util.AssetLibrary;
@@ -31,7 +32,6 @@ import flash.utils.Dictionary;
 
 import kabam.rotmg.constants.ActivationType;
 import kabam.rotmg.constants.ItemConstants;
-import kabam.rotmg.core.StaticInjectorContext;
 import kabam.rotmg.messaging.impl.data.StatData;
 import kabam.rotmg.messaging.impl.incoming.KeyInfoResponse;
 
@@ -46,7 +46,7 @@ import thyrr.utils.ItemData;
 
 public class EquipmentToolTip extends ToolTip {
 
-    private static const MAX_WIDTH:int = 300;
+    private static const MAX_WIDTH:int = 275;
 
     public static var keyInfo:Dictionary = new Dictionary();
 
@@ -143,9 +143,9 @@ public class EquipmentToolTip extends ToolTip {
             if (keyInfo[this.originalObjectType] == null) {
                 this.addTitle();
                 this.addDescriptionText();
-                this.keyInfoResponse = StaticInjectorContext.getInjector().getInstance(KeyInfoResponseSignal);
+                this.keyInfoResponse = Global.keyInfoResponse;
                 this.keyInfoResponse.add(this.onKeyInfoResponse);
-                hudModel = StaticInjectorContext.getInjector().getInstance(HUDModel);
+                hudModel = Global.hudModel;
                 hudModel.gameSprite.gsc_.keyInfoRequest(this.originalObjectType);
             }
             else {
@@ -327,7 +327,7 @@ public class EquipmentToolTip extends ToolTip {
         {
             var star:StarGraphic = new StarGraphic();
             star.x = 18 * i;
-            star.transform.colorTransform = i == 0 || this.itemData_.Quality >= (0.9 + 0.05 * (i > 3 ? i + 1 : i)) ? CharacterBox.fullCT : CharacterBox.emptyCT;
+            star.transform.colorTransform = i == 0 || MathUtil.round(this.itemData_.Quality, 2) >= (0.9 + 0.05 * (i > 3 ? i + 1 : i)) ? CharacterBox.fullCT : CharacterBox.emptyCT;
             this.qualityStars_.addChild(star);
             i++;
         }
@@ -470,7 +470,29 @@ public class EquipmentToolTip extends ToolTip {
             var hasteModCd:Number = getModdedCooldown(this.objectXML, this.player);
             if (hasteModCd < 1.0)
                 hasteModCd = MathUtil.round(hasteModCd, 3);
-            this.lastEffects.push(new Effect("Cooldown: {cd}",
+            this.lastEffects.push(new Effect("Cooldown #1: {cd}",
+                    {
+                        "cd": TooltipHelper.getPlural(hasteModCd, "second") +
+                                colorCdReductionBonus(MathUtil.round(cd - hasteModCd, 3))
+                    }).setReplacementsColor(replacementColor));
+        }
+
+        cd = getCooldown2(this.objectXML);
+        replacementColor = TooltipHelper.NO_DIFF_COLOR;
+        hasHaste = this.player != null && this.player.haste_ > 0;
+        slotType = this.objectXML.SlotType;
+        if ((this.objectXML.hasOwnProperty("Cooldown2") || hasHaste)
+                && this.objectXML.hasOwnProperty("Activate") && slotType != 10 && slotType != 26)
+        {
+            if (this.curItemXML != null && (this.curItemXML.hasOwnProperty("Cooldown2") || hasHaste))
+            {
+                thisCd = getCooldown2(this.curItemXML);
+                replacementColor = TooltipHelper.getTextColor((thisCd - cd));
+            }
+            hasteModCd = getModdedCooldown2(this.objectXML, this.player);
+            if (hasteModCd < 1.0)
+                hasteModCd = MathUtil.round(hasteModCd, 3);
+            this.lastEffects.push(new Effect("Cooldown #2: {cd}",
                     {
                         "cd": TooltipHelper.getPlural(hasteModCd, "second") +
                                 colorCdReductionBonus(MathUtil.round(cd - hasteModCd, 3))
@@ -482,10 +504,21 @@ public class EquipmentToolTip extends ToolTip {
         return xml.hasOwnProperty("Cooldown") ? Number(xml.Cooldown) : 0.5;
     }
 
+    private static function getCooldown2(xml:XML):Number{
+        return xml.hasOwnProperty("Cooldown2") ? Number(xml.Cooldown2) : 0.5;
+    }
+
     public static function getModdedCooldown(xml:XML, player:Player):Number
     {
         var haste:int = player != null ? player.haste_ : 0;
         var cd:Number = getCooldown(xml);
+        return MathUtil.round(cd * (100 / (100 + haste)), 2);
+    }
+
+    public static function getModdedCooldown2(xml:XML, player:Player):Number
+    {
+        var haste:int = player != null ? player.haste_ : 0;
+        var cd:Number = getCooldown2(xml);
         return MathUtil.round(cd * (100 / (100 + haste)), 2);
     }
 
@@ -938,7 +971,7 @@ public class EquipmentToolTip extends ToolTip {
                                 wrapColor("MP", 0xB368FF) + ")";
                     }
 
-                    this.AEs.push(new Effect("Secondary Ability" + costText + ":",{}).setColor(0xffffff));
+                    this.AEs.push(new Effect("Alternative Cast" + costText + ":",{}).setColor(0xffffff));
                     this.pushedMpCost2 = true;
                 }
 
@@ -1354,7 +1387,7 @@ public class EquipmentToolTip extends ToolTip {
 
     private static function getComparedStatText(item:XML, itemData:ItemData, percentStat:Boolean):Object
     {
-        var s:Object = String(item.@stat);
+        var s:String = String(item.@stat);
         switch (s){
             case "MaximumHP": s = "Maximum HP"; break;
             case "MaximumMP": s = "Maximum MP"; break;
@@ -1417,17 +1450,27 @@ public class EquipmentToolTip extends ToolTip {
             }
         }
         var textColor:uint = ((this.playerCanUse) ? TooltipHelper.BETTER_COLOR : TooltipHelper.NO_DIFF_COLOR);
-        var curMatches:XMLList;
         var curActivateXML:XMLList;
         if (this.curItemXML != null) {
             curActivateXML = this.curItemXML.ActivateOnEquip;
             if (curActivateXML.hasOwnProperty("@stat"))
-                curMatches = curActivateXML.(statNameToId(String(this.curItemXML.ActivateOnEquip.@stat)) == s);
+            {
+                for each (var xml:XML in curActivateXML)
+                    if (statNameToId(xml.@stat) == s)
+                    {
+                        match = xml;
+                        break;
+                    }
+            }
             else
-                curMatches = curActivateXML.(@statId == s);
+                for each (var sId:XML in curActivateXML)
+                    if (int(sId.statId) == s)
+                    {
+                        match = sId;
+                        break;
+                    }
         }
-        if (curMatches != null && curMatches.length() == 1) {
-            match = XML(curMatches[0]);
+        if (match != null) {
             curAmount = int(match.@amount);
             if (!isNaN(this.curItemData_.Quality) && this.curItemData_.Quality.toFixed(2) != "0.00") {
                 if (curAmount < 0)
@@ -2105,7 +2148,7 @@ public class EquipmentToolTip extends ToolTip {
     {
         if (value)
         {
-            return TooltipHelper.wrapInFontTag(" (" + (value > -1 ? "+" : "") + value + ")", "#" + TooltipHelper.HASTE_STAT_COLOR.toString(16));
+            return TooltipHelper.wrapInFontTag(" (" + (value > -1 ? "-" : "") + value + ")", "#" + TooltipHelper.HASTE_STAT_COLOR.toString(16));
         }
         return ("");
     }

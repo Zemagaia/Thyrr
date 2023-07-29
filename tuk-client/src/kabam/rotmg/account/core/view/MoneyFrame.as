@@ -5,19 +5,22 @@ import com.company.assembleegameclient.account.ui.PaymentMethodRadioButtons;
 import com.company.assembleegameclient.parameters.Parameters;
 import com.company.assembleegameclient.ui.DeprecatedClickableText;
 import com.company.assembleegameclient.ui.DeprecatedTextButton;
+import com.company.assembleegameclient.ui.dialogs.ErrorDialog;
 import com.company.assembleegameclient.util.PaymentMethod;
 import com.company.assembleegameclient.util.offer.Offer;
 import com.company.assembleegameclient.util.offer.Offers;
 
 import flash.display.Shape;
 import flash.display.Sprite;
+import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.text.TextFieldAutoSize;
 
+import kabam.lib.tasks.Task;
 import kabam.rotmg.account.core.model.MoneyConfig;
-
-
-import org.osflash.signals.Signal;
+import kabam.rotmg.account.core.model.OfferModel;
+import kabam.rotmg.account.core.services.GetOffersTask;
+import kabam.rotmg.ui.model.HUDModel;
 
 public class MoneyFrame extends Sprite {
 
@@ -27,10 +30,10 @@ public class MoneyFrame extends Sprite {
     private static const BUY_NOW:String = "Buy Now";//"MoneyFrame.buy"
     private static const WIDTH:int = 550;
 
-    public var buyNow:Signal;
-    public var cancel:Signal;
+    public var model:OfferModel = Global.offerModel;
+    public var hudModel:HUDModel = Global.hudModel;
     private var offers:Offers;
-    private var config:MoneyConfig;
+    public var config:MoneyConfig = Global.moneyConfig;
     private var frame:Frame;
     private var paymentMethodButtons:PaymentMethodRadioButtons;
     private var offerButtons:OfferRadioButtons;
@@ -38,8 +41,40 @@ public class MoneyFrame extends Sprite {
     public var cancelButton:DeprecatedClickableText;
 
     public function MoneyFrame() {
-        this.buyNow = new Signal(Offer, String);
-        this.cancel = new Signal();
+        addEventListener(Event.ADDED_TO_STAGE, addedToStage);
+    }
+
+    public function addedToStage(e:Event):void {
+        this.initializeViewWhenOffersAreAvailable();
+    }
+
+    private function initializeViewWhenOffersAreAvailable():void {
+        if (this.model.offers) {
+            this.initialize(this.model.offers, this.config);
+        }
+        else {
+            this.requestOffersData();
+        }
+    }
+
+    private function requestOffersData():void {
+        var task:Task = new GetOffersTask();
+        task.finished.addOnce(this.onOffersReceived);
+        task.start();
+    }
+
+    private function onOffersReceived(_arg1:Task, _arg2:Boolean, _arg3:String = ""):void {
+        if (_arg2) {
+            this.initialize(this.model.offers, this.config);
+        }
+        else {
+            Global.openDialog(new ErrorDialog("Unable to get gold offer information"));
+        }
+    }
+
+    public function onBuyNow(_arg1:Offer, _arg2:String):void {
+        trace("offer " + _arg1 + ", paymentMethod " + _arg2);
+        Global.purchaseGold(_arg1, _arg2);
     }
 
     public function initialize(_arg1:Offers, _arg2:MoneyConfig):void {
@@ -105,8 +140,8 @@ public class MoneyFrame extends Sprite {
         this.cancelButton = new DeprecatedClickableText(18, true, _arg1);
         if (_arg1 != "") {
             this.cancelButton.buttonMode = true;
-            this.cancelButton.x = ((((WebMain.DefaultWidth / 2) + (this.frame.w_ / 2)) - this.cancelButton.width) - 26);
-            this.cancelButton.y = (((WebMain.DefaultHeight / 2) + (this.frame.h_ / 2)) - 52);
+            this.cancelButton.x = ((((Main.DefaultWidth / 2) + (this.frame.w_ / 2)) - this.cancelButton.width) - 26);
+            this.cancelButton.y = (((Main.DefaultHeight / 2) + (this.frame.h_ / 2)) - 52);
             this.cancelButton.setAutoSize(TextFieldAutoSize.RIGHT);
             addChild(this.cancelButton);
         }
@@ -116,7 +151,7 @@ public class MoneyFrame extends Sprite {
         this.disable();
         var _local2:Offer = this.offerButtons.getChoice().offer;
         var _local3:String = ((this.paymentMethodButtons) ? this.paymentMethodButtons.getSelected() : null);
-        this.buyNow.dispatch(_local2, ((_local3) || ("")));
+        onBuyNow(_local2, _local3);
     }
 
     public function disable():void {
@@ -126,15 +161,9 @@ public class MoneyFrame extends Sprite {
         this.cancelButton.mouseChildren = false;
     }
 
-    public function enableOnlyCancel():void {
-        this.cancelButton.removeOnHoverEvents();
-        this.cancelButton.mouseEnabled = true;
-        this.cancelButton.mouseChildren = true;
-    }
-
     protected function onCancel(_arg1:MouseEvent):void {
         stage.focus = stage;
-        this.cancel.dispatch();
+        Global.closeDialogs();
     }
 
 

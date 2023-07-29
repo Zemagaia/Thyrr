@@ -14,8 +14,8 @@ import thyrr.oldui.DefaultTab;
 
 public class RecipesTab extends DefaultTab {
 
-    private static const TOP_Y:int = WebMain.DefaultHeight / 2 - 290;
-    private static const CENTERED_X:int = WebMain.DefaultWidth / 2;
+    private static const TOP_Y:int = Main.DefaultHeight / 2 - 290;
+    private static const CENTERED_X:int = Main.DefaultWidth / 2;
     private static const LEFT_X:int = CENTERED_X - 295;
 
     private var shape_:Shape;
@@ -64,7 +64,7 @@ public class RecipesTab extends DefaultTab {
         this.resultBackground_.x = LEFT_X;
         if (this.resultBackground_.numChildren > 12) {
             this.resultScroll_ = new LegacyScrollbar(16, 565, 0.3);
-            this.resultScroll_.x = WebMain.DefaultWidth / 2 + this.shape_.width / 2 - 18;
+            this.resultScroll_.x = Main.DefaultWidth / 2 + this.shape_.width / 2 - 18;
             this.resultScroll_.y = TOP_Y + 36;
             this.resultScroll_.setIndicatorSize(580, this.resultBackground_.height);
             this.resultScroll_.addEventListener(Event.CHANGE, this.onResultScrollChanged);
@@ -77,11 +77,11 @@ public class RecipesTab extends DefaultTab {
         var i:ForgeRecipe;
         index = 0;
         for each (i in this.resultItems_) {
-            i.x = WebMain.DefaultWidth / 4 - i.width_ / 2 - 42;
+            i.x = Main.DefaultWidth / 4 - i.width_ / 2 - 42;
             i.y = 82 + (48 * index);
             i.background_.graphics.clear();
             i.background_.graphics.beginFill(0xFFFFFF);
-            i.background_.graphics.drawRect(-(WebMain.DefaultWidth / 4 - i.width_ / 2 - 42) + 30, 50, 500, 2);
+            i.background_.graphics.drawRect(-(Main.DefaultWidth / 4 - i.width_ / 2 - 42) + 30, 50, 500, 2);
             i.background_.graphics.endFill();
             index++;
         }

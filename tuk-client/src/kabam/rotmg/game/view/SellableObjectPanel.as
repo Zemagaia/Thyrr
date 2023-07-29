@@ -19,24 +19,25 @@ import flash.filters.DropShadowFilter;
 import flash.text.TextFieldAutoSize;
 
 import kabam.rotmg.account.core.Account;
-import kabam.rotmg.core.StaticInjectorContext;
-import kabam.rotmg.core.signals.HideTooltipsSignal;
-import kabam.rotmg.core.signals.ShowTooltipSignal;
+import kabam.rotmg.account.core.view.RegisterPromptDialog;
+import kabam.rotmg.game.model.GameModel;
 
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 import kabam.rotmg.tooltips.HoverTooltipDelegate;
-import kabam.rotmg.tooltips.TooltipAble;
+import kabam.rotmg.ui.view.NotEnoughGoldDialog;
 import kabam.rotmg.util.components.LegacyBuyButton;
 
 import org.osflash.signals.Signal;
 
-public class SellableObjectPanel extends Panel implements TooltipAble {
+public class SellableObjectPanel extends Panel {
 
+    public static const TEXT:String = "In order to use {type} you must be a registered user.";
     private const BUTTON_OFFSET:int = 17;
 
+    public var account:Account = Global.account;
+    public var gameModel:GameModel = Global.gameModel;
     public var hoverTooltipDelegate:HoverTooltipDelegate;
-    public var buyItem:Signal;
     private var owner_:SellableObject;
     private var nameText_:TextFieldDisplayConcrete;
     private var buyButton_:LegacyBuyButton;
@@ -49,9 +50,7 @@ public class SellableObjectPanel extends Panel implements TooltipAble {
 
     public function SellableObjectPanel(gs:GameSprite, owner:SellableObject) {
         this.hoverTooltipDelegate = new HoverTooltipDelegate();
-        this.buyItem = new Signal(SellableObject);
         super(gs);
-        DrawPanelBg();
         this.nameText_ = new TextFieldDisplayConcrete().setSize(16).setColor(0xFFFFFF).setTextWidth(WIDTH - 8);
         this.nameText_.setBold(true);
         this.nameText_.setStringBuilder(new LineBuilder().setParams("Thing for Sale"));
@@ -98,6 +97,23 @@ public class SellableObjectPanel extends Panel implements TooltipAble {
         return (reqText);
     }
 
+    public function onBuyItem(_arg1:SellableObject):void {
+        if (this.account.isRegistered()) {
+            if ((((_arg1.currency_ == Currency.GOLD)) && (_arg1.price_ > this.gameModel.player.credits_))) {
+                Global.openDialog(new NotEnoughGoldDialog());
+            }
+            else {
+                this.gs_.gsc_.buy(_arg1.objectId_);
+            }
+        }
+        else {
+            Global.openDialog(this.makeRegisterDialog(_arg1));
+        }
+    }
+
+    private function makeRegisterDialog(_arg1:SellableObject):RegisterPromptDialog {
+        return (new RegisterPromptDialog(TEXT, {"type": Currency.typeToName(_arg1.currency_)}));
+    }
 
     public function setOwner(owner:SellableObject):void {
         if (owner == this.owner_) {
@@ -140,13 +156,13 @@ public class SellableObjectPanel extends Panel implements TooltipAble {
     }
 
     private function buyEvent():void {
-        var account:Account = StaticInjectorContext.getInjector().getInstance(Account);
+        var account:Account = Global.account;
         if (((((!((parent == null))) && (account.isRegistered()))) && ((this.owner_ is Merchant)))) {
-            this.confirmBuyModal = new ConfirmBuyModal(this.buyItem, this.owner_, this.buyButton_.width);
+            this.confirmBuyModal = new ConfirmBuyModal(this.owner_, this.buyButton_.width);
             parent.addChild(this.confirmBuyModal);
         }
         else {
-            this.buyItem.dispatch(this.owner_);
+            this.onBuyItem(this.owner_);
         }
     }
 
@@ -192,22 +208,6 @@ public class SellableObjectPanel extends Panel implements TooltipAble {
                 }
             }
         }
-    }
-
-    public function setShowToolTipSignal(signal:ShowTooltipSignal):void {
-        this.hoverTooltipDelegate.setShowToolTipSignal(signal);
-    }
-
-    public function getShowToolTip():ShowTooltipSignal {
-        return (this.hoverTooltipDelegate.getShowToolTip());
-    }
-
-    public function setHideToolTipsSignal(signal:HideTooltipsSignal):void {
-        this.hoverTooltipDelegate.setHideToolTipsSignal(signal);
-    }
-
-    public function getHideToolTips():HideTooltipsSignal {
-        return (this.hoverTooltipDelegate.getHideToolTips());
     }
 
 

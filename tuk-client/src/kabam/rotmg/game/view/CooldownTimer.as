@@ -60,7 +60,7 @@ public class CooldownTimer extends Sprite {
             this.cdText.text = "";
             this.cdText.updateMetrics();
 			cd = 500;
-			var abilXML:XML = ObjectLibrary.xmlLibrary_[player.equipment_[1].ObjectType];
+			var abilXML:XML = ObjectLibrary.xmlLibrary_[player.equipment_[2].ObjectType];
 			if (abilXML != null && abilXML.hasOwnProperty("Cooldown")) {
 				cd = EquipmentToolTip.getModdedCooldown(abilXML, player) * 1000;
 				player.lastAltAttack_ = getTimer() - cd;

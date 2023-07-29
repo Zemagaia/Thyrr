@@ -25,7 +25,7 @@ public class AssetLoader {
     public static var currentXmlIsTesting:Boolean = false;
 
 
-    public function load():void {
+    public function AssetLoader() {
         this.addImages();
         this.addAnimatedCharacters();
         this.addSoundEffects();

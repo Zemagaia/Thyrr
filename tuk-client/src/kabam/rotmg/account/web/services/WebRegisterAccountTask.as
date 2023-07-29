@@ -8,14 +8,10 @@ import kabam.rotmg.core.model.PlayerModel;
 
 public class WebRegisterAccountTask extends BaseTask implements RegisterAccountTask {
 
-    [Inject]
-    public var data:AccountData;
-    [Inject]
-    public var account:Account;
-    [Inject]
-    public var model:PlayerModel;
-    [Inject]
-    public var client:AppEngineClient;
+    public var data:AccountData = Global.accountData;
+    public var account:Account = Global.account;
+    public var model:PlayerModel = Global.playerModel;
+    public var client:AppEngineClient = Global.appEngine;
 
 
     override protected function startTask():void {

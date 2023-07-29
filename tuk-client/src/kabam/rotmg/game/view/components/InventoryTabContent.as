@@ -11,7 +11,7 @@ import thyrr.utils.Utils;
 public class InventoryTabContent extends Sprite {
 
     private var storageContent:Sprite;
-    public var Storage:InventoryGrid;
+    public var inv:InventoryGrid;
 
     public function InventoryTabContent(_arg1:Player) {
         this.storageContent = new Sprite();
@@ -22,13 +22,15 @@ public class InventoryTabContent extends Sprite {
     }
 
     private function init(_arg1:Player):void {
-        Storage = new InventoryGrid(_arg1, _arg1, 4);
-        this.Storage.filters = [Utils.OutlineFilter];
+        inv = new InventoryGrid(_arg1, _arg1, 6);
+        inv.x -= 2;
+        inv.y -= 2;
+        this.inv.filters = [Utils.OutlineFilter];
         this.storageContent.name = TabStripModel.MAIN_INVENTORY;
     }
 
     private function addChildren():void {
-        this.storageContent.addChild(Storage);
+        this.storageContent.addChild(inv);
         addChild(this.storageContent);
     }
 

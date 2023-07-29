@@ -6,19 +6,10 @@ import com.company.util.AssetLibrary;
 import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.display.Sprite;
-import flash.filters.DropShadowFilter;
-import flash.geom.Rectangle;
 
-import kabam.rotmg.core.signals.HideTooltipsSignal;
-import kabam.rotmg.core.signals.ShowTooltipSignal;
-
-import kabam.rotmg.text.view.TextFieldDisplayConcrete;
-import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 import kabam.rotmg.tooltips.HoverTooltipDelegate;
-import kabam.rotmg.tooltips.TooltipAble;
-import kabam.rotmg.ui.UIUtils;
 
-public class GiftStatusDisplay extends Sprite implements TooltipAble {
+public class GiftStatusDisplay extends Sprite {
 
     public static const IMAGE_NAME:String = "utility";
     public static const IMAGE_ID:int = 0x16;
@@ -37,23 +28,6 @@ public class GiftStatusDisplay extends Sprite implements TooltipAble {
         this.bitmap = new Bitmap(this.giftOpenProcessedTexture);
         this.hoverTooltipDelegate.setDisplayObject(this);
         this.hoverTooltipDelegate.tooltip = this.tooltip;
-        this.drawAsOpen();
-    }
-
-    public function setShowToolTipSignal(_arg1:ShowTooltipSignal):void {
-        this.hoverTooltipDelegate.setShowToolTipSignal(_arg1);
-    }
-
-    public function getShowToolTip():ShowTooltipSignal {
-        return (this.hoverTooltipDelegate.getShowToolTip());
-    }
-
-    public function setHideToolTipsSignal(_arg1:HideTooltipsSignal):void {
-        this.hoverTooltipDelegate.setHideToolTipsSignal(_arg1);
-    }
-
-    public function getHideToolTips():HideTooltipsSignal {
-        return (this.hoverTooltipDelegate.getHideToolTips());
     }
 
     public function drawAsOpen():void {

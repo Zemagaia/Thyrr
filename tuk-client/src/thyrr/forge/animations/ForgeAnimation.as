@@ -24,8 +24,8 @@ import thyrr.oldui.DefaultTab;
 
 public class ForgeAnimation extends DefaultTab {
 
-    private static const CENTER_X:int = WebMain.DefaultWidth / 2;
-    private static const CENTER_Y:int = WebMain.DefaultHeight / 2;
+    private static const CENTER_X:int = Main.DefaultWidth / 2;
+    private static const CENTER_Y:int = Main.DefaultHeight / 2;
     private static const ITEM_CENTER_X:int = CENTER_X - 21; // 42 / 2
     private static const RESULT_CENTER_Y:int = CENTER_Y - 80;
 

@@ -77,7 +77,7 @@ public class TextBox extends FlexibleBox
             bitmap_.y = height_ / 2 - bitmap_.width / 2;
             text_.x = bitmap_.width + 4;
         }
-        draw(0, outline_);
+        draw(0, outlineSize_);
     }
 }
 }

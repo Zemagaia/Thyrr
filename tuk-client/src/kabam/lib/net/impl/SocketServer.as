@@ -11,8 +11,6 @@ import flash.net.Socket;
 import flash.utils.ByteArray;
 import flash.utils.Timer;
 
-import kabam.lib.net.api.MessageProvider;
-
 import org.osflash.signals.Signal;
 
 public class SocketServer {
@@ -25,12 +23,9 @@ public class SocketServer {
     private const unsentPlaceholder:Message = new Message(0);
     private const data:ByteArray = new ByteArray();
 
-    [Inject]
-    public var messages:MessageProvider;
-    [Inject]
-    public var socket:Socket;
-    [Inject]
-    public var socketServerModel:SocketServerModel;
+    public var messages:MessageCenter = Global.messageCenter;
+    public var socket:Socket = Global.socket;
+    public var socketServerModel:SocketServerModel = Global.socketServerModel;
     public var delayTimer:Timer;
     private var head:Message;
     private var tail:Message;
@@ -62,7 +57,7 @@ public class SocketServer {
         this.data.endian = "littleEndian";
         this.addListeners();
         this.messageLen = -1;
-        if (this.socketServerModel.connectDelayMS) {
+        if (this.socketServerModel.connectDelayMS != 0) {
             this.connectWithDelay();
         }
         else {

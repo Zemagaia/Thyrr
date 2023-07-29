@@ -43,7 +43,6 @@ import flash.utils.getTimer;
 
 import kabam.rotmg.constants.ItemConstants;
 
-import kabam.rotmg.core.StaticInjectorContext;
 import kabam.rotmg.messaging.impl.data.WorldPosData;
 import kabam.rotmg.stage3D.GraphicsFillExtra;
 import kabam.rotmg.stage3D.Object3D.Object3DStage3D;
@@ -235,7 +234,7 @@ public class GameObject extends BasicObject {
             this.equipment_ = new Vector.<ItemData>(this.slotTypes_.length);
             _local4 = 0;
             while (_local4 < this.equipment_.length) {
-                this.equipment_[_local4] = ItemConstants.DEFAULT_ITEM;
+                this.equipment_[_local4] = new ItemData(null);
                 _local4++;
             }
             this.lockedSlot = new Vector.<int>(this.slotTypes_.length);
@@ -748,31 +747,45 @@ public class GameObject extends BasicObject {
         return (true);
     }
 
-    override public function update(_arg1:int, _arg2:int):Boolean {
-        var _local4:int;
-        var _local5:Number;
-        var _local6:Number;
-        var _local3:Boolean;
-        if (map_.player_.commune != this || map_.player_.commune is Player) {
-            if (!(((this.moveVec_.x == 0)) && ((this.moveVec_.y == 0)))) {
-                if (this.myLastTickId_ < map_.gs_.gsc_.lastTickId_) {
-                    this.moveVec_.x = 0;
-                    this.moveVec_.y = 0;
-                    this.moveTo(this.tickPosition_.x, this.tickPosition_.y);
-                } else {
-                    _local4 = (_arg1 - this.lastTickUpdateTime_);
-                    _local5 = (this.posAtTick_.x + (_local4 * this.moveVec_.x));
-                    _local6 = (this.posAtTick_.y + (_local4 * this.moveVec_.y));
-                    this.moveTo(_local5, _local6);
-                    _local3 = true;
-                }
-            }
+    public function distToEnd():Number {
+        var dx:Number = this.tickPosition_.x - x_;
+        var dy:Number = this.tickPosition_.y - y_;
+        return Math.sqrt((dx * dx) + (dy * dy));
+    }
+
+    //https://stackoverflow.com/questions/9567112/interpolate-as3
+    public static function interpolate(destination:Number, current:Number, delta:Number):Number {
+        return delta * destination + (1 - delta) * current;
+    }
+
+    override public function update(time:int, dt:int):Boolean
+    {
+        var tickDT:Number;
+        var x:Number;
+        var y:Number;
+        var moving:Boolean;
+        if (distToEnd() > 0.01)
+        {
+            tickDT = dt * 0.006;
+            x = interpolate(this.tickPosition_.x, this.x_, tickDT);
+            y = interpolate(this.tickPosition_.y, this.y_, tickDT);
+            this.moveTo(x, y);
+            moving = true;
         }
-        if (this.props_.whileMoving_ != null) {
-            if (!_local3) {
+        else
+        {
+            moveVec_.x = 0;
+            moveVec_.y = 0;
+        }
+        if (this.props_.whileMoving_ != null)
+        {
+            if (!moving)
+            {
                 z_ = this.props_.z_;
                 this.flying_ = this.props_.flying_;
-            } else {
+            }
+            else
+            {
                 z_ = this.props_.whileMoving_.z_;
                 this.flying_ = this.props_.whileMoving_.flying_;
             }
@@ -1206,7 +1219,7 @@ public class GameObject extends BasicObject {
 
     protected function makeNameBitmapData():BitmapData {
         var _local1:StringBuilder = new StaticStringBuilder(this.name_);
-        var _local2:BitmapTextFactory = StaticInjectorContext.getInjector().getInstance(BitmapTextFactory);
+        var _local2:BitmapTextFactory = Global.bitmapTextFactory;
         return (_local2.make(_local1, 16, 0xFFFFFF, true, IDENTITY_MATRIX, true));
     }
 
@@ -1357,43 +1370,18 @@ public class GameObject extends BasicObject {
         this.sizeMult_ = (this.texture_.height / 8);
     }
 
-    public function getPortrait():BitmapData {
+    public function getPortrait(mult:int = 100, flip:Boolean = false):BitmapData {
         var bitmapData:BitmapData;
         var size:int;
         if (this.portrait_ == null) {
             bitmapData = (((this.props_.portrait_) != null) ? this.props_.portrait_.getTexture() : this.texture_);
-            size = ((4 / bitmapData.width) * 100);
+            if (flip)
+                bitmapData = BitmapUtil.flipBitmapData(bitmapData);
+            size = ((4 / bitmapData.width) * mult);
             this.portrait_ = TextureRedrawer.resize(bitmapData, this.mask_, size, true, this.tex1Id_, this.tex2Id_);
             this.portrait_ = GlowRedrawer.outline(this.portrait_, 0);
         }
         return (this.portrait_);
-    }
-
-    public function getPortrait2(multiplier:int = 140):BitmapData {
-        var bitmapData:BitmapData;
-        var size:int;
-        if (this.portrait_ == null) {
-            bitmapData = (((this.props_.portrait_) != null) ? this.props_.portrait_.getTexture() : this.texture_);
-            bitmapData = flipBitmapData(bitmapData);
-            size = ((4 / bitmapData.width) * multiplier);
-            this.portrait_ = TextureRedrawer.resize(bitmapData, this.mask_, size, true, this.tex1Id_, this.tex2Id_);
-            this.portrait_ = GlowRedrawer.outline(this.portrait_, 0);
-        }
-        return (this.portrait_);
-    }
-
-    // https://stackoverflow.com/a/7773649
-    private static function flipBitmapData(original:BitmapData, axis:String = "x"):BitmapData
-    {
-        var flipped:BitmapData = new BitmapData(original.width, original.height, true, 0);
-        var matrix:Matrix
-        if(axis == "x"){
-            matrix = new Matrix( -1, 0, 0, 1, original.width, 0);
-        } else {
-            matrix = new Matrix( 1, 0, 0, -1, 0, original.height);
-        }
-        flipped.draw(original, matrix, null, null, null, true);
-        return flipped;
     }
 
     public function setAttack(_arg1:int, _arg2:Number):void {

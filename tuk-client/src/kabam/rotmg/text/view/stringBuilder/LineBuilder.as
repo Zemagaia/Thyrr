@@ -1,6 +1,5 @@
 ﻿package kabam.rotmg.text.view.stringBuilder {
 import kabam.lib.json.JsonParser;
-import kabam.rotmg.core.StaticInjectorContext;
 import kabam.rotmg.language.model.StringMap;
 
 public class LineBuilder implements StringBuilder {
@@ -12,7 +11,7 @@ public class LineBuilder implements StringBuilder {
     private var map:StringMap;
 
     private static function get json_():JsonParser {
-        return (StaticInjectorContext.getInjector().getInstance(JsonParser));
+        return (Global.jsonParser);
     }
 
     public static function fromJSON(key:String):LineBuilder {
@@ -29,7 +28,7 @@ public class LineBuilder implements StringBuilder {
     public static function getLocalizedStringFromKey(key:String, tokens:Object = null):String {
         var lb:LineBuilder = new (LineBuilder)();
         lb.setParams(key, tokens);
-        var map:StringMap = StaticInjectorContext.getInjector().getInstance(StringMap);
+        var map:StringMap = Global.stringMap;
         lb.setStringMap(map);
         return ((((lb.getString() == "")) ? key : lb.getString()));
     }
@@ -39,7 +38,7 @@ public class LineBuilder implements StringBuilder {
         var map:StringMap;
         if (key.charAt(0) == "{") {
             lb = LineBuilder.fromJSON(key);
-            map = StaticInjectorContext.getInjector().getInstance(StringMap);
+            map = Global.stringMap;
             lb.setStringMap(map);
             return (lb.getString());
         }
@@ -65,7 +64,7 @@ public class LineBuilder implements StringBuilder {
     public static function getLocalizedString2(key:String, tokens:Object = null):String {
         var lb:LineBuilder = new (LineBuilder)();
         lb.setParams(key, tokens);
-        var map:StringMap = StaticInjectorContext.getInjector().getInstance(StringMap);
+        var map:StringMap = Global.stringMap;
         lb.setStringMap(map);
         return (lb.getString());
     }

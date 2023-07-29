@@ -63,8 +63,8 @@ public class Camera {
     public static function resetDimensions() : void
     {
         var scale:Number = Parameters.data_["mscale"];
-        var width:Number = WebMain.sWidth / scale;
-        var height:Number = WebMain.sHeight / scale;
+        var width:Number = Main.sWidth / scale;
+        var height:Number = Main.sHeight / scale;
         MapRectFSCentered = new Rectangle(-width / 2 + 144,-height * 0.5 - 40, width, height);
         MapRectFSNonCentered = new Rectangle(-width / 2 + 144,-height * 0.75, width, height);
     }
@@ -84,8 +84,8 @@ public class Camera {
         if (Parameters.data_.stageScale == StageScaleMode.NO_SCALE)
         {
             mscale = Parameters.data_.mscale;
-            fWidth = (WebMain.sWidth / mscale - 288);
-            fHeight = (WebMain.sHeight / mscale);
+            fWidth = (Main.sWidth / mscale - 288);
+            fHeight = (Main.sHeight / mscale);
             if (centerOnPlayer)
                 return (new Rectangle(-((fWidth) * 0.5), -fHeight * 0.5 - 40, fWidth, fHeight));
             return (new Rectangle(-((fWidth) * 0.5), -fHeight * 0.75, fWidth, fHeight));

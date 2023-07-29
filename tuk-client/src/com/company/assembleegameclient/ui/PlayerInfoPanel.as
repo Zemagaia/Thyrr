@@ -40,7 +40,7 @@ public class PlayerInfoPanel extends Sprite {
     }
 
     private function drawHeader():void {
-        background = new FlexibleBox(24, 24, Utils.color(0xaea9a9, 1/1.3), -1, false);
+        background = new FlexibleBox(24, 24, Utils.color(0xaea9a9, 1/1.35), -1, false);
         addChild(background);
         var icon:Bitmap;
         var text:TextFieldDisplayConcrete;

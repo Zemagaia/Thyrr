@@ -11,19 +11,18 @@ import flash.filters.DropShadowFilter;
 import flash.text.TextFieldAutoSize;
 import flash.text.TextFormatAlign;
 
+import kabam.rotmg.account.core.Account;
+
 import kabam.rotmg.account.web.model.AccountData;
+import kabam.rotmg.appengine.api.AppEngineClient;
 import kabam.rotmg.messaging.impl.GameServerConnection;
 
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.StaticStringBuilder;
 
-import org.osflash.signals.Signal;
-
 public class WebLoginDialogForced extends Frame {
 
-    public var signInForced:Signal;
-    public var forgot:Signal;
-    public var register:Signal;
+    public var account:Account = Global.account;
     public var email:TextInputField;
     private var password:TextInputField;
     private var forgotText:DeprecatedClickableText;
@@ -37,21 +36,69 @@ public class WebLoginDialogForced extends Frame {
             addChild(this.getText("A new password was sent to your Sign In Email Address.", -165, -65));
             addChild(this.getText("Please use the new password to Sign In.", -165, -45));
         }
-        this.forgot = new Signal();
-        this.register = new Signal();
-        this.signInForced = new Signal(AccountData);
         forgotText.addEventListener(MouseEvent.CLICK, onForgot);
         registerText.addEventListener(MouseEvent.CLICK, onRegister);
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
+        addEventListener(Event.REMOVED_FROM_STAGE, destroy)
+    }
+
+    public function initialize(e:Event):void {
+        Global.taskErrorSignal.add(this.onLoginError);
+    }
+
+    public function destroy(e:Event):void {
+        Global.taskErrorSignal.remove(this.onLoginError);
+    }
+
+    private function signIn(_arg1:AccountData):void {
+        var appEngine:AppEngineClient;
+        this.email.clearError();
+        this.disable();
+        if (this.account.getUserId().toLowerCase() == _arg1.username.toLowerCase()) {
+            appEngine = Global.appEngine;
+            appEngine.sendRequest("/account/verify", {
+                "guid": _arg1.username,
+                "password": _arg1.password,
+                "fromResetFlow": "yes"
+            });
+            appEngine.complete.addOnce(this.onComplete);
+        }
+        else {
+            this.email.setError("Email does not match current session");
+            this.enable();
+        }
+    }
+
+    private function register():void {
+        Global.openDialog(new WebRegisterDialog());
+    }
+
+    private function forgot():void {
+        Global.openDialog(new WebForgotPasswordDialog());
+    }
+
+    private function onComplete(_arg1:Boolean, _arg2:*):void {
+        if (!_arg1) {
+            this.onLoginError(_arg2);
+        }
+        else {
+            Global.openDialog(new WebChangePasswordDialogForced());
+        }
+    }
+
+    private function onLoginError(_arg1:String):void {
+        this.setError(_arg1);
+        this.enable();
     }
 
     private function onForgot(e:MouseEvent):void
     {
-        this.forgot.dispatch();
+        this.forgot();
     }
 
     private function onRegister(e:MouseEvent):void
     {
-        this.register.dispatch();
+        this.register();
     }
 
     private function makeUI():void {
@@ -89,7 +136,7 @@ public class WebLoginDialogForced extends Frame {
             _local1 = new AccountData();
             _local1.username = this.email.text();
             _local1.password = GameServerConnection.rsaEncrypt(this.password.text());
-            this.signInForced.dispatch(_local1);
+            signIn(_local1);
         }
     }
 
@@ -114,7 +161,7 @@ public class WebLoginDialogForced extends Frame {
     }
 
     public function getText(_arg1:String, _arg2:int, _arg3:int):TextFieldDisplayConcrete {
-        var _local4:TextFieldDisplayConcrete = new TextFieldDisplayConcrete().setSize(16).setColor(0xFFFFFF).setTextWidth(WebMain.DefaultHeight);
+        var _local4:TextFieldDisplayConcrete = new TextFieldDisplayConcrete().setSize(16).setColor(0xFFFFFF).setTextWidth(Main.DefaultHeight);
         _local4.setBold(true);
         _local4.setStringBuilder(new StaticStringBuilder(_arg1));
         _local4.setSize(16).setColor(0xFFFFFF);

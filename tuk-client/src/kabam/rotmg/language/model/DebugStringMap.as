@@ -3,10 +3,8 @@ import kabam.rotmg.text.model.DebugTextInfo;
 
 public class DebugStringMap implements StringMap {
 
-    [Inject]
-    public var delegate:StringMap;
-    [Inject]
-    public var languageModel:LanguageModel;
+    public var delegate:StringMap = Global.stringMap;
+    public var languageModel:LanguageModel = Global.languageModel;
     public var debugTextInfos:Vector.<DebugTextInfo>;
 
     public function DebugStringMap() {

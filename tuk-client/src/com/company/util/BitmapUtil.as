@@ -179,6 +179,20 @@ public class BitmapUtil {
         return (true);
     }
 
+    // https://stackoverflow.com/a/7773649
+    public static function flipBitmapData(original:BitmapData, axis:String = "x"):BitmapData
+    {
+        var flipped:BitmapData = new BitmapData(original.width, original.height, true, 0);
+        var matrix:Matrix
+        if(axis == "x"){
+            matrix = new Matrix( -1, 0, 0, 1, original.width, 0);
+        } else {
+            matrix = new Matrix( 1, 0, 0, -1, 0, original.height);
+        }
+        flipped.draw(original, matrix, null, null, null, true);
+        return flipped;
+    }
+
 
 }
 }

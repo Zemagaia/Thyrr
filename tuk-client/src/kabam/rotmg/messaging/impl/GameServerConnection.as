@@ -50,7 +50,6 @@ import com.company.assembleegameclient.ui.panels.TradeRequestPanel;
 import com.company.assembleegameclient.util.ConditionEffect;
 import com.company.assembleegameclient.util.Currency;
 import com.company.assembleegameclient.util.FreeList;
-import com.company.util.ConversionUtil;
 import com.company.util.MoreStringUtil;
 import com.company.util.Random;
 import com.hurlant.crypto.Crypto;
@@ -70,10 +69,8 @@ import flash.utils.Timer;
 import flash.utils.getTimer;
 
 import kabam.lib.json.JsonParser;
-
-import kabam.lib.net.api.MessageMap;
-import kabam.lib.net.api.MessageProvider;
 import kabam.lib.net.impl.Message;
+import kabam.lib.net.impl.MessageCenter;
 import kabam.lib.net.impl.SocketServer;
 import kabam.rotmg.account.core.Account;
 import kabam.rotmg.account.core.view.PurchaseConfirmationDialog;
@@ -82,23 +79,15 @@ import kabam.rotmg.classes.model.CharacterClass;
 import kabam.rotmg.classes.model.CharacterSkin;
 import kabam.rotmg.classes.model.CharacterSkinState;
 import kabam.rotmg.classes.model.ClassesModel;
-import kabam.rotmg.constants.GeneralConstants;
 import kabam.rotmg.constants.ItemConstants;
-import kabam.rotmg.core.StaticInjectorContext;
-import kabam.rotmg.death.control.HandleDeathSignal;
-import kabam.rotmg.death.control.ZombifySignal;
-import kabam.rotmg.dialogs.control.CloseDialogsSignal;
-import kabam.rotmg.dialogs.control.OpenDialogSignal;
-import kabam.rotmg.game.focus.control.SetGameFocusSignal;
 import kabam.rotmg.game.model.GameModel;
 import kabam.rotmg.game.model.PotionInventoryModel;
-import kabam.rotmg.game.signals.AddSpeechBalloonSignal;
-import kabam.rotmg.game.signals.AddTextLineSignal;
-import kabam.rotmg.game.signals.GiftStatusUpdateSignal;
-import kabam.rotmg.game.signals.MailUpdateSignal;
 import kabam.rotmg.game.view.components.QueuedStatusText;
-import kabam.rotmg.maploading.signals.ChangeMapSignal;
-import kabam.rotmg.maploading.signals.HideMapLoadingSignal;
+import kabam.rotmg.memMarket.signals.MemMarketAddSignal;
+import kabam.rotmg.memMarket.signals.MemMarketBuySignal;
+import kabam.rotmg.memMarket.signals.MemMarketMyOffersSignal;
+import kabam.rotmg.memMarket.signals.MemMarketRemoveSignal;
+import kabam.rotmg.memMarket.signals.MemMarketSearchSignal;
 import kabam.rotmg.messaging.impl.data.GroundTileData;
 import kabam.rotmg.messaging.impl.data.ObjectData;
 import kabam.rotmg.messaging.impl.data.ObjectStatusData;
@@ -135,8 +124,8 @@ import kabam.rotmg.messaging.impl.incoming.Reconnect;
 import kabam.rotmg.messaging.impl.incoming.ReskinUnlock;
 import kabam.rotmg.messaging.impl.incoming.ServerFull;
 import kabam.rotmg.messaging.impl.incoming.ServerPlayerShoot;
-import kabam.rotmg.messaging.impl.incoming.ShowEffect;
 import kabam.rotmg.messaging.impl.incoming.SetFocus;
+import kabam.rotmg.messaging.impl.incoming.ShowEffect;
 import kabam.rotmg.messaging.impl.incoming.SwitchMusic;
 import kabam.rotmg.messaging.impl.incoming.TradeAccepted;
 import kabam.rotmg.messaging.impl.incoming.TradeChanged;
@@ -147,6 +136,11 @@ import kabam.rotmg.messaging.impl.incoming.Update;
 import kabam.rotmg.messaging.impl.incoming.VerifyEmail;
 import kabam.rotmg.messaging.impl.incoming.forge.CraftAnimation;
 import kabam.rotmg.messaging.impl.incoming.mail.FetchMailResult;
+import kabam.rotmg.messaging.impl.incoming.market.MarketAddResult;
+import kabam.rotmg.messaging.impl.incoming.market.MarketBuyResult;
+import kabam.rotmg.messaging.impl.incoming.market.MarketMyOffersResult;
+import kabam.rotmg.messaging.impl.incoming.market.MarketRemoveResult;
+import kabam.rotmg.messaging.impl.incoming.market.MarketSearchResult;
 import kabam.rotmg.messaging.impl.incoming.pets.FetchPetsResult;
 import kabam.rotmg.messaging.impl.incoming.quests.DeliverItemsResult;
 import kabam.rotmg.messaging.impl.incoming.quests.FetchAccountQuestsResult;
@@ -162,10 +156,6 @@ import kabam.rotmg.messaging.impl.outgoing.CheckCredits;
 import kabam.rotmg.messaging.impl.outgoing.ChooseName;
 import kabam.rotmg.messaging.impl.outgoing.Create;
 import kabam.rotmg.messaging.impl.outgoing.CreateGuild;
-import kabam.rotmg.messaging.impl.outgoing.pets.DeletePet;
-import kabam.rotmg.messaging.impl.outgoing.pets.FetchPets;
-import kabam.rotmg.messaging.impl.outgoing.pets.PetFollow;
-import kabam.rotmg.messaging.impl.outgoing.skillTree.abilities.DefensiveAbility;
 import kabam.rotmg.messaging.impl.outgoing.EditAccountList;
 import kabam.rotmg.messaging.impl.outgoing.EnemyHit;
 import kabam.rotmg.messaging.impl.outgoing.Escape;
@@ -180,7 +170,6 @@ import kabam.rotmg.messaging.impl.outgoing.JoinGuild;
 import kabam.rotmg.messaging.impl.outgoing.KeyInfoRequest;
 import kabam.rotmg.messaging.impl.outgoing.Load;
 import kabam.rotmg.messaging.impl.outgoing.Move;
-import kabam.rotmg.messaging.impl.outgoing.skillTree.abilities.OffensiveAbility;
 import kabam.rotmg.messaging.impl.outgoing.OtherHit;
 import kabam.rotmg.messaging.impl.outgoing.PlayerHit;
 import kabam.rotmg.messaging.impl.outgoing.PlayerShoot;
@@ -197,93 +186,53 @@ import kabam.rotmg.messaging.impl.outgoing.UseItem;
 import kabam.rotmg.messaging.impl.outgoing.UsePortal;
 import kabam.rotmg.messaging.impl.outgoing.forge.CraftItem;
 import kabam.rotmg.messaging.impl.outgoing.mail.FetchMail;
-import kabam.rotmg.messaging.impl.outgoing.quests.AcceptQuest;
-import kabam.rotmg.messaging.impl.outgoing.quests.FetchAccountQuests;
-import kabam.rotmg.messaging.impl.outgoing.quests.FetchAvailableQuests;
-import kabam.rotmg.messaging.impl.outgoing.quests.FetchCharacterQuests;
-import kabam.rotmg.minimap.control.UpdateGameObjectTileSignal;
-import kabam.rotmg.minimap.control.UpdateGroundTileSignal;
-import kabam.rotmg.minimap.model.UpdateGroundTileVO;
-import kabam.rotmg.queue.control.ShowQueueSignal;
-import kabam.rotmg.queue.control.UpdateQueueSignal;
-import kabam.rotmg.servers.api.Server;
-
-import kabam.rotmg.text.view.stringBuilder.LineBuilder;
-import kabam.rotmg.ui.model.Key;
-import kabam.rotmg.ui.model.UpdateGameObjectTileVO;
-import kabam.rotmg.ui.signals.ShowHideKeyUISignal;
-import kabam.rotmg.ui.signals.ShowKeySignal;
-import kabam.rotmg.ui.signals.UpdateBackpackTabSignal;
-import kabam.rotmg.ui.view.NotEnoughGoldDialog;
-import kabam.rotmg.ui.view.TitleView;
-
-import org.osflash.signals.Signal;
-
-import org.swiftsuspenders.Injector;
-
-import robotlegs.bender.framework.api.ILogger;
-
-import kabam.rotmg.memMarket.signals.MemMarketAddSignal;
-import kabam.rotmg.memMarket.signals.MemMarketBuySignal;
-import kabam.rotmg.memMarket.signals.MemMarketMyOffersSignal;
-import kabam.rotmg.memMarket.signals.MemMarketRemoveSignal;
-import kabam.rotmg.memMarket.signals.MemMarketSearchSignal;
-import kabam.rotmg.messaging.impl.incoming.market.MarketAddResult;
-import kabam.rotmg.messaging.impl.incoming.market.MarketBuyResult;
-import kabam.rotmg.messaging.impl.incoming.market.MarketMyOffersResult;
-import kabam.rotmg.messaging.impl.incoming.market.MarketRemoveResult;
-import kabam.rotmg.messaging.impl.incoming.market.MarketSearchResult;
 import kabam.rotmg.messaging.impl.outgoing.market.MarketAdd;
 import kabam.rotmg.messaging.impl.outgoing.market.MarketBuy;
 import kabam.rotmg.messaging.impl.outgoing.market.MarketMyOffers;
 import kabam.rotmg.messaging.impl.outgoing.market.MarketRemove;
 import kabam.rotmg.messaging.impl.outgoing.market.MarketSearch;
+import kabam.rotmg.messaging.impl.outgoing.pets.DeletePet;
+import kabam.rotmg.messaging.impl.outgoing.pets.FetchPets;
+import kabam.rotmg.messaging.impl.outgoing.pets.PetFollow;
+import kabam.rotmg.messaging.impl.outgoing.quests.AcceptQuest;
+import kabam.rotmg.messaging.impl.outgoing.quests.FetchAccountQuests;
+import kabam.rotmg.messaging.impl.outgoing.quests.FetchAvailableQuests;
+import kabam.rotmg.messaging.impl.outgoing.quests.FetchCharacterQuests;
+import kabam.rotmg.messaging.impl.outgoing.skillTree.abilities.DefensiveAbility;
+import kabam.rotmg.messaging.impl.outgoing.skillTree.abilities.OffensiveAbility;
+import kabam.rotmg.minimap.model.UpdateGroundTileVO;
+import kabam.rotmg.servers.api.Server;
+import kabam.rotmg.text.view.stringBuilder.LineBuilder;
+import kabam.rotmg.ui.model.UpdateGameObjectTileVO;
+import kabam.rotmg.ui.view.NotEnoughGoldDialog;
+import kabam.rotmg.ui.view.TitleView;
 
 import thyrr.forge.signals.CraftAnimationSignal;
-
 import thyrr.mail.signals.FetchMailSignal;
+import thyrr.pets.data.PetData;
 import thyrr.pets.signals.FetchPetsSignal;
-
 import thyrr.quests.signals.DeliverItemsSignal;
 import thyrr.quests.signals.FetchAccountQuestsSignal;
-
 import thyrr.quests.signals.FetchAvailableQuestsSignal;
 import thyrr.quests.signals.FetchCharacterQuestsSignal;
 import thyrr.utils.DamageTypes;
 import thyrr.utils.ItemData;
-import thyrr.utils.ItemData;
-import thyrr.utils.ItemData;
-import thyrr.pets.data.PetData;
 
 public class GameServerConnection {
 
     private static const TO_MILLISECONDS:int = 1000;
 
-    private var messages:MessageProvider;
+    private var messages:MessageCenter;
     private var playerId_:int = -1;
     private var player:Player;
     private var retryConnection_:Boolean = true;
     private var rand_:Random = null;
-    private var giftChestUpdateSignal:GiftStatusUpdateSignal;
     private var death:Death;
     private var retryTimer_:Timer;
     private var delayBeforeReconnect:int = 2;
-    private var addTextLine:AddTextLineSignal;
-    private var addSpeechBalloon:AddSpeechBalloonSignal;
-    private var updateGroundTileSignal:UpdateGroundTileSignal;
-    private var updateGameObjectTileSignal:UpdateGameObjectTileSignal;
-    private var logger:ILogger;
-    private var handleDeath:HandleDeathSignal;
-    private var zombify:ZombifySignal;
-    private var setGameFocus:SetGameFocusSignal;
-    private var updateBackpackTab:UpdateBackpackTabSignal;
-    private var closeDialogs:CloseDialogsSignal;
-    private var openDialog:OpenDialogSignal;
     private var keyInfoResponse:KeyInfoResponseSignal;
     private var classesModel:ClassesModel;
-    private var injector:Injector;
     private var model:GameModel;
-    private var mailUpdateSignal_:MailUpdateSignal;
 
     public static const FAILURE:int = 0;
     public static const USEITEM:int = 1;
@@ -424,7 +373,6 @@ public class GameServerConnection {
     public static var instance:GameServerConnection;
     private var json_:JsonParser;
 
-    public var changeMapSignal:Signal;
     public var gs_:GameSprite;
     public var server_:Server;
     public var gameId_:int;
@@ -440,27 +388,12 @@ public class GameServerConnection {
     public var connected:Boolean;
 
     public function GameServerConnection(_arg2:Server) {
-        this.injector = StaticInjectorContext.getInjector();
-        this.json_ = this.injector.getInstance(JsonParser);
-        this.giftChestUpdateSignal = this.injector.getInstance(GiftStatusUpdateSignal);
-        this.addTextLine = this.injector.getInstance(AddTextLineSignal);
-        this.addSpeechBalloon = this.injector.getInstance(AddSpeechBalloonSignal);
-        this.updateGroundTileSignal = this.injector.getInstance(UpdateGroundTileSignal);
-        this.updateGameObjectTileSignal = this.injector.getInstance(UpdateGameObjectTileSignal);
-        this.updateBackpackTab = StaticInjectorContext.getInjector().getInstance(UpdateBackpackTabSignal);
-        this.mailUpdateSignal_ = this.injector.getInstance(MailUpdateSignal);
-        this.closeDialogs = this.injector.getInstance(CloseDialogsSignal);
-        changeMapSignal = this.injector.getInstance(ChangeMapSignal);
-        this.openDialog = this.injector.getInstance(OpenDialogSignal);
-        this.keyInfoResponse = this.injector.getInstance(KeyInfoResponseSignal);
-        this.logger = this.injector.getInstance(ILogger);
-        this.handleDeath = this.injector.getInstance(HandleDeathSignal);
-        this.zombify = this.injector.getInstance(ZombifySignal);
-        this.setGameFocus = this.injector.getInstance(SetGameFocusSignal);
-        this.classesModel = this.injector.getInstance(ClassesModel);
-        serverConnection = this.injector.getInstance(SocketServer);
-        this.messages = this.injector.getInstance(MessageProvider);
-        this.model = this.injector.getInstance(GameModel);
+        this.json_ = Global.jsonParser;
+        this.keyInfoResponse = Global.keyInfoResponse;
+        this.classesModel = Global.classesModel;
+        serverConnection = Global.socketServer;
+        this.messages = Global.messageCenter;
+        this.model = Global.gameModel;
         this.server_ = _arg2;
         instance = this;
     }
@@ -515,7 +448,7 @@ public class GameServerConnection {
         var _local2:String = server_.name;
         _local2 = LineBuilder.getLocalizedStringFromKey(_local2);
         _local1.tokens = {"serverName": _local2};
-        this.addTextLine.dispatch(_local1);
+        Global.addTextLine(_local1);
         serverConnection.connect(server_.address, server_.port);
     }
 
@@ -526,7 +459,7 @@ public class GameServerConnection {
     }
 
     public function mapMessages():void {
-        var messages:MessageMap = this.injector.getInstance(MessageMap);
+        var messages:MessageCenter = Global.messageCenter;
         messages.map(CREATE).toMessage(Create);
         messages.map(PLAYERSHOOT).toMessage(PlayerShoot);
         messages.map(MOVE).toMessage(Move);
@@ -652,13 +585,13 @@ public class GameServerConnection {
 
     private function HandleServerFull(_arg1:ServerFull):void
     {
-        this.injector.getInstance(ShowQueueSignal).dispatch();
-        this.injector.getInstance(UpdateQueueSignal).dispatch(_arg1.position_, _arg1.count_);
+        Global.showQueue();
+        Global.updateQueue(_arg1.position_, _arg1.count_);
     }
 
     private function HandleQueuePing(_arg1:QueuePing):void
     {
-        this.injector.getInstance(UpdateQueueSignal).dispatch(_arg1.position_, _arg1.count_);
+        Global.updateQueue(_arg1.position_, _arg1.count_);
         var qp:QueuePong = (this.messages.require(QUEUE_PONG) as QueuePong);
         qp.serial_ = _arg1.serial_;
         qp.time_ = getTimer();
@@ -666,7 +599,7 @@ public class GameServerConnection {
     }
 
     private function unmapMessages():void {
-        var messages:MessageMap = this.injector.getInstance(MessageMap);
+        var messages:MessageCenter = Global.messageCenter;
         messages.unmap(CREATE);
         messages.unmap(PLAYERSHOOT);
         messages.unmap(MOVE);
@@ -1000,7 +933,7 @@ public class GameServerConnection {
         _local8.slotObject2_.objectId_ = _arg5.objectId_;
         _local8.slotObject2_.slotId_ = _arg6;
         _local8.slotObject2_.objectType_ = item2.ObjectType;
-        _arg2.equipment_[_arg3] = ItemConstants.DEFAULT_ITEM;
+        _arg2.equipment_[_arg3] = new ItemData(null);
         if (item1.ObjectType == PotionInventoryModel.HEALTH_POTION_ID) {
             _arg1.healthStackCount_++;
         }
@@ -1021,7 +954,7 @@ public class GameServerConnection {
         _local4.slotObject_.objectType_ = _arg3;
         serverConnection.queueMessage(_local4);
         if (((!((_arg2 == PotionInventoryModel.HEALTH_POTION_SLOT))) && (!((_arg2 == PotionInventoryModel.MAGIC_POTION_SLOT))))) {
-            _arg1.equipment_[_arg2] = ItemConstants.DEFAULT_ITEM;
+            _arg1.equipment_[_arg2] = new ItemData(null);
         }
     }
 
@@ -1066,7 +999,7 @@ public class GameServerConnection {
          }
          if (item && !go.isPaused() && (item.hasOwnProperty("Consumable") || item.hasOwnProperty("InvUse"))) {
              if (!this.validStatInc(objectType, go)) {
-                 this.addTextLine.dispatch(ChatMessage.make("", (item.attribute("id") + " not consumed. Already at Max.")));
+                 Global.addTextLine(ChatMessage.make("", (item.attribute("id") + " not consumed. Already at Max.")));
                  return false;
              }
              this.applyUseItem(go, slot, objectType, item, 1);
@@ -1098,7 +1031,7 @@ public class GameServerConnection {
             }
         }
         catch (err:Error) {
-            logger.error(("PROBLEM IN STAT INC " + err.getStackTrace()));
+            trace(("PROBLEM IN STAT INC " + err.getStackTrace()));
         }
         return true;
     }
@@ -1114,7 +1047,7 @@ public class GameServerConnection {
         _local5.activateId_ = activateId;
         serverConnection.queueMessage(_local5);
         if (item.hasOwnProperty("Consumable")) {
-            go.equipment_[slotId] = ItemConstants.DEFAULT_ITEM;
+            go.equipment_[slotId] = new ItemData(null);
             if (((item.hasOwnProperty("Activate")) && ((item.Activate == "UnlockSkin")))) {
             }
         }
@@ -1172,13 +1105,6 @@ public class GameServerConnection {
         var _local2:UsePortal = (this.messages.require(USEPORTAL) as UsePortal);
         _local2.objectId_ = _arg1;
         serverConnection.queueMessage(_local2);
-        this.checkDavyKeyRemoval();
-    }
-
-    private function checkDavyKeyRemoval():void {
-        if (((gs_.map) && ((gs_.map.name_ == "Davy Jones' Locker")))) {
-            ShowHideKeyUISignal.instance.dispatch();
-        }
     }
 
      public function buy(sellableObjectId:int):void {
@@ -1196,7 +1122,7 @@ public class GameServerConnection {
             converted = ((((gs_.model.getConverted()) || ((this.player.credits_ > 100)))) || ((sObj.price_ > this.player.credits_)));
         }
         if (sObj.soldObjectName() == "Vault Chest") {
-            this.openDialog.dispatch(new PurchaseConfirmationDialog(function ():void {
+            Global.openDialog(new PurchaseConfirmationDialog(function ():void {
                 buyConfirmation(sObj, converted, sellableObjectId);
             }));
         }
@@ -1284,8 +1210,6 @@ public class GameServerConnection {
              return;
          }
 
-         this.checkDavyKeyRemoval();
-
          serverConnection.sendMessage(this.messages.require(ESCAPE));
      }
 
@@ -1319,14 +1243,14 @@ public class GameServerConnection {
 
     private function onConnected():void {
         this.connected = true;
-        this.addTextLine.dispatch(ChatMessage.make(Parameters.CLIENT_CHAT_NAME, "Connected!"));
+        Global.addTextLine(ChatMessage.make(Parameters.CLIENT_CHAT_NAME, "Connected!"));
         this.encryptConnection();
         this.sendHello();
     }
 
     public function sendHello() : void
     {
-        var _local1:Account = StaticInjectorContext.getInjector().getInstance(Account);
+        var _local1:Account = Global.account;
         var _local2:Hello = (this.messages.require(HELLO) as Hello);
         _local2.buildVersion_ = Parameters.FULL_BUILD;
         _local2.gameId_ = gameId_;
@@ -1462,23 +1386,23 @@ public class GameServerConnection {
             return;
         }
         if (Parameters.data_.showTradePopup) {
-            gs_.hudView.interactPanel.setOverride(new TradeRequestPanel(gs_, _arg1.name_));
+            gs_.hud.interactPanel.setOverride(new TradeRequestPanel(gs_, _arg1.name_));
         }
-        this.addTextLine.dispatch(ChatMessage.make("", ((((_arg1.name_ + " wants to ") + 'trade with you.  Type "/trade ') + _arg1.name_) + '" to trade.')));
+        Global.addTextLine(ChatMessage.make("", ((((_arg1.name_ + " wants to ") + 'trade with you.  Type "/trade ') + _arg1.name_) + '" to trade.')));
     }
 
     private function onTradeStart(_arg1:TradeStart):void {
-        gs_.hudView.startTrade(gs_, _arg1);
+        gs_.hud.startTrade(gs_, _arg1);
     }
 
     private function onTradeChanged(_arg1:TradeChanged):void {
-        gs_.hudView.tradeChanged(_arg1);
+        gs_.hud.tradeChanged(_arg1);
     }
 
     private function onTradeDone(_arg1:TradeDone):void {
         var _local3:Object;
         var _local4:Object;
-        gs_.hudView.tradeDone();
+        gs_.hud.tradeDone();
         var _local2:String = "";
         try {
             _local4 = this.json_.parse(_arg1.description_);
@@ -1488,11 +1412,11 @@ public class GameServerConnection {
         catch (e:Error) {
             _local2 = _arg1.description_;
         }
-        this.addTextLine.dispatch(ChatMessage.make(Parameters.SERVER_CHAT_NAME, _local2, -1, -1, "", false, _local3));
+        Global.addTextLine(ChatMessage.make(Parameters.SERVER_CHAT_NAME, _local2, -1, -1, "", false, _local3));
     }
 
     private function onTradeAccepted(_arg1:TradeAccepted):void {
-        gs_.hudView.tradeAccepted(_arg1);
+        gs_.hud.tradeAccepted(_arg1);
     }
 
     private function addObject(_arg1:ObjectData):void {
@@ -1509,7 +1433,7 @@ public class GameServerConnection {
         }
         this.processObjectStatus(_local4, 0, -1);
         if (((((_local3.props_.static_) && (_local3.props_.occupySquare_))) && (!(_local3.props_.noMiniMap_)))) {
-            this.updateGameObjectTileSignal.dispatch(new UpdateGameObjectTileVO(_local3.x_, _local3.y_, _local3));
+            Global.updateGameObjectTile(new UpdateGameObjectTileVO(_local3.x_, _local3.y_, _local3));
         }
     }
 
@@ -1519,8 +1443,7 @@ public class GameServerConnection {
             this.player = _arg1;
             this.model.player = _arg1;
             _arg2.player_ = _arg1;
-            gs_.setFocus(_arg1);
-            this.setGameFocus.dispatch(this.playerId_.toString());
+            Global.setGameFocus(this.playerId_.toString());
         }
     }
 
@@ -1533,7 +1456,7 @@ public class GameServerConnection {
         while (_local3 < _arg1.tiles_.length) {
             _local4 = _arg1.tiles_[_local3];
             gs_.map.setGroundTile(_local4.x_, _local4.y_, _local4.type_);
-            this.updateGroundTileSignal.dispatch(new UpdateGroundTileVO(_local4.x_, _local4.y_, _local4.type_));
+            Global.updateGroundTile(new UpdateGroundTileVO(_local4.x_, _local4.y_, _local4.type_));
             _local3++;
         }
         _local3 = 0;
@@ -1587,32 +1510,17 @@ public class GameServerConnection {
 
     private function onGlobalNotification(notif:GlobalNotification):void {
         if (notif.text.slice(0, 4) == "Mail") {
-            this.mailUpdateSignal_.dispatch(notif.text);
+            Global.updateMail();
             return;
         }
 
         switch (notif.text)
         {
-            case "yellow":
-                ShowKeySignal.instance.dispatch(Key.YELLOW);
-                return;
-            case "red":
-                ShowKeySignal.instance.dispatch(Key.RED);
-                return;
-            case "green":
-                ShowKeySignal.instance.dispatch(Key.GREEN);
-                return;
-            case "purple":
-                ShowKeySignal.instance.dispatch(Key.PURPLE);
-                return;
-            case "showKeyUI":
-                ShowHideKeyUISignal.instance.dispatch();
-                return;
             case "giftChestOccupied":
-                this.giftChestUpdateSignal.dispatch(GiftStatusUpdateSignal.HAS_GIFT);
+                Global.updateGift(true);
                 return;
             case "giftChestEmpty":
-                this.giftChestUpdateSignal.dispatch(GiftStatusUpdateSignal.HAS_NO_GIFT);
+                Global.updateGift(false);
                 return;
             case "beginnersPackage":
                 return;
@@ -2016,7 +1924,7 @@ public class GameServerConnection {
                 case StatData.HASBACKPACK_STAT:
                     player.hasBackpack_ = Boolean(statVal);
                     if (isPlayer) {
-                        this.updateBackpackTab.dispatch(Boolean(statVal));
+                        Global.updateBackpackTab(Boolean(statVal));
                     }
                     break;
                 case StatData.NEW_CON_STAT:
@@ -2190,7 +2098,7 @@ public class GameServerConnection {
                     }
                     if (_local14.length > 0) {
                         _local7.projectileIdSetOverrideNew = _local14;
-                        _local15 = _local7.equipment_[0].ObjectType;
+                        _local15 = _local7.equipment_[1].ObjectType;
                         _local16 = ObjectLibrary.propsLibrary_[_local15];
                         _local17 = _local16.projectiles_[0];
                         _local7.projectileIdSetOverrideOld = _local17.objectId_;
@@ -2231,7 +2139,7 @@ public class GameServerConnection {
 
     private function handleInvFailure():void {
         SoundEffectLibrary.play("error");
-        gs_.hudView.interactPanel.redraw();
+        gs_.hud.interactPanel.redraw();
     }
 
     private function onReconnect(_arg1:Reconnect):void {
@@ -2241,7 +2149,7 @@ public class GameServerConnection {
         var _local6:int = _arg1.keyTime_;
         var _local7:ByteArray = _arg1.key_;
         var _local8:ReconnectEvent = new ReconnectEvent(_local3, _local4, _local5, _local6, _local7);
-        gs_.dispatchEvent(_local8);
+        gs_.onReconnect(_local8);
     }
 
     private function onPing(_arg1:Ping):void {
@@ -2266,8 +2174,7 @@ public class GameServerConnection {
         for each (_local3 in _arg1.extraXML_) {
             this.parseXML(_local3);
         }
-        changeMapSignal.dispatch();
-        this.closeDialogs.dispatch();
+        Global.closeDialogs();
         gs_.applyMapInfo(_arg1);
         this.rand_ = new Random(_arg1.fp_);
         Music.load(_arg1.music);
@@ -2293,9 +2200,8 @@ public class GameServerConnection {
         _local2.draw(gs_);
         _arg1.background = _local2;
         if (!gs_.isEditor) {
-            this.handleDeath.dispatch(_arg1);
+            Global.handleDeath(_arg1);
         }
-        this.checkDavyKeyRemoval();
     }
 
     private function onBuyResult(_arg1:BuyResult):void {
@@ -2308,13 +2214,13 @@ public class GameServerConnection {
         switch (_arg1.result_) {
             case BuyResult.UNKNOWN_ERROR_BRID:
                 _local2 = ChatMessage.make(Parameters.SERVER_CHAT_NAME, _arg1.resultString_);
-                this.addTextLine.dispatch(_local2);
+                Global.addTextLine(_local2);
                 return;
             case BuyResult.NOT_ENOUGH_GOLD_BRID:
-                this.openDialog.dispatch(new NotEnoughGoldDialog());
+                Global.openDialog(new NotEnoughGoldDialog());
                 return;
             case BuyResult.NOT_ENOUGH_FAME_BRID:
-                this.openDialog.dispatch(new NotEnoughFameDialog());
+                Global.openDialog(new NotEnoughFameDialog());
                 return;
             default:
                 this.handleDefaultResult(_arg1);
@@ -2326,7 +2232,7 @@ public class GameServerConnection {
         var _local3:Boolean = (((_arg1.result_ == BuyResult.SUCCESS_BRID)) || ((_arg1.result_ == BuyResult.PET_FEED_SUCCESS_BRID)));
         var _local4:ChatMessage = ChatMessage.make(_local3 ? Parameters.SERVER_CHAT_NAME : Parameters.ERROR_CHAT_NAME, _local2.key);
         _local4.tokens = _local2.tokens;
-        this.addTextLine.dispatch(_local4);
+        Global.addTextLine(_local4);
     }
 
     private function onAccountList(_arg1:AccountList):void {
@@ -2391,13 +2297,13 @@ public class GameServerConnection {
         }
         else {
             _local2 = LineBuilder.fromJSON(_arg1.lineBuilderJSON);
-            this.addTextLine.dispatch(ChatMessage.make(Parameters.ERROR_CHAT_NAME, _local2.key, -1, -1, "", false, _local2.tokens));
+            Global.addTextLine(ChatMessage.make(Parameters.ERROR_CHAT_NAME, _local2.key, -1, -1, "", false, _local2.tokens));
             gs_.dispatchEvent(new GuildResultEvent(_arg1.success_, _local2.key, _local2.tokens));
         }
     }
 
     private function onClientStat(_arg1:ClientStat):void {
-        var _local2:Account = StaticInjectorContext.getInjector().getInstance(Account);
+        var _local2:Account = Global.account;
         _local2.reportIntStat(_arg1.name_, _arg1.value_);
     }
 
@@ -2407,9 +2313,9 @@ public class GameServerConnection {
 
     private function onInvitedToGuild(_arg1:InvitedToGuild):void {
         if (Parameters.data_.showGuildInvitePopup) {
-            gs_.hudView.interactPanel.setOverride(new GuildInvitePanel(gs_, _arg1.name_, _arg1.guildName_));
+            gs_.hud.interactPanel.setOverride(new GuildInvitePanel(gs_, _arg1.name_, _arg1.guildName_));
         }
-        this.addTextLine.dispatch(ChatMessage.make("", (((((("You have been invited by " + _arg1.name_) + " to join the guild ") + _arg1.guildName_) + '.\n  If you wish to join type "/join ') + _arg1.guildName_) + '"')));
+        Global.addTextLine(ChatMessage.make("", (((((("You have been invited by " + _arg1.name_) + " to join the guild ") + _arg1.guildName_) + '.\n  If you wish to join type "/join ') + _arg1.guildName_) + '"')));
     }
 
     private function onPlaySound(_arg1:PlaySound):void {
@@ -2420,12 +2326,9 @@ public class GameServerConnection {
     private function onVerifyEmail(_arg1:VerifyEmail):void {
         TitleView.queueEmailConfirmation = true;
         if (gs_ != null) {
-            gs_.closed.dispatch();
+            gs_.close();
         }
-        var _local2:HideMapLoadingSignal = StaticInjectorContext.getInjector().getInstance(HideMapLoadingSignal);
-        if (_local2 != null) {
-            _local2.dispatch();
-        }
+        Global.hideMapLoading();
     }
 
     private function onPasswordPrompt(_arg1:PasswordPrompt):void {
@@ -2443,12 +2346,9 @@ public class GameServerConnection {
             }
         }
         if (gs_ != null) {
-            gs_.closed.dispatch();
+            gs_.close();
         }
-        var _local2:HideMapLoadingSignal = StaticInjectorContext.getInjector().getInstance(HideMapLoadingSignal);
-        if (_local2 != null) {
-            _local2.dispatch();
-        }
+        Global.hideMapLoading();
     }
 
      public function keyInfoRequest(_arg1:int):void {
@@ -2462,22 +2362,20 @@ public class GameServerConnection {
     }
 
     private function onClosed():void {
-        var _local1:HideMapLoadingSignal;
         if (this.playerId_ != -1) {
-            gs_.closed.dispatch();
+            gs_.close();
         }
         else {
             if (this.retryConnection_) {
                 if (this.delayBeforeReconnect < 10) {
                     if (this.delayBeforeReconnect == 6) {
-                        _local1 = StaticInjectorContext.getInjector().getInstance(HideMapLoadingSignal);
-                        _local1.dispatch();
+                        Global.hideMapLoading();
                     }
                     this.retry(this.delayBeforeReconnect++);
-                    this.addTextLine.dispatch(ChatMessage.make(Parameters.ERROR_CHAT_NAME, "Connection failed!  Retrying..."));
+                    Global.addTextLine(ChatMessage.make(Parameters.ERROR_CHAT_NAME, "Connection failed!  Retrying..."));
                 }
                 else {
-                    gs_.closed.dispatch();
+                    gs_.close();
                 }
             }
         }
@@ -2494,14 +2392,12 @@ public class GameServerConnection {
     }
 
     private function onError(_arg1:String):void {
-        this.addTextLine.dispatch(ChatMessage.make(Parameters.ERROR_CHAT_NAME, _arg1));
+        Global.addTextLine(ChatMessage.make(Parameters.ERROR_CHAT_NAME, _arg1));
     }
 
     private function onFailure(_arg1:Failure):void {
         // remove loading screen
-        var hideLoadingScreen:Signal = this.injector.getInstance(HideMapLoadingSignal);
-        hideLoadingScreen && hideLoadingScreen.dispatch();
-
+        Global.hideMapLoading();
         switch (_arg1.errorId_) {
             case Failure.INCORRECT_VERSION:
                 this.handleIncorrectVersionFailure(_arg1);
@@ -2545,7 +2441,7 @@ public class GameServerConnection {
 
     private function handleEmailVerificationNeeded(_arg1:Failure):void {
         this.retryConnection_ = false;
-        gs_.closed.dispatch();
+        gs_.close();
     }
 
     private function handleInvalidTeleportTarget(_arg1:Failure):void {
@@ -2553,7 +2449,7 @@ public class GameServerConnection {
         if (_local2 == "") {
             _local2 = _arg1.errorDescription_;
         }
-        this.addTextLine.dispatch(ChatMessage.make(Parameters.ERROR_CHAT_NAME, _local2));
+        Global.addTextLine(ChatMessage.make(Parameters.ERROR_CHAT_NAME, _local2));
         this.player.nextTeleportAt_ = 0;
     }
 
@@ -2562,9 +2458,9 @@ public class GameServerConnection {
         if (_local2 == "") {
             _local2 = _arg1.errorDescription_;
         }
-        this.addTextLine.dispatch(ChatMessage.make(Parameters.ERROR_CHAT_NAME, _local2));
+        Global.addTextLine(ChatMessage.make(Parameters.ERROR_CHAT_NAME, _local2));
         this.retryConnection_ = false;
-        gs_.closed.dispatch();
+        gs_.close();
     }
 
     private function handleIncorrectVersionFailure(_arg1:Failure):void {
@@ -2587,7 +2483,7 @@ public class GameServerConnection {
         if (_local2 == "") {
             _local2 = _arg1.errorDescription_;
         }
-        this.addTextLine.dispatch(ChatMessage.make(Parameters.ERROR_CHAT_NAME, _local2));
+        Global.addTextLine(ChatMessage.make(Parameters.ERROR_CHAT_NAME, _local2));
     }
 
     private function handleDefaultFailure2(_arg1:Failure):void {
@@ -2595,13 +2491,13 @@ public class GameServerConnection {
         if (_local2 == "") {
             _local2 = _arg1.errorDescription_;
         }
-        this.addTextLine.dispatch(ChatMessage.make("@", _local2));
+        Global.addTextLine(ChatMessage.make("@", _local2));
     }
 
     private function onDoClientUpdate(_arg1:Event):void {
         var _local2:Dialog = (_arg1.currentTarget as Dialog);
         _local2.parent.removeChild(_local2);
-        gs_.closed.dispatch();
+        gs_.close();
     }
 
      public function isConnected():Boolean {
@@ -2612,8 +2508,7 @@ public class GameServerConnection {
         var goDict:Dictionary = this.gs_.map.goDict_;
         if (goDict) {
             var go:GameObject = goDict[pkt.objectId_];
-            gs_.setFocus(go);
-            gs_.setMiniMapFocus(go);
+            Global.setGameFocusDirect(go);
             player.commune = playerId_ == pkt.objectId_ ? null : go;
         }
     }
@@ -2726,9 +2621,9 @@ public class GameServerConnection {
 
     // Get game time
     private static function onCurrentTime(result:CurrentTime):void {
-        instance.gs_.gameTime_ = result.hour_;
-        instance.gs_.showClock(instance.gs_.gameTime_);
-        instance.gs_.drawOverlay(instance.gs_.gameTime_);
+        instance.gs_.gameTime = result.hour_;
+        instance.gs_.showClock(instance.gs_.gameTime);
+        instance.gs_.drawOverlay(instance.gs_.gameTime);
     }
 }
 }

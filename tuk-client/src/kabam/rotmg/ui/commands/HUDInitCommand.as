@@ -3,21 +3,14 @@ import com.company.assembleegameclient.editor.Command;
 import com.company.assembleegameclient.game.GameSprite;
 
 import kabam.rotmg.ui.model.HUDModel;
-import kabam.rotmg.ui.signals.HUDModelInitialized;
 
 public class HUDInitCommand extends Command {
 
-    [Inject]
-    public var gameSprite:GameSprite;
-    [Inject]
-    public var model:HUDModel;
-    [Inject]
-    public var hudModelInitialized:HUDModelInitialized;
+    public var model:HUDModel = Global.hudModel;
 
-
-    override public function execute():void {
-        this.model.gameSprite = this.gameSprite;
-        this.hudModelInitialized.dispatch();
+    override public function HUDInitCommand(gs:GameSprite):void {
+        this.model.gameSprite = gs;
+        Global.hudModelInitialized();
     }
 
 

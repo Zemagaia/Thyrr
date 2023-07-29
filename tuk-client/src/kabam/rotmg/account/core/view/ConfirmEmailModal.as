@@ -10,7 +10,6 @@ import flash.filters.DropShadowFilter;
 import kabam.rotmg.account.core.Account;
 import kabam.rotmg.account.web.model.AccountData;
 import kabam.rotmg.appengine.api.AppEngineClient;
-import kabam.rotmg.core.StaticInjectorContext;
 
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
@@ -21,19 +20,16 @@ import thyrr.oldui.closeButton.DialogCloseButton;
 
 public class ConfirmEmailModal extends Frame {
 
-    public var register:Signal;
-    public var cancel:Signal;
     private var emailInput:TextInputField;
     private var account:Account;
     private var closeButton:DialogCloseButton;
     private var isKabam:Boolean = false;
 
     public function ConfirmEmailModal() {
-        this.register = new Signal(AccountData);
         super("Please verify your email address", "Cancel", "Send Verification Email");
         this.positionAndStuff();
         removeChild(leftButton_);
-        this.account = StaticInjectorContext.getInjector().getInstance(Account);
+        this.account = Global.account;
         this.createAssets();
         this.enableForTabBehavior();
         this.addEventListeners();
@@ -81,7 +77,7 @@ public class ConfirmEmailModal extends Frame {
         var _local2:AppEngineClient;
         var _local3:Object;
         if (this.isEmailValid()) {
-            _local2 = StaticInjectorContext.getInjector().getInstance(AppEngineClient);
+            _local2 = Global.appEngine;
             _local2.complete.addOnce(this.onComplete);
             _local3 = {"newGuid": this.emailInput.text()};
             MoreObjectUtil.addToObject(_local3, this.account.getCredentials());
@@ -101,7 +97,7 @@ public class ConfirmEmailModal extends Frame {
     }
 
     private function onSent():void {
-        var _local1:Account = StaticInjectorContext.getInjector().getInstance(Account);
+        var _local1:Account = Global.account;
         if (!this.isKabam) {
             _local1.updateUser(this.emailInput.text(), _local1.getPassword(), _local1.getToken());
         }
@@ -135,8 +131,8 @@ public class ConfirmEmailModal extends Frame {
     }
 
     private function positionAndStuff():void {
-        this.x = ((WebMain.STAGE.stageWidth / 2) - (this.w_ / 2));
-        this.y = ((WebMain.STAGE.stageHeight / 2) - (this.h_ / 2));
+        this.x = ((Main.STAGE.stageWidth / 2) - (this.w_ / 2));
+        this.y = ((Main.STAGE.stageHeight / 2) - (this.h_ / 2));
     }
 
 

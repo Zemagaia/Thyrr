@@ -7,7 +7,6 @@ import flash.events.MouseEvent;
 import flash.geom.Rectangle;
 import flash.utils.getTimer;
 
-import kabam.rotmg.core.StaticInjectorContext;
 import kabam.rotmg.ui.model.HUDModel;
 
 public class ChatListItem extends Sprite {
@@ -46,7 +45,7 @@ public class ChatListItem extends Sprite {
         var hmod:HUDModel;
         var aPlayer:Player;
         try {
-            hmod = StaticInjectorContext.getInjector().getInstance(HUDModel);
+            hmod = Global.hudModel;
             if (((((!((hmod.gameSprite.map.goDict_[this.playerObjectId] == null))) && ((hmod.gameSprite.map.goDict_[this.playerObjectId] is Player)))) && (!((hmod.gameSprite.map.player_.objectId_ == this.playerObjectId))))) {
                 aPlayer = (hmod.gameSprite.map.goDict_[this.playerObjectId] as Player);
                 hmod.gameSprite.addChatPlayerMenu(aPlayer, e.stageX, e.stageY);

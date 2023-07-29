@@ -10,7 +10,6 @@ import flash.events.MouseEvent;
 import kabam.lib.json.JsonParser;
 import kabam.rotmg.account.core.Account;
 import kabam.rotmg.application.api.ApplicationSetup;
-import kabam.rotmg.core.StaticInjectorContext;
 import kabam.rotmg.editor.view.components.savedialog.TagsInputField;
 import kabam.rotmg.util.TimerCallback;
 
@@ -68,7 +67,7 @@ public class SubmitMapForm extends Frame {
     private function onSubmit(_arg1:MouseEvent):void {
         this.disableButtons();
         this.mapName.clearError();
-        var _local2:JsonParser = StaticInjectorContext.getInjector().getInstance(JsonParser);
+        var _local2:JsonParser = Global.jsonParser;
         var _local3:Object = _local2.parse(this.mapjm);
         var _local4:int = _local3["width"];
         var _local5:int = _local3["height"];
@@ -85,7 +84,7 @@ public class SubmitMapForm extends Frame {
         _local6.addVariable("totalTiles", this.mapInfo.numTiles);
         _local6.addFile(this.mapInfo.thumbnail, "foo.png", "thumbnail");
         _local6.addVariable("overwrite", ((this.checkbox.isChecked()) ? "on" : "off"));
-        var _local7:ApplicationSetup = StaticInjectorContext.getInjector().getInstance(ApplicationSetup);
+        var _local7:ApplicationSetup = Global.applicationSetup;
         var _local8:String = (_local7.getAppEngineUrl(true) + "/ugc/save");
         this.enableButtons();
         var _local9:Object = {

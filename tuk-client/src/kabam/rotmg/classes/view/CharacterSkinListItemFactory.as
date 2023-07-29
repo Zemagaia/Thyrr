@@ -14,8 +14,7 @@ import kabam.rotmg.util.components.LegacyBuyButton;
 
 public class CharacterSkinListItemFactory {
 
-    [Inject]
-    public var characters:CharacterFactory;
+    public var characters:CharacterFactory = Global.characterFactory;
 
 
     public function make(_arg1:CharacterSkins):Vector.<DisplayObject> {

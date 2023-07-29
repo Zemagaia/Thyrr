@@ -5,7 +5,7 @@ public class DarkLayer extends Shape {
 
     public function DarkLayer() {
         graphics.beginFill(0x2B2B2B, 0.8);
-        graphics.drawRect(0, 0, WebMain.DefaultWidth, WebMain.DefaultHeight);
+        graphics.drawRect(0, 0, Main.DefaultWidth, Main.DefaultHeight);
         graphics.endFill();
     }
 

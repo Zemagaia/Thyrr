@@ -7,21 +7,18 @@ import kabam.rotmg.appengine.api.AppEngineClient;
 import kabam.rotmg.classes.model.CharacterSkin;
 import kabam.rotmg.classes.model.CharacterSkinState;
 import kabam.rotmg.core.model.PlayerModel;
-import kabam.rotmg.dialogs.control.OpenDialogSignal;
 
 public class BuySkinTask extends BaseTask {
 
-    [Inject]
     public var skin:CharacterSkin;
-    [Inject]
-    public var client:AppEngineClient;
-    [Inject]
-    public var account:Account;
-    [Inject]
-    public var player:PlayerModel;
-    [Inject]
-    public var openDialog:OpenDialogSignal;
+    public var client:AppEngineClient = Global.appEngine;
+    public var account:Account = Global.account;
+    public var player:PlayerModel = Global.playerModel;
 
+    public function BuySkinTask(skin:CharacterSkin)
+    {
+        this.skin = skin;
+    }
 
     override protected function startTask():void {
         this.skin.setState(CharacterSkinState.PURCHASING);
@@ -53,7 +50,7 @@ public class BuySkinTask extends BaseTask {
 
     private function abandonPurchase(_arg1:String):void {
         var _local2:ErrorDialog = new ErrorDialog(_arg1);
-        this.openDialog.dispatch(_local2);
+        Global.openDialog(_local2);
         this.skin.setState(CharacterSkinState.PURCHASABLE);
         this.player.changeCredits(this.skin.cost);
     }

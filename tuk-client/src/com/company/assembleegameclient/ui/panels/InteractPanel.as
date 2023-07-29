@@ -7,10 +7,14 @@ import com.company.assembleegameclient.ui.panels.itemgrids.ItemGrid;
 import flash.display.Sprite;
 import flash.events.Event;
 
+import kabam.rotmg.core.model.MapModel;
+
 public class InteractPanel extends Sprite {
 
     public static const MAX_DIST:Number = 1;
 
+    public var mapModel:MapModel = Global.mapModel;
+    private var currentInteractive:IInteractiveObject;
     public var gs_:GameSprite;
     public var player_:Player;
     public var w_:int;
@@ -25,6 +29,22 @@ public class InteractPanel extends Sprite {
         this.player_ = _arg2;
         this.w_ = _arg3;
         this.h_ = _arg4;
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
+    }
+
+    public function initialize(e:Event):void {
+        this.requestInteractive = this.provideInteractive;
+    }
+
+    public function provideInteractive():IInteractiveObject {
+        if (!this.isMapNameYardName()) {
+            return (this.mapModel.currentInteractiveTarget);
+        }
+        return (this.currentInteractive);
+    }
+
+    private function isMapNameYardName():Boolean {
+        return (this.gs_.map.isPetYard);
     }
 
     public function setOverride(_arg1:Panel):void {
@@ -55,7 +75,7 @@ public class InteractPanel extends Sprite {
                 _local2 = this.currObj_.getPanel(this.gs_);
             this.setPanel(_local2);
         }
-        if (this.currentPanel) {
+        if (this.currentPanel != null) {
             this.currentPanel.draw();
         }
     }
@@ -71,21 +91,13 @@ public class InteractPanel extends Sprite {
 
     public function setPanel(_arg1:Panel):void {
         if (_arg1 != this.currentPanel) {
-            ((this.currentPanel) && (removeChild(this.currentPanel)));
+            ((this.currentPanel != null) && (removeChild(this.currentPanel)));
             this.currentPanel = _arg1;
-            ((this.currentPanel) && (this.positionPanelAndAdd()));
+            ((this.currentPanel != null) && (this.positionPanelAndAdd()));
         }
     }
 
     private function positionPanelAndAdd():void {
-        if ((this.currentPanel is ItemGrid)) {
-            this.currentPanel.x = ((this.w_ - this.currentPanel.width) * 0.5);
-            this.currentPanel.y = 8;
-        }
-        else {
-            this.currentPanel.x = 6;
-            this.currentPanel.y = 8;
-        }
         addChild(this.currentPanel);
     }
 

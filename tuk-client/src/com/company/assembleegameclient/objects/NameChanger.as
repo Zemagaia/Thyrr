@@ -18,7 +18,8 @@ public class NameChanger extends GameObject implements IInteractiveObject {
     }
 
     public function getPanel(_arg1:GameSprite):Panel {
-        return (new NameChangerPanel(_arg1, this.rankRequired_));
+        Global.setNameChangerPanel(new NameChangerPanel(_arg1, this.rankRequired_))
+        return Global.nameChangerPanel;
     }
 
 

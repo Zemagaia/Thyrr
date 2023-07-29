@@ -7,7 +7,6 @@ import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.geom.ColorTransform;
 
-
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 

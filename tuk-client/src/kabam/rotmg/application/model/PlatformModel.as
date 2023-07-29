@@ -1,6 +1,4 @@
 ﻿package kabam.rotmg.application.model {
-import flash.display.DisplayObjectContainer;
-import flash.display.LoaderInfo;
 import flash.system.Capabilities;
 
 public class PlatformModel {
@@ -8,9 +6,6 @@ public class PlatformModel {
     private static var platform:PlatformType;
 
     private const DESKTOP:String = "Desktop";
-
-    [Inject]
-    public var root:DisplayObjectContainer;
 
 
     public function isWeb():Boolean {
@@ -26,7 +21,7 @@ public class PlatformModel {
     }
 
     private function determinePlatform():PlatformType {
-        var _local1:Object = LoaderInfo(this.root.stage.root.loaderInfo).parameters;
+        var _local1:Object = Global.loaderInfo.parameters;
         if (this.isKongregate(_local1)) {
             return (PlatformType.KONGREGATE);
         }

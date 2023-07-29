@@ -21,8 +21,7 @@ public class PlayerModel {
     public var isInvalidated:Boolean;
     private var _currentCharId:int;
     private var isAgeVerified:Boolean;
-    [Inject]
-    public var account:Account;
+    public var account:Account = Global.account;
 
     public function PlayerModel() {
         this.isInvalidated = true;

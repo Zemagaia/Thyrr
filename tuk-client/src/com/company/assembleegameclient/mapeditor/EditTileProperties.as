@@ -18,7 +18,7 @@ public class EditTileProperties extends Sprite {
         var _local3:Graphics = this.darkBox_.graphics;
         _local3.clear();
         _local3.beginFill(0, 0.8);
-        _local3.drawRect(0, 0, WebMain.DefaultWidth, WebMain.DefaultHeight);
+        _local3.drawRect(0, 0, Main.DefaultWidth, Main.DefaultHeight);
         _local3.endFill();
         addChild(this.darkBox_);
         this.frame_ = new EditTilePropertiesFrame(_arg2);

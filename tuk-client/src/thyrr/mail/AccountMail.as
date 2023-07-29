@@ -23,6 +23,7 @@ public class AccountMail extends DefaultFrame
         bitmapData = TextureRedrawer.redraw(bitmapData, 40, true, 0, false);
         bitmapData = BitmapUtil.cropToBitmapData(bitmapData, 8, 8, (bitmapData.width - 16), (bitmapData.height - 16));
         super(gameSprite, new <String>["Mail"], new <BitmapData>[bitmapData]);
+        gameSprite_.mui_.setEnablePlayerInput(false);
         this.content_ = new MailContent(gameSprite);
         addChild(this.content_);
     }

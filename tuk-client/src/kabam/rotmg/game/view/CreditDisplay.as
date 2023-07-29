@@ -7,18 +7,17 @@ import com.company.util.AssetLibrary;
 import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.display.Sprite;
+import flash.events.Event;
 import flash.filters.DropShadowFilter;
 
-import kabam.rotmg.ui.view.SignalWaiter;
-
-import org.osflash.signals.Signal;
+import kabam.rotmg.core.model.PlayerModel;
 
 public class CreditDisplay extends Sprite {
 
     private static const FONT_SIZE:int = 18;
     public static const IMAGE_NAME:String = "lofiObj3";
     public static const IMAGE_ID:int = 225;
-    public static const waiter:SignalWaiter = new SignalWaiter();
+    public var model:PlayerModel = Global.playerModel;
 
     private var creditsText_:BaseSimpleText;
     private var fameText_:BaseSimpleText;
@@ -32,11 +31,9 @@ public class CreditDisplay extends Sprite {
     private var fame_:int = -1;
     private var unholyEssence_:int = -1;
     private var divineEssence_:int = -1;
-    public var openAccountDialog:Signal;
     public var _isGameSprite:Boolean;
 
     public function CreditDisplay(isGameSprite:Boolean = false) {
-        this.openAccountDialog = new Signal();
         super();
         _isGameSprite = isGameSprite;
 
@@ -73,6 +70,42 @@ public class CreditDisplay extends Sprite {
         this.draw(0, 0, 0, 0);
         mouseEnabled = false;
         doubleClickEnabled = false;
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
+        addEventListener(Event.REMOVED_FROM_STAGE, destroy);
+    }
+
+    public function initialize(e:Event):void {
+        this.model.creditsChanged.add(this.onCreditsChanged);
+        this.model.fameChanged.add(this.onFameChanged);
+        this.model.unholyEssenceChanged.add(this.onUnholyEssenceChanged);
+        this.model.divineEssenceChanged.add(this.onDivineEssenceChanged);
+    }
+
+    public function destroy(e:Event):void {
+        this.model.creditsChanged.remove(this.onCreditsChanged);
+        this.model.fameChanged.remove(this.onFameChanged);
+        this.model.unholyEssenceChanged.remove(this.onUnholyEssenceChanged);
+        this.model.divineEssenceChanged.remove(this.onDivineEssenceChanged);
+    }
+
+    private function onCreditsChanged(_arg1:int):void {
+        this.draw(_arg1, this.model.getFame(), this.model.getUnholyEssence(), this.model.getDivineEssence());
+    }
+
+    private function onFameChanged(_arg1:int):void {
+        this.draw(this.model.getCredits(), _arg1, this.model.getUnholyEssence(), this.model.getDivineEssence());
+    }
+
+    private function onUnholyEssenceChanged(_arg1:int):void {
+        this.draw(this.model.getCredits(), this.model.getFame(), _arg1, this.model.getDivineEssence());
+    }
+
+    private function onDivineEssenceChanged(_arg1:int):void {
+        this.draw(this.model.getCredits(), this.model.getFame(), this.model.getUnholyEssence(), _arg1);
+    }
+
+    private function onOpenAccountDialog():void {
+        Global.openMoneyWindow();
     }
 
     public function draw(credits:int, fame:int, uhEssence:int, dvEssence:int):void {

@@ -9,8 +9,6 @@ import flash.events.Event;
 import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
 
-
-
 public class GuildBoardPanel extends ButtonPanel {
 
     public function GuildBoardPanel(_arg1:GameSprite) {

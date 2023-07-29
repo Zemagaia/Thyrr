@@ -1,4 +1,5 @@
 ﻿package com.company.assembleegameclient.ui.dialogs {
+import com.company.assembleegameclient.screens.CharacterSelectionScreen;
 import com.company.assembleegameclient.ui.DeprecatedTextButton;
 import com.company.assembleegameclient.util.StageProxy;
 import com.company.util.GraphicsUtil;
@@ -57,6 +58,27 @@ public class ErrorDialog extends Sprite {
         addChild(this.box_);
         this.ok = new Signal();
         addEventListener(Dialog.LEFT_BUTTON, onOk);
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
+        addEventListener(Event.REMOVED_FROM_STAGE, destroy);
+    }
+
+    public function initialize(e:Event):void {
+        addEventListener(Event.COMPLETE, this.complete);
+        this.ok.addOnce(this.onClose);
+    }
+
+    public function destroy(e:Event):void {
+        removeEventListener(Event.COMPLETE, this.complete);
+    }
+
+    public function onClose():void {
+        Global.closeDialogs();
+    }
+
+    private function complete(_arg1:Event):void {
+        Global.invalidateData();
+        Global.setCharacterSelectionScreen(new CharacterSelectionScreen());
+        Global.setScreenWithValidData(Global.characterSelectionScreen);
     }
 
     private function onOk(e:Event):void

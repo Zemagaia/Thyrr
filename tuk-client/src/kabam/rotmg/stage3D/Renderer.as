@@ -37,8 +37,6 @@ import flash.display3D.Context3DTriangleFace;
 import flash.display.GraphicsBitmapFill;
 import flash.display.GraphicsGradientFill;
 
-import org.swiftsuspenders.Injector;
-
 public class Renderer {
 
     public static const STAGE3D_FILTER_PAUSE:uint = 1;
@@ -51,12 +49,7 @@ public class Renderer {
     private static const POST_FILTER_POSITIONS:Vector.<Number> = new <Number>[-1, 1, 0, 0, 1, 1, 1, 0, 1, -1, 1, 1, -1, -1, 0, 1];
     private static const POST_FILTER_TRIS:Vector.<uint> = new <uint>[0, 2, 3, 0, 1, 2];
 
-    [Inject]
-    public var context3D:Context3DProxy;
-    [Inject]
-    public var textureFactory:TextureFactory;
-    [Inject]
-    public var injector:Injector;
+    public var context3D:Context3DProxy = Global.context3DProxy;
     private var tX:Number;
     private var tY:Number;
     public var program2:Program3D;
@@ -83,10 +76,10 @@ public class Renderer {
     protected var _fragmentShader:String = ["tex oc, v2, fs0 <2d,clamp>"].join("\n");
     protected var blurFragmentConstants_:Vector.<Number> = Vector.<Number>([0.4, 0.6, 0.4, 1.5]);
 
-    public function Renderer(_arg1:Render3D) {
+    public function Renderer(render3D:Render3D) {
         Renderer.inGame = false;
         this.setTranslationToTitle();
-        _arg1.add(this.onRender);
+        render3D.add(this.onRender);
     }
 
     public function init(_arg1:Context3D):void {
@@ -127,7 +120,7 @@ public class Renderer {
         this.postFilterVertexBuffer_.uploadFromVector(POST_FILTER_POSITIONS, 0, 4);
         this.postFilterIndexBuffer_ = _arg1.createIndexBuffer(6);
         this.postFilterIndexBuffer_.uploadFromVector(POST_FILTER_TRIS, 0, 6);
-        this.graphic3D_ = this.injector.getInstance(Graphic3D);
+        this.graphic3D_ = Global.graphic3D;
     }
 
     private function UpdateCameraMatrix(_arg1:Camera):void {
@@ -166,9 +159,9 @@ public class Renderer {
         this.cameraMatrix_.append(_local3);
     }
 
-    private function onRender(_arg1:Vector.<IGraphicsData>, _arg2:Vector.<Object3DStage3D>, _arg3:Number, _arg4:Number, _arg5:Camera, _arg6:uint):void {
-        WebMain.STAGE.scaleMode = StageScaleMode.NO_SCALE;
-        if (((!(WebMain.STAGE.stageWidth == this.stageWidth)) || (!(WebMain.STAGE.stageHeight == this.stageHeight)))) {
+    private function onRender(graphicsDatas:Vector.<IGraphicsData>, grahpicsData3d:Vector.<Object3DStage3D>, mapWidth:Number, mapHeight:Number, camera:Camera, filterIndex:uint):void {
+        Main.STAGE.scaleMode = StageScaleMode.NO_SCALE;
+        if (Main.STAGE.stageWidth != this.stageWidth || Main.STAGE.stageHeight != this.stageHeight) {
             this.resizeStage3DBackBuffer();
         }
         if (Renderer.inGame) {
@@ -177,28 +170,26 @@ public class Renderer {
         else {
             this.setTranslationToTitle();
         }
-        if (_arg6 > 0) {
-            this.renderWithPostEffect(_arg1, _arg2, _arg3, _arg4, _arg5, _arg6);
-        } 
+        if (filterIndex > 0) {
+            this.renderWithPostEffect(graphicsDatas, grahpicsData3d, mapWidth, mapHeight, camera, filterIndex);
+        }
         else {
-            this.renderScene(_arg1, _arg2, _arg3, _arg4, _arg5);
+            this.renderScene(graphicsDatas, grahpicsData3d, mapWidth, mapHeight, camera);
         }
         this.context3D.present();
-        if (Parameters.data_.stageScale != StageScaleMode.NO_SCALE) {
-            WebMain.STAGE.scaleMode = StageScaleMode.EXACT_FIT;
-        }
-       
+        if (Parameters.data_.stageScale != StageScaleMode.NO_SCALE)
+            Main.STAGE.scaleMode = StageScaleMode.EXACT_FIT;
     }
 
     private function resizeStage3DBackBuffer():void {
-        if (((WebMain.STAGE.stageWidth < 1) || (WebMain.STAGE.stageHeight < 1))) {
+        if (((Main.STAGE.stageWidth < 1) || (Main.STAGE.stageHeight < 1))) {
             return;
         }
        
-        var _local1:Stage3D = WebMain.STAGE.stage3Ds[0];
-        _local1.context3D.configureBackBuffer(WebMain.STAGE.stageWidth, WebMain.STAGE.stageHeight, 2, false);
-        this.stageWidth = WebMain.STAGE.stageWidth;
-        this.stageHeight = WebMain.STAGE.stageHeight;
+        var _local1:Stage3D = Main.STAGE.stage3Ds[0];
+        _local1.context3D.configureBackBuffer(Main.STAGE.stageWidth, Main.STAGE.stageHeight, 2, false);
+        this.stageWidth = Main.STAGE.stageWidth;
+        this.stageHeight = Main.STAGE.stageHeight;
     }
 
     private function renderWithPostEffect(_arg1:Vector.<IGraphicsData>, _arg2:Vector.<Object3DStage3D>, _arg3:Number, _arg4:Number, _arg5:Camera, _arg6:uint):void {
@@ -306,7 +297,7 @@ public class Renderer {
     }
 
     private function setTranslationToGame():void {
-        this.tX = Parameters.data_.mscale * (WebMain.STAGE.stageHeight / WebMain.DefaultHeight);
+        this.tX = Parameters.data_.mscale * (Main.STAGE.stageHeight / Main.DefaultHeight);
         this.tY = (Parameters.data_.centerOnPlayer) ?
                 Number((Camera.MapRectFSCentered.y + Camera.MapRectFSCentered.height / 2) * 2) :
                 Number((Camera.MapRectFSNonCentered.y + Camera.MapRectFSCentered.height / 2) * 2);

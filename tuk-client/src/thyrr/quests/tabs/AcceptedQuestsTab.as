@@ -30,7 +30,7 @@ import thyrr.oldui.DefaultTab;
 
 public class AcceptedQuestsTab extends DefaultTab {
 
-    public static const X_OFFSET:int = WebMain.DefaultWidth / 2 - WebMain.DefaultWidth / 4;
+    public static const X_OFFSET:int = Main.DefaultWidth / 2 - Main.DefaultWidth / 4;
     public static const Y_OFFSET:int = 114;
 
     public const fetchSignal_:FetchCharacterQuestsSignal = new FetchCharacterQuestsSignal();
@@ -84,8 +84,8 @@ public class AcceptedQuestsTab extends DefaultTab {
             this.noQuestsText_ = new TextFieldDisplayConcrete().setColor(0xB3B3B3).setSize(14);
             this.noQuestsText_.setAutoSize(TextFieldAutoSize.CENTER);
             this.noQuestsText_.setStringBuilder(new StaticStringBuilder(result.description_));
-            this.noQuestsText_.x = WebMain.DefaultWidth / 2;
-            this.noQuestsText_.y = (WebMain.DefaultWidth / 2 - WebMain.DefaultWidth / 5) - 10;
+            this.noQuestsText_.x = Main.DefaultWidth / 2;
+            this.noQuestsText_.y = (Main.DefaultWidth / 2 - Main.DefaultWidth / 5) - 10;
             this.noQuestsText_.filters = [new DropShadowFilter(0, 0, 0)];
             if (!contains(this.noQuestsText_))
                 addChild(this.noQuestsText_);
@@ -141,8 +141,8 @@ public class AcceptedQuestsTab extends DefaultTab {
             this.noQuestsText_ = new TextFieldDisplayConcrete().setColor(0xB3B3B3).setSize(14);
             this.noQuestsText_.setAutoSize(TextFieldAutoSize.CENTER);
             this.noQuestsText_.setStringBuilder(new StaticStringBuilder("You do not have any account quests"));
-            this.noQuestsText_.x = WebMain.DefaultWidth / 2;
-            this.noQuestsText_.y = (WebMain.DefaultWidth / 2 - WebMain.DefaultWidth / 5) - 10;
+            this.noQuestsText_.x = Main.DefaultWidth / 2;
+            this.noQuestsText_.y = (Main.DefaultWidth / 2 - Main.DefaultWidth / 5) - 10;
             this.noQuestsText_.filters = [new DropShadowFilter(0, 0, 0)];
             if (!contains(this.noQuestsText_))
                 addChild(this.noQuestsText_);

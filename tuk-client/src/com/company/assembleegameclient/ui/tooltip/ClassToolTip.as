@@ -15,9 +15,7 @@ import flash.display.BitmapData;
 import flash.filters.DropShadowFilter;
 import flash.geom.ColorTransform;
 
-import thyrr.assets.IconFactory;
 import kabam.rotmg.core.model.PlayerModel;
-
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.AppendingLineBuilder;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;

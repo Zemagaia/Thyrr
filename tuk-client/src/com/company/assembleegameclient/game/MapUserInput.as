@@ -19,26 +19,13 @@ import kabam.rotmg.application.api.ApplicationSetup;
 import kabam.rotmg.chat.model.ChatMessage;
 import kabam.rotmg.constants.GeneralConstants;
 import kabam.rotmg.constants.UseType;
-import kabam.rotmg.core.StaticInjectorContext;
 import kabam.rotmg.core.view.Layers;
-import kabam.rotmg.dialogs.control.CloseDialogsSignal;
-import kabam.rotmg.dialogs.control.OpenDialogSignal;
 import kabam.rotmg.game.model.PotionInventoryModel;
 import kabam.rotmg.game.model.UseBuyPotionVO;
-import kabam.rotmg.game.signals.AddTextLineSignal;
-import kabam.rotmg.game.signals.ExitGameSignal;
-import kabam.rotmg.game.signals.GiftStatusUpdateSignal;
-import kabam.rotmg.game.signals.MailUpdateSignal;
-import kabam.rotmg.game.signals.SetTextBoxVisibilitySignal;
-import kabam.rotmg.game.signals.UseBuyPotionSignal;
-import kabam.rotmg.game.view.components.TabStripSwapTabSignal;
 import kabam.rotmg.messaging.impl.GameServerConnection;
-import kabam.rotmg.minimap.control.MiniMapZoomSignal;
 import kabam.rotmg.ui.model.TabStripModel;
 
 import net.hires.debug.Stats;
-
-import org.swiftsuspenders.Injector;
 
 public class MapUserInput {
 
@@ -60,40 +47,19 @@ public class MapUserInput {
     private var specialKeyDown_:Boolean = false;
     private var specialKey2Down_:Boolean = false;
     public var enablePlayerInput_:Boolean = true;
-    private var giftStatusUpdateSignal:GiftStatusUpdateSignal;
-    private var addTextLine:AddTextLineSignal;
-    private var setTextBoxVisibility:SetTextBoxVisibilitySignal;
-    private var statsTabHotKeyInputSignal:TabStripSwapTabSignal;
-    private var miniMapZoom:MiniMapZoomSignal;
-    private var useBuyPotionSignal:UseBuyPotionSignal;
     private var potionInventoryModel:PotionInventoryModel;
-    private var openDialogSignal:OpenDialogSignal;
-    private var closeDialogSignal:CloseDialogsSignal;
     private var tabStripModel:TabStripModel;
     public var layers:Layers;
-    private var exitGame:ExitGameSignal;
     private var areFKeysAvailable:Boolean;
-    private var mailUpdateSignal_:MailUpdateSignal;
 
     public function MapUserInput(_arg1:GameSprite) {
         this.gs_ = _arg1;
         this.gs_.addEventListener(Event.ADDED_TO_STAGE, this.onAddedToStage);
         this.gs_.addEventListener(Event.REMOVED_FROM_STAGE, this.onRemovedFromStage);
-        var _local2:Injector = StaticInjectorContext.getInjector();
-        this.giftStatusUpdateSignal = _local2.getInstance(GiftStatusUpdateSignal);
-        this.addTextLine = _local2.getInstance(AddTextLineSignal);
-        this.setTextBoxVisibility = _local2.getInstance(SetTextBoxVisibilitySignal);
-        this.miniMapZoom = _local2.getInstance(MiniMapZoomSignal);
-        this.useBuyPotionSignal = _local2.getInstance(UseBuyPotionSignal);
-        this.potionInventoryModel = _local2.getInstance(PotionInventoryModel);
-        this.tabStripModel = _local2.getInstance(TabStripModel);
-        this.mailUpdateSignal_ = _local2.getInstance(MailUpdateSignal);
-        this.layers = _local2.getInstance(Layers);
-        this.statsTabHotKeyInputSignal = _local2.getInstance(TabStripSwapTabSignal);
-        this.exitGame = _local2.getInstance(ExitGameSignal);
-        this.openDialogSignal = _local2.getInstance(OpenDialogSignal);
-        this.closeDialogSignal = _local2.getInstance(CloseDialogsSignal);
-        var _local3:ApplicationSetup = _local2.getInstance(ApplicationSetup);
+        this.potionInventoryModel = Global.potionInventoryModel;
+        this.tabStripModel = Global.tabStripModel;
+        this.layers = Global.layers;
+        var _local3:ApplicationSetup = Global.applicationSetup;
         this.areFKeysAvailable = _local3.areDeveloperHotkeysEnabled();
         this.gs_.map.signalRenderSwitch.add(this.onRenderSwitch);
     }
@@ -194,7 +160,7 @@ public class MapUserInput {
             return;
         }
         if (_arg1.shiftKey) {
-            _local4 = _local2.equipment_[1].ObjectType;
+            _local4 = _local2.equipment_[2].ObjectType;
             if (_local4 == -1) {
                 return;
             }
@@ -237,10 +203,10 @@ public class MapUserInput {
 
     private function onMouseWheel(_arg1:MouseEvent):void {
         if (_arg1.delta > 0) {
-            this.miniMapZoom.dispatch(MiniMapZoomSignal.IN);
+            Global.miniMapZoom("IN");
         }
         else {
-            this.miniMapZoom.dispatch(MiniMapZoomSignal.OUT);
+            Global.miniMapZoom("OUT");
         }
     }
 
@@ -341,32 +307,32 @@ public class MapUserInput {
                 Parameters.data_.HPBar = !(Parameters.data_.HPBar);
                 break;
             case Parameters.data_.useInvSlot1:
-                this.useItem(4);
-                break;
-            case Parameters.data_.useInvSlot2:
-                this.useItem(5);
-                break;
-            case Parameters.data_.useInvSlot3:
                 this.useItem(6);
                 break;
-            case Parameters.data_.useInvSlot4:
+            case Parameters.data_.useInvSlot2:
                 this.useItem(7);
                 break;
-            case Parameters.data_.useInvSlot5:
+            case Parameters.data_.useInvSlot3:
                 this.useItem(8);
                 break;
-            case Parameters.data_.useInvSlot6:
+            case Parameters.data_.useInvSlot4:
                 this.useItem(9);
                 break;
-            case Parameters.data_.useInvSlot7:
+            case Parameters.data_.useInvSlot5:
                 this.useItem(10);
                 break;
-            case Parameters.data_.useInvSlot8:
+            case Parameters.data_.useInvSlot6:
                 this.useItem(11);
+                break;
+            case Parameters.data_.useInvSlot7:
+                this.useItem(12);
+                break;
+            case Parameters.data_.useInvSlot8:
+                this.useItem(13);
                 break;
             case Parameters.data_.useHealthPotion:
                 if (this.potionInventoryModel.getPotionModel(PotionInventoryModel.HEALTH_POTION_ID).available) {
-                    this.useBuyPotionSignal.dispatch(new UseBuyPotionVO(PotionInventoryModel.HEALTH_POTION_ID, UseBuyPotionVO.CONTEXTBUY));
+                    Global.useBuyPotion(new UseBuyPotionVO(PotionInventoryModel.HEALTH_POTION_ID, UseBuyPotionVO.CONTEXTBUY));
                 }
                 break;
             case Parameters.data_.GPURenderToggle:
@@ -374,21 +340,21 @@ public class MapUserInput {
                 break;
             case Parameters.data_.useMagicPotion:
                 if (this.potionInventoryModel.getPotionModel(PotionInventoryModel.MAGIC_POTION_ID).available) {
-                    this.useBuyPotionSignal.dispatch(new UseBuyPotionVO(PotionInventoryModel.MAGIC_POTION_ID, UseBuyPotionVO.CONTEXTBUY));
+                    Global.useBuyPotion(new UseBuyPotionVO(PotionInventoryModel.MAGIC_POTION_ID, UseBuyPotionVO.CONTEXTBUY));
                 }
                 break;
             case Parameters.data_.miniMapZoomOut:
-                this.miniMapZoom.dispatch(MiniMapZoomSignal.OUT);
+                Global.miniMapZoom("OUT");
                 break;
             case Parameters.data_.miniMapZoomIn:
-                this.miniMapZoom.dispatch(MiniMapZoomSignal.IN);
+                Global.miniMapZoom("IN");
                 break;
             case Parameters.data_.togglePerformanceStats:
                 this.togglePerformanceStats();
                 break;
             case Parameters.data_.escapeToRealm:
             case Parameters.data_.escapeToRealm2:
-                this.exitGame.dispatch();
+                Global.exitGame();
                 this.gs_.gsc_.escape();
                 Parameters.save();
                 break;
@@ -414,7 +380,7 @@ public class MapUserInput {
                 }
                 break;
             case Parameters.data_.switchTabs:
-                this.statsTabHotKeyInputSignal.dispatch();
+                Global.switchTab();
                 break;
             case Parameters.data_.testOne:
                 break;
@@ -448,7 +414,7 @@ public class MapUserInput {
                 case KeyCodes.F6:
                     TextureRedrawer.clearCache();
                     Parameters.projColorType_ = ((Parameters.projColorType_ + 1) % 7);
-                    this.addTextLine.dispatch(ChatMessage.make(Parameters.ERROR_CHAT_NAME, ("Projectile Color Type: " + Parameters.projColorType_)));
+                    Global.addTextLine(ChatMessage.make(Parameters.ERROR_CHAT_NAME, ("Projectile Color Type: " + Parameters.projColorType_)));
                     break;
                 case KeyCodes.F7:
                     for each (_local10 in this.gs_.map.squares_) {
@@ -457,7 +423,7 @@ public class MapUserInput {
                         }
                     }
                     Parameters.blendType_ = ((Parameters.blendType_ + 1) % 2);
-                    this.addTextLine.dispatch(ChatMessage.make(Parameters.CLIENT_CHAT_NAME, ("Blend type: " + Parameters.blendType_)));
+                    Global.addTextLine(ChatMessage.make(Parameters.CLIENT_CHAT_NAME, ("Blend type: " + Parameters.blendType_)));
                     break;
                 case KeyCodes.F8:
                     Parameters.data_.surveyDate = 0;
@@ -561,15 +527,8 @@ public class MapUserInput {
     }
 
     private function toggleScreenShotMode():void {
-        Parameters.screenShotMode_ = !(Parameters.screenShotMode_);
-        if (Parameters.screenShotMode_) {
-            this.gs_.hudView.visible = false;
-            this.setTextBoxVisibility.dispatch(false);
-        }
-        else {
-            this.gs_.hudView.visible = true;
-            this.setTextBoxVisibility.dispatch(true);
-        }
+        Parameters.screenShotMode_ = !Parameters.screenShotMode_;
+        this.gs_.hud.visible = !Parameters.screenShotMode_;
     }
 
 

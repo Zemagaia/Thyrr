@@ -3,6 +3,8 @@ package thyrr.ui.buttons
 
 import flash.events.MouseEvent;
 
+import org.osflash.signals.Signal;
+
 import thyrr.ui.items.FlexibleBox;
 import thyrr.ui.interfaces.IButton;
 import thyrr.ui.items.TextBox;
@@ -10,11 +12,13 @@ import thyrr.utils.Utils;
 
 public class TextButton extends TextBox implements IButton
 {
+    public var clicked:Signal;
     private var selected_:Boolean;
 
     public function TextButton(width:int, height:int, text:String, size:int, texIndex:int = 0, color:uint = 0xAEA9A9,
                                bottomLine:Boolean = true, textFile:String = "ui")
     {
+        clicked = new Signal();
         super(width, height, text, size, texIndex, color, bottomLine, textFile);
 
         addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
@@ -30,6 +34,7 @@ public class TextButton extends TextBox implements IButton
 
     private function onMouseDown(e:MouseEvent):void
     {
+        clicked.dispatch();
         setSelected(selected_ = true);
     }
 

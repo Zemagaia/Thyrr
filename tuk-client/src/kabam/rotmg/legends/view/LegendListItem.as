@@ -22,7 +22,7 @@ import org.osflash.signals.Signal;
 public class LegendListItem extends Sprite {
 
     private static const FONT_SIZE:int = 22;
-    public static const WIDTH:int = WebMain.DefaultWidth - 44;
+    public static const WIDTH:int = Main.DefaultWidth - 44;
     public static const HEIGHT:int = 56;
 
     public const selected:Signal = new Signal(Legend);

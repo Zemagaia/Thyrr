@@ -99,7 +99,7 @@ public class Scrollbar extends UIElement
     private function getArrow(icon:int, func:Function, rotation:int):HoldableButton
     {
         var box:HoldableButton = new HoldableButton(width_, width_, 0xaea9a9, icon, false);
-        box.addEventListener(MouseEvent.MOUSE_DOWN, func);
+        box.clicked.add(func);
         box.rotation = rotation;
         return box;
     }
@@ -129,7 +129,7 @@ public class Scrollbar extends UIElement
         }
         else
         {
-            WebMain.STAGE.addEventListener(MouseEvent.MOUSE_WHEEL, this.onMouseWheel);
+            Main.STAGE.addEventListener(MouseEvent.MOUSE_WHEEL, this.onMouseWheel);
         }
     }
 
@@ -154,7 +154,7 @@ public class Scrollbar extends UIElement
         }
     }
 
-    private function onUpArrowDown(e:MouseEvent):void
+    private function onUpArrowDown():void
     {
         addEventListener(Event.ENTER_FRAME, this.onArrowFrame);
         addEventListener(MouseEvent.MOUSE_UP, this.onArrowUp);
@@ -163,7 +163,7 @@ public class Scrollbar extends UIElement
         this.change_ = -(this.speed_);
     }
 
-    private function onDownArrowDown(e:MouseEvent):void
+    private function onDownArrowDown():void
     {
         addEventListener(Event.ENTER_FRAME, this.onArrowFrame);
         addEventListener(MouseEvent.MOUSE_UP, this.onArrowUp);
@@ -176,8 +176,8 @@ public class Scrollbar extends UIElement
     {
         var time:int = getTimer();
         var delta:Number = (time - this.lastUpdateTime_) / 1000;
-        var h:Number = objectHeight_ > 0 ? height_ * (height_ / objectHeight_) : height_;
-        var jumpDist:Number = (h - this.width_ * 3) * delta * this.change_;
+        var h:Number = objectHeight_ > 0 ? height_ * (objectHeight_ / height_) : height_;
+        var jumpDist:Number = (h - this.width_ * 3) / 2 * delta * this.change_;
         this.setPos((this.posIndicator_.y + jumpDist - this.indicatorRect_.y) / (this.indicatorRect_.height - this.posIndicator_.height));
         this.lastUpdateTime_ = time;
     }
@@ -239,7 +239,7 @@ public class Scrollbar extends UIElement
         this.indicatorRect_ = new Rectangle(0, width_, this.width_, this.height_ - width_ * 2);
         var g:Graphics = this.background_.graphics;
         g.clear();
-        g.beginFill(Utils.color(0xAEA9A9, 1 / (1.3 * 1.3)), 1);
+        g.beginFill(Utils.color(0xAEA9A9, 1 / (1.35 * 1.35)), 1);
         g.drawRect(this.indicatorRect_.x, this.indicatorRect_.y, this.indicatorRect_.width, this.indicatorRect_.height);
         g.endFill();
         this.upArrow_ = this.getArrow(3, this.onUpArrowDown, 0);
@@ -272,7 +272,7 @@ public class Scrollbar extends UIElement
         }
         else
         {
-            WebMain.STAGE.removeEventListener(MouseEvent.MOUSE_WHEEL, this.onMouseWheel);
+            Main.STAGE.removeEventListener(MouseEvent.MOUSE_WHEEL, this.onMouseWheel);
         }
         removeEventListener(Event.ADDED_TO_STAGE, this.onAddedToStage);
         removeEventListener(Event.REMOVED_FROM_STAGE, this.onRemovedFromStage);

@@ -67,7 +67,7 @@ public class Dialog extends Sprite {
         if (background) {
             graphics.clear();
             graphics.beginFill(2829099, 0.8);
-            graphics.drawRect(0, 0, WebMain.DefaultWidth, WebMain.DefaultHeight);
+            graphics.drawRect(0, 0, Main.DefaultWidth, Main.DefaultHeight);
             graphics.endFill();
         }
 
@@ -167,8 +167,8 @@ public class Dialog extends Sprite {
 
     private function positionDialog():void
     {
-        this.box_.x = ((this.offsetX + (WebMain.DefaultWidth / 2)) - (this.box_.width / 2));
-        this.box_.y = ((this.offsetY + (WebMain.DefaultHeight / 2)) - (this.getBoxHeight() / 2));
+        this.box_.x = ((this.offsetX + (Main.DefaultWidth / 2)) - (this.box_.width / 2));
+        this.box_.y = ((this.offsetY + (Main.DefaultHeight / 2)) - (this.getBoxHeight() / 2));
     }
 
     private function draw():void {

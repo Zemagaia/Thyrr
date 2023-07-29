@@ -40,8 +40,8 @@ public final class VerticalScrollbarBar extends Sprite {
             parent.parent.addEventListener(MouseEvent.MOUSE_WHEEL, this.onMouseWheel);
         }
         else {
-            if (WebMain.STAGE) {
-                WebMain.STAGE.addEventListener(MouseEvent.MOUSE_WHEEL, this.onMouseWheel);
+            if (Main.STAGE) {
+                Main.STAGE.addEventListener(MouseEvent.MOUSE_WHEEL, this.onMouseWheel);
             }
         }
     }
@@ -65,8 +65,8 @@ public final class VerticalScrollbarBar extends Sprite {
             parent.parent.removeEventListener(MouseEvent.MOUSE_WHEEL, this.onMouseWheel);
         }
         else {
-            if (WebMain.STAGE) {
-                WebMain.STAGE.removeEventListener(MouseEvent.MOUSE_WHEEL, this.onMouseWheel);
+            if (Main.STAGE) {
+                Main.STAGE.removeEventListener(MouseEvent.MOUSE_WHEEL, this.onMouseWheel);
             }
         }
         this.onMouseUp();

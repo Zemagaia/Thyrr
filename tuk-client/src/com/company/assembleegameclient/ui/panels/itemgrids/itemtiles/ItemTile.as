@@ -1,19 +1,10 @@
 ﻿package com.company.assembleegameclient.ui.panels.itemgrids.itemtiles {
 import com.company.assembleegameclient.objects.Player;
-import com.company.assembleegameclient.ui.panels.itemgrids.EquippedGrid;
-import com.company.assembleegameclient.ui.panels.itemgrids.InventoryGrid;
 import com.company.assembleegameclient.ui.panels.itemgrids.ItemGrid;
-import com.company.util.GraphicsUtil;
 
-import flash.display.GraphicsPath;
-import flash.display.GraphicsSolidFill;
-import flash.display.IGraphicsData;
 import flash.display.Sprite;
-import flash.events.MouseEvent;
-import flash.filters.ColorMatrixFilter;
 
 import thyrr.ui.items.InventorySlot;
-
 import thyrr.utils.ItemData;
 
 public class ItemTile extends Sprite {
@@ -65,7 +56,7 @@ public class ItemTile extends Sprite {
     }
 
     public function setItem(itemData:ItemData):Boolean {
-        if (this.itemSprite.item && itemData && itemData.ObjectType == this.itemSprite.item.ObjectType && itemData == this.itemSprite.item) {
+        if (itemData.ObjectType == this.itemSprite.item.ObjectType && itemData == this.itemSprite.item) {
             return (false);
         }
         if (this.blockingItemUpdates) {

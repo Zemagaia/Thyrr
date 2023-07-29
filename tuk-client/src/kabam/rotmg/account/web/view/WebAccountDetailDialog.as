@@ -1,25 +1,19 @@
 ﻿package kabam.rotmg.account.web.view {
 import com.company.assembleegameclient.account.ui.Frame;
 import com.company.assembleegameclient.ui.DeprecatedClickableText;
-import com.company.util.KeyCodes;
-
-import flash.events.KeyboardEvent;
 
 import flash.events.MouseEvent;
 import flash.filters.DropShadowFilter;
 
+import kabam.rotmg.account.core.Account;
+import kabam.rotmg.appengine.api.AppEngineClient;
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 import kabam.rotmg.text.view.stringBuilder.StaticStringBuilder;
 
-import org.osflash.signals.Signal;
-
 public class WebAccountDetailDialog extends Frame {
 
-    public var cancel:Signal;
-    public var change:Signal;
-    public var logout:Signal;
-    public var verify:Signal;
+    public var account:Account = Global.account;
     private var loginText:TextFieldDisplayConcrete;
     private var emailText:TextFieldDisplayConcrete;
     private var verifyEmail:DeprecatedClickableText;
@@ -33,11 +27,44 @@ public class WebAccountDetailDialog extends Frame {
         this.makeLoginText();
         this.makeEmailText();
         h_ = (h_ + 88);
-        this.cancel = new Signal();
-        this.change = new Signal();
-        this.logout = new Signal();
-        this.verify = new Signal();
+        //Global.appEngine.setDataFormat(URLLoaderDataFormat.BINARY);
         this.rightButton_.addEventListener(MouseEvent.CLICK, this.onContinue);
+        setUserInfo(this.account.getUserName(), this.account.isVerified());
+    }
+
+    private function change():void {
+        Global.openDialog(new WebChangePasswordDialog());
+    }
+
+    private function logout():void {
+        this.account.clear();
+        Global.openDialog(new WebLoginDialog());
+    }
+
+    private function onDone():void {
+        Global.closeDialogs();
+    }
+
+    private function onVerify():void {
+        var appEngine:AppEngineClient = Global.appEngine;
+        appEngine.complete.addOnce(this.onComplete);
+        appEngine.sendRequest("/account/sve", this.account.getCredentials());
+    }
+
+    private function onComplete(isOk:Boolean, data:*):void {
+        if (isOk) {
+            this.onSent();
+        }
+        else {
+            this.onError(data);
+        }
+    }
+
+    private function onSent():void {
+    }
+
+    private function onError(ignored:String):void {
+        this.account.clear();
     }
 
     public function setUserInfo(_arg1:String, _arg2:Boolean):void {
@@ -68,7 +95,7 @@ public class WebAccountDetailDialog extends Frame {
     }
 
     private function onChange(_arg1:MouseEvent):void {
-        this.change.dispatch();
+        this.change();
     }
 
     private function makeLogoutText():void {
@@ -81,11 +108,11 @@ public class WebAccountDetailDialog extends Frame {
     }
 
     private function onContinue(event:MouseEvent):void {
-        this.cancel.dispatch();
+        onDone();
     }
 
     private function onLogout(_arg1:MouseEvent):void {
-        this.logout.dispatch();
+        this.logout();
     }
 
     private function makeLoginText():void {
@@ -106,7 +133,7 @@ public class WebAccountDetailDialog extends Frame {
     }
 
     private function onVerifyEmail(_arg1:MouseEvent):void {
-        this.verify.dispatch();
+        this.onVerify();
         this.verifyEmail.makeStatic("Sent...");
     }
 

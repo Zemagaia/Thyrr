@@ -1,5 +1,4 @@
 package thyrr.assets {
-import com.company.assembleegameclient.map.GroundLibrary;
 import com.company.assembleegameclient.objects.ObjectLibrary;
 import com.company.assembleegameclient.objects.TextureDataConcrete;
 
@@ -7,20 +6,15 @@ import flash.display.BitmapData;
 import flash.net.URLLoaderDataFormat;
 import flash.utils.ByteArray;
 import flash.utils.Dictionary;
-import flash.utils.ByteArray;
-
-import kabam.lib.tasks.BaseTask;
-import kabam.rotmg.appengine.api.AppEngineClient;
-import kabam.rotmg.core.signals.SetLoadingMessageSignal;
 
 import ion.utils.png.PNGDecoder;
 
+import kabam.lib.tasks.BaseTask;
+import kabam.rotmg.appengine.api.AppEngineClient;
+
 public class RequestEmbeddedAssetsTask extends BaseTask {
     
-    [Inject]
-    public var client:AppEngineClient;
-    [Inject]
-    public var setLoadingMessage:SetLoadingMessageSignal;
+    public var client:AppEngineClient = Global.appEngine;
     
     
     override protected function startTask():void {
@@ -69,7 +63,7 @@ public class RequestEmbeddedAssetsTask extends BaseTask {
     }
     
     private function onTextError(data:String):void {
-        this.setLoadingMessage.dispatch("Load error, retrying");
+        Global.loadingScreen.setTextKey("Load error, retrying");
     }
     
     

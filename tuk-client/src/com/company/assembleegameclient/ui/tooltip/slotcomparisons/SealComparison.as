@@ -5,7 +5,6 @@ import com.company.assembleegameclient.ui.tooltip.TooltipHelper;
 
 import kabam.rotmg.constants.*;
 import kabam.rotmg.messaging.impl.data.StatData;
-
 import kabam.rotmg.text.view.stringBuilder.AppendingLineBuilder;
 
 public class SealComparison extends SlotComparison {

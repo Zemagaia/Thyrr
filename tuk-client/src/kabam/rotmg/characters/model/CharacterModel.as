@@ -1,17 +1,36 @@
 ﻿package kabam.rotmg.characters.model {
 import com.company.assembleegameclient.appengine.SavedCharacter;
 
-public interface CharacterModel {
+import kabam.rotmg.core.model.PlayerModel;
 
-    function getCharacterCount():int;
+public class CharacterModel {
 
-    function getCharacter(_arg1:int):SavedCharacter;
+    public var wrapped:PlayerModel = Global.playerModel;
+    private var selected:SavedCharacter;
 
-    function deleteCharacter(_arg1:int):void;
 
-    function select(_arg1:SavedCharacter):void;
+    public function getCharacterCount():int {
+        return (this.wrapped.getCharacterCount());
+    }
 
-    function getSelected():SavedCharacter;
+    public function getCharacter(_arg1:int):SavedCharacter {
+        return (this.wrapped.getCharById(_arg1));
+    }
+
+    public function deleteCharacter(_arg1:int):void {
+        this.wrapped.deleteCharacter(_arg1);
+        if (this.selected.charId() == _arg1) {
+            this.selected = null;
+        }
+    }
+
+    public function select(_arg1:SavedCharacter):void {
+        this.selected = _arg1;
+    }
+
+    public function getSelected():SavedCharacter {
+        return (this.selected);
+    }
 
 }
 }

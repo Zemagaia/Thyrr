@@ -9,18 +9,17 @@ import kabam.rotmg.legends.model.Timespan;
 
 public class GetLegendsListTask extends BaseTask {
 
-    [Inject]
-    public var client:AppEngineClient;
-    [Inject]
-    public var player:PlayerModel;
-    [Inject]
-    public var model:LegendsModel;
-    [Inject]
-    public var factory:LegendFactory;
-    [Inject]
+    public var client:AppEngineClient = Global.appEngine;
+    public var player:PlayerModel = Global.playerModel;
+    public var model:LegendsModel = Global.legendsModel;
+    public var factory:LegendFactory = Global.legendFactory;
     public var timespan:Timespan;
     public var charId:int;
 
+    public function GetLegendsListTask(span:Timespan)
+    {
+        timespan = span;
+    }
 
     override protected function startTask():void {
         this.client.complete.addOnce(this.onComplete);

@@ -1,17 +1,27 @@
 ﻿package kabam.rotmg.account.core.model {
 import com.company.assembleegameclient.util.offer.Offer;
 
+import kabam.rotmg.text.view.stringBuilder.LineBuilder;
+
 import kabam.rotmg.text.view.stringBuilder.StringBuilder;
 
-public interface MoneyConfig {
+public class MoneyConfig {
 
-    function showPaymentMethods():Boolean;
+    public function showPaymentMethods():Boolean {
+        return (true);
+    }
 
-    function showBonuses():Boolean;
+    public function showBonuses():Boolean {
+        return (true);
+    }
 
-    function parseOfferPrice(_arg1:Offer):StringBuilder;
+    public function parseOfferPrice(_arg1:Offer):StringBuilder {
+        return (new LineBuilder().setParams("${cost}", {"cost": _arg1.price_}));
+    }
 
-    function jsInitializeFunction():String;
+    public function jsInitializeFunction():String {
+        return ("rotmg.KabamPayment.setupRotmgAccount");
+    }
 
 }
 }

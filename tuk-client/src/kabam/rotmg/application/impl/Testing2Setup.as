@@ -23,10 +23,6 @@ public class Testing2Setup implements ApplicationSetup {
         return (true);
     }
 
-    public function isToolingEnabled():Boolean {
-        return (true);
-    }
-
     public function areErrorsReported():Boolean {
         return (false);
     }

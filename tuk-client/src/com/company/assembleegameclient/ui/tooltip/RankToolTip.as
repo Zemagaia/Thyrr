@@ -8,7 +8,6 @@ import flash.filters.DropShadowFilter;
 import flash.geom.ColorTransform;
 import flash.geom.Rectangle;
 
-
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 import kabam.rotmg.ui.view.SignalWaiter;

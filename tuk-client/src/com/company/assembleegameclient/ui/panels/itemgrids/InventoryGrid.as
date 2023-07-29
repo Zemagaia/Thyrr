@@ -51,7 +51,7 @@ public class InventoryGrid extends ItemGrid {
                     }
                 }
                 else {
-                    if (this.tiles[_local5].setItem(ItemConstants.DEFAULT_ITEM)) {
+                    if (this.tiles[_local5].setItem(new ItemData(null))) {
                         _local3 = true;
                     }
                 }

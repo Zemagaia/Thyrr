@@ -1,44 +1,69 @@
 ﻿package kabam.rotmg.classes.view {
 import flash.display.DisplayObject;
 import flash.display.Sprite;
+import flash.events.Event;
 
 import kabam.lib.ui.api.Size;
+import kabam.rotmg.classes.model.CharacterClass;
+import kabam.rotmg.classes.model.ClassesModel;
 import kabam.rotmg.util.components.VerticalScrollingList;
 
 public class CharacterSkinListView extends Sprite {
 
     public static const PADDING:int = 5;
-    public static const WIDTH:int = WebMain.DefaultWidth - 358;
-    public static const HEIGHT:int = WebMain.DefaultHeight - 200;
+    public static const WIDTH:int = Main.DefaultWidth - 358;
+    public static const HEIGHT:int = Main.DefaultHeight - 200;
 
     private const list:VerticalScrollingList = makeList();
 
     private var items:Vector.<DisplayObject>;
 
+    public var model:ClassesModel = Global.classesModel;
+    public var factory:CharacterSkinListItemFactory = Global.characterSkinListItemFactory;
 
-    private function makeList():VerticalScrollingList {
-        var _local1:VerticalScrollingList = new VerticalScrollingList();
-        _local1.setSize(new Size(WIDTH, HEIGHT));
-        _local1.scrollStateChanged.add(this.onScrollStateChanged);
-        _local1.setPadding(PADDING);
-        addChild(_local1);
-        return (_local1);
+    public function CharacterSkinListView():void
+    {
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
+        addEventListener(Event.REMOVED_FROM_STAGE, destroy);
     }
 
-    public function setItems(_arg1:Vector.<DisplayObject>):void {
-        this.items = _arg1;
-        this.list.setItems(_arg1);
+    public function initialize(e:Event):void {
+        this.model.selected.add(this.setSkins);
+        this.setSkins(this.model.getSelected());
+    }
+
+    public function destroy(e:Event):void {
+        this.model.selected.remove(this.setSkins);
+    }
+
+    private function setSkins(characterClass:CharacterClass):void {
+        var skins:Vector.<DisplayObject> = this.factory.make(characterClass.skins);
+        this.setItems(skins);
+    }
+
+    private function makeList():VerticalScrollingList {
+        var list:VerticalScrollingList = new VerticalScrollingList();
+        list.setSize(new Size(WIDTH, HEIGHT));
+        list.scrollStateChanged.add(this.onScrollStateChanged);
+        list.setPadding(PADDING);
+        addChild(list);
+        return (list);
+    }
+
+    public function setItems(items:Vector.<DisplayObject>):void {
+        this.items = items;
+        this.list.setItems(items);
         this.onScrollStateChanged(this.list.isScrollbarVisible());
     }
 
-    private function onScrollStateChanged(_arg1:Boolean):void {
-        var _local3:CharacterSkinListItem;
-        var _local2:int = CharacterSkinListItem.WIDTH;
-        if (!_arg1) {
-            _local2 = (_local2 + VerticalScrollingList.SCROLLBAR_GUTTER);
+    private function onScrollStateChanged(hasScrollBar:Boolean):void {
+        var item:CharacterSkinListItem;
+        var width:int = CharacterSkinListItem.WIDTH;
+        if (!hasScrollBar) {
+            width = (width + VerticalScrollingList.SCROLLBAR_GUTTER);
         }
-        for each (_local3 in this.items) {
-            _local3.setWidth(_local2);
+        for each (item in this.items) {
+            item.setWidth(width);
         }
     }
 

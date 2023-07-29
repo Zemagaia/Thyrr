@@ -13,12 +13,10 @@ import ru.inspirit.net.MultipartURLLoader;
 
 public class SaveTextureTask extends BaseTask {
 
-    [Inject]
-    public var account:Account;
+    public var account:Account = Global.account;
     [Inject]
     public var data:TextureData;
-    [Inject]
-    public var setup:ApplicationSetup;
+    public var setup:ApplicationSetup = Global.applicationSetup;
 
 
     override protected function startTask():void {

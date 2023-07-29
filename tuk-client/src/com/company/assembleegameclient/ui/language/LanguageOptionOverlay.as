@@ -7,9 +7,14 @@ import flash.events.MouseEvent;
 import flash.filters.DropShadowFilter;
 import flash.text.TextFieldAutoSize;
 
+import kabam.rotmg.core.view.Layers;
+
+import kabam.rotmg.language.model.LanguageModel;
+
 
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
+import kabam.rotmg.ui.view.TitleView;
 import kabam.rotmg.ui.view.components.ScreenBase;
 import kabam.rotmg.ui.view.components.dropdown.LocalizedDropDown;
 
@@ -17,16 +22,14 @@ import org.osflash.signals.Signal;
 
 public class LanguageOptionOverlay extends ScreenBase {
 
-    public var languageSelected:Signal;
-    public var back:Signal;
+    public var layers:Layers = Global.layers;
+    public var languageModel:LanguageModel = Global.languageModel;
     private var title_:TextFieldDisplayConcrete;
     private var continueButton_:TitleMenuOption;
     private var languageDropDownLabel:TextFieldDisplayConcrete;
     private var languageDropDown:LocalizedDropDown;
 
     public function LanguageOptionOverlay() {
-        this.languageSelected = new Signal(String);
-        this.back = new Signal();
         this.title_ = this.makeTitle();
         this.continueButton_ = this.makeContinueButton();
         this.languageDropDownLabel = this.makeDropDownLabel();
@@ -36,8 +39,17 @@ public class LanguageOptionOverlay extends ScreenBase {
         addChild(this.continueButton_);
     }
 
+    public function initialize():void {
+        this.setLanguageDropdown(this.languageModel.getLanguageNames());
+        this.setSelected(this.languageModel.getNameForLanguageCode(this.languageModel.getLanguage()));
+    }
+
+    private function onBack():void {
+        Global.setScreen(new TitleView());
+    }
+
     private function onContinueClick(_arg1:MouseEvent):void {
-        this.back.dispatch();
+        Global.setScreen(new TitleView());
     }
 
     public function setLanguageDropdown(_arg1:Vector.<String>):void {
@@ -51,7 +63,7 @@ public class LanguageOptionOverlay extends ScreenBase {
     }
 
     private function positionDropdownLabel():void {
-        this.languageDropDown.x = ((WebMain.DefaultWidth / 2) - (((this.languageDropDown.width + this.languageDropDownLabel.width) + 10) / 2));
+        this.languageDropDown.x = ((Main.DefaultWidth / 2) - (((this.languageDropDown.width + this.languageDropDownLabel.width) + 10) / 2));
         this.languageDropDownLabel.x = ((this.languageDropDown.x + this.languageDropDown.width) + 10);
     }
 
@@ -60,7 +72,7 @@ public class LanguageOptionOverlay extends ScreenBase {
     }
 
     private function onLanguageSelected(_arg1:Event):void {
-        this.languageSelected.dispatch(this.languageDropDown.getValue());
+        Global.setLanguage(this.languageModel.getLanguageCodeForName(this.languageDropDown.getValue()));
     }
 
     private function makeTitle():TextFieldDisplayConcrete {
@@ -70,7 +82,7 @@ public class LanguageOptionOverlay extends ScreenBase {
         _local1.setStringBuilder(new LineBuilder().setParams("Languages"));
         _local1.setAutoSize(TextFieldAutoSize.CENTER);
         _local1.filters = [new DropShadowFilter(0, 0, 0)];
-        _local1.x = ((WebMain.DefaultWidth / 2) - (_local1.width / 2));
+        _local1.x = ((Main.DefaultWidth / 2) - (_local1.width / 2));
         _local1.y = 16;
         return (_local1);
     }
@@ -79,8 +91,8 @@ public class LanguageOptionOverlay extends ScreenBase {
         var _local1:TitleMenuOption;
         _local1 = new TitleMenuOption("continue", 36, 24);
         _local1.addEventListener(MouseEvent.CLICK, this.onContinueClick);
-        _local1.x = WebMain.DefaultWidth / 2;
-        _local1.y = WebMain.DefaultHeight - 50;
+        _local1.x = Main.DefaultWidth / 2;
+        _local1.y = Main.DefaultHeight - 50;
         return (_local1);
     }
 
@@ -96,7 +108,7 @@ public class LanguageOptionOverlay extends ScreenBase {
         var _local1:Shape = new Shape();
         _local1.graphics.lineStyle(1, 0x5E5E5E);
         _local1.graphics.moveTo(0, 70);
-        _local1.graphics.lineTo(WebMain.DefaultWidth, 70);
+        _local1.graphics.lineTo(Main.DefaultWidth, 70);
         _local1.graphics.lineStyle();
         return (_local1);
     }

@@ -21,14 +21,6 @@ public class LocalhostSetup implements ApplicationSetup {
         return (true);
     }
 
-    public function isToolingEnabled():Boolean {
-        return (true);
-    }
-
-    public function isServerLocal():Boolean {
-        return (true);
-    }
-
     public function useProductionDialogs():Boolean {
         return (false);
     }

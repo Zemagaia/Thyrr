@@ -5,10 +5,14 @@ import com.company.assembleegameclient.ui.DeprecatedClickableText;
 import com.company.util.EmailValidator;
 import com.company.util.KeyCodes;
 
+import flash.events.Event;
+
 import flash.events.KeyboardEvent;
 
 import flash.events.MouseEvent;
 import flash.filters.DropShadowFilter;
+
+import kabam.lib.tasks.Task;
 
 import kabam.rotmg.account.web.model.AccountData;
 import kabam.rotmg.messaging.impl.GameServerConnection;
@@ -16,15 +20,10 @@ import kabam.rotmg.messaging.impl.GameServerConnection;
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 
-import org.osflash.signals.Signal;
-
 public class WebRegisterDialog extends Frame {
 
     private const errors:Array = [];
 
-    public var register:Signal;
-    public var signIn:Signal;
-    public var cancel:Signal;
     private var emailInput:LabeledField;
     private var passwordInput:LabeledField;
     private var retypePasswordInput:LabeledField;
@@ -36,6 +35,21 @@ public class WebRegisterDialog extends Frame {
         super("Register in order to save your progress", "Cancel", "Register", 326);
         this.makeUIElements();
         this.makeSignals();
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
+        addEventListener(Event.REMOVED_FROM_STAGE, initialize);
+    }
+
+    public function initialize(e:Event):void {
+        Global.taskErrorSignal.add(this.onRegistrationError);
+    }
+
+    public function destroy(e:Event):void {
+        Global.taskErrorSignal.remove(this.onRegistrationError);
+    }
+
+    private function onRegistrationError(_arg1:Task):void {
+        this.displayServerError(_arg1.error);
+        this.enable();
     }
 
     private function makeUIElements():void {
@@ -80,22 +94,19 @@ public class WebRegisterDialog extends Frame {
     }
 
     private function makeSignals():void {
-        this.cancel = new Signal();
         rightButton_.addEventListener(MouseEvent.CLICK, this.onRegister);
         leftButton_.addEventListener(MouseEvent.CLICK, this.onCancel);
-        this.register = new Signal(AccountData);
-        this.signIn = new Signal();
         addEventListener(KeyboardEvent.KEY_DOWN, this.onKeyDown);
         signInText.addEventListener(MouseEvent.CLICK, onSignIn);
     }
 
     private function onSignIn(e:MouseEvent):void
     {
-        signIn.dispatch();
+        Global.openDialog(new WebLoginDialog());
     }
 
     private function onCancel(event:MouseEvent):void {
-        this.cancel.dispatch();
+        Global.closeDialogs();
     }
 
     private function onKeyDown(event:KeyboardEvent):void {
@@ -104,7 +115,7 @@ public class WebRegisterDialog extends Frame {
                 this.Register();
                 break;
             case KeyCodes.ESCAPE:
-                this.cancel.dispatch();
+                Global.closeDialogs();
                 break;
         }
     }
@@ -184,7 +195,7 @@ public class WebRegisterDialog extends Frame {
         var _local1:AccountData = new AccountData();
         _local1.username = this.emailInput.text();
         _local1.password = GameServerConnection.rsaEncrypt(this.passwordInput.text());
-        this.register.dispatch(_local1);
+        Global.register(_local1);
     }
 
 

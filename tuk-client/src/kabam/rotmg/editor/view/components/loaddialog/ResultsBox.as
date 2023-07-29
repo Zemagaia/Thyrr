@@ -15,11 +15,14 @@ import flash.display.Sprite;
 import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.filters.DropShadowFilter;
+import flash.net.URLLoaderDataFormat;
 import flash.system.System;
 import flash.utils.ByteArray;
 import flash.utils.getTimer;
 
 import ion.utils.png.PNGDecoder;
+
+import kabam.rotmg.appengine.api.AppEngineClient;
 
 import kabam.rotmg.editor.view.components.PictureType;
 import kabam.rotmg.editor.view.components.loaddialog.events.AddPictureEvent;
@@ -33,6 +36,7 @@ public class ResultsBox extends Sprite {
     public static const HEIGHT:int = 100;
     private static var toolTip_:ToolTip = null;
 
+    public var client:AppEngineClient = Global.appEngine;
     public var id_:String;
     public var name_:String;
     public var pictureType_:int = 0;
@@ -88,6 +92,18 @@ public class ResultsBox extends Sprite {
         this.drawBackground(0x363636);
         addEventListener(MouseEvent.MOUSE_OVER, this.onMouseOver);
         addEventListener(MouseEvent.MOUSE_OUT, this.onMouseOut);
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
+    }
+
+    public function initialize(e:Event):void {
+        this.client.setSendEncrypted(false);
+        this.client.setDataFormat(URLLoaderDataFormat.BINARY);
+        this.client.complete.addOnce(this.onURLLoadComplete);
+        this.client.sendRequest("/picture/get", {"id": this.id_});
+    }
+
+    private function onURLLoadComplete(isOk:Boolean, data:*):void {
+        ((isOk) && (this.makeBitmapData((data as ByteArray))));
     }
 
     private function onDeleteClick(_arg_1:MouseEvent):void {

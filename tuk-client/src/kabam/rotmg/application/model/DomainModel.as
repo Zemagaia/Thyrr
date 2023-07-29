@@ -11,8 +11,7 @@ public class DomainModel {
     private const TRANSLATION_WHITELIST:Array = ["xlate.kabam.com"];
     private const WHITELIST:Array = PRODUCTION_WHITELIST.concat(TESTING_WHITELIST).concat(TRANSLATION_WHITELIST).concat(TESTING2_WHITELIST);
 
-    [Inject]
-    public var client:PlatformModel;
+    public var client:PlatformModel = Global.platformModel;
     private var localDomain:String;
 
 

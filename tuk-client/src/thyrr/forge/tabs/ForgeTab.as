@@ -23,11 +23,12 @@ import thyrr.forge.animations.ForgeAnimation;
 import thyrr.forge.signals.CraftAnimationSignal;
 
 import thyrr.oldui.DefaultTab;
+import thyrr.utils.ItemData;
 
 public class ForgeTab extends DefaultTab {
 
-    private static const CENTER_X:int = WebMain.DefaultWidth / 2;
-    private static const CENTER_Y:int = WebMain.DefaultHeight / 2;
+    private static const CENTER_X:int = Main.DefaultWidth / 2;
+    private static const CENTER_Y:int = Main.DefaultHeight / 2;
     private static const ITEM_CENTER_X:int = CENTER_X - 21; // 42 / 2
     private static const RESULT_CENTER_Y:int = CENTER_Y - 80;
     private static const BOTTOM_Y:int = CENTER_Y + 85;
@@ -52,7 +53,7 @@ public class ForgeTab extends DefaultTab {
     }
 
     private function drawTops():void {
-        var result:ForgeItem = new ForgeItem(ItemConstants.DEFAULT_ITEM);
+        var result:ForgeItem = new ForgeItem(new ItemData(null));
         result.setResult();
         result.x = ITEM_CENTER_X;
         result.y = RESULT_CENTER_Y;
@@ -61,7 +62,7 @@ public class ForgeTab extends DefaultTab {
         this.selectedItems_ = new Vector.<ForgeItem>(8);
         var i:int = 0;
         while (i < this.selectedItems_.length) {
-            this.selectedItems_[i] = new ForgeItem(ItemConstants.DEFAULT_ITEM, null, -1, false);
+            this.selectedItems_[i] = new ForgeItem(new ItemData(null), null, -1, false);
             this.availableSlots_[i] = i;
             this.positionSelected(i);
             addChild(this.selectedItems_[i]);

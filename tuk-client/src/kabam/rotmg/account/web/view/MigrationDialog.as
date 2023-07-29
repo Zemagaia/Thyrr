@@ -6,9 +6,6 @@ import flash.utils.Timer;
 import kabam.rotmg.account.core.Account;
 import kabam.rotmg.account.core.view.EmptyFrame;
 import kabam.rotmg.appengine.api.AppEngineClient;
-import kabam.rotmg.appengine.impl.SimpleAppEngineClient;
-import kabam.rotmg.core.StaticInjectorContext;
-import kabam.rotmg.dialogs.control.CloseDialogsSignal;
 import kabam.rotmg.util.components.SimpleButton;
 
 import org.osflash.signals.Signal;
@@ -38,7 +35,7 @@ public class MigrationDialog extends EmptyFrame {
         this.makeAndAddRightButton("OK");
         this.account = _arg1;
         this.status = _arg2;
-        this.client = StaticInjectorContext.getInjector().getInstance(AppEngineClient);
+        this.client = Global.appEngine;
         this.okButton = new Signal();
         cancel = new Signal();
         this.done = new Signal();
@@ -73,7 +70,7 @@ public class MigrationDialog extends EmptyFrame {
     private function startPercentLoop():void {
         this.timerProgressCheck.addEventListener(TimerEvent.TIMER, this.percentLoop);
         if (this.progressCheckClient == null) {
-            this.progressCheckClient = StaticInjectorContext.getInjector().getInstance(SimpleAppEngineClient);
+            this.progressCheckClient = Global.appEngine;
         }
         this.timerProgressCheck.start();
         this.updatePercent(0);
@@ -201,8 +198,7 @@ public class MigrationDialog extends EmptyFrame {
 
     private function closeMyself():void {
         this.isClosed = true;
-        var _local1:CloseDialogsSignal = StaticInjectorContext.getInjector().getInstance(CloseDialogsSignal);
-        _local1.dispatch();
+        Global.closeDialogs();
     }
 
     private function makeAndAddLeftButton(_arg1:String):void {

@@ -55,13 +55,13 @@ public class StaticDialog extends Sprite {
 
     protected const graphicsData_:Vector.<IGraphicsData> = new <IGraphicsData>[lineStyle_, backgroundFill_, path_, GraphicsUtil.END_FILL, GraphicsUtil.END_STROKE];
 
-    public function StaticDialog(_arg1:String, _arg2:String, leftBtn:String, rightBtn:String) {
+    public function StaticDialog(title:String, text:String, leftBtn:String, rightBtn:String) {
         this.dialogWidth = this.setDialogWidth();
         this.leftButtonKey = leftBtn;
         this.rightButtonKey = rightBtn;
         super();
         this.stageProxy = new StageProxy(this);
-        this._makeUIAndAdd(_arg2, _arg1);
+        this._makeUIAndAdd(text, title);
         this.makeUIAndAdd();
         this.uiWaiter.complete.addOnce(this.onComplete);
         addChild(this.box_);

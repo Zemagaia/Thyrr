@@ -75,6 +75,7 @@ public class ForgeItem extends Sprite {
 
     /// Update item with tooltip
     public function setItem(itemType:int, player:Player = null, itemData:ItemData = null):void {
+        itemData = itemData != null ? itemData : new ItemData(null);
         this.objType_ = itemType;
         this.player_ = player;
         this.itemData_ = itemData;

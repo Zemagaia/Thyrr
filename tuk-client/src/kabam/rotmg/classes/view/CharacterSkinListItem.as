@@ -7,6 +7,7 @@ import flash.display.BitmapData;
 import flash.display.Graphics;
 import flash.display.Shape;
 import flash.display.Sprite;
+import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.filters.ColorMatrixFilter;
 import flash.filters.DropShadowFilter;
@@ -15,7 +16,6 @@ import flash.text.TextFieldAutoSize;
 
 import kabam.rotmg.classes.model.CharacterSkin;
 import kabam.rotmg.classes.model.CharacterSkinState;
-
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 import kabam.rotmg.text.view.stringBuilder.StaticStringBuilder;
@@ -23,11 +23,9 @@ import kabam.rotmg.text.view.stringBuilder.StringBuilder;
 import kabam.rotmg.util.components.RadioButton;
 import kabam.rotmg.util.components.api.BuyButton;
 
-import org.osflash.signals.Signal;
-
 public class CharacterSkinListItem extends Sprite {
 
-    public static const WIDTH:int = WebMain.DefaultWidth - 380;
+    public static const WIDTH:int = Main.DefaultWidth - 380;
     public static const PADDING:int = 16;
     public static const HEIGHT:int = 60;
     private static const HIGHLIGHTED_COLOR:uint = 0x7B7B7B;
@@ -43,12 +41,8 @@ public class CharacterSkinListItem extends Sprite {
     private const lockText:TextFieldDisplayConcrete = makeLockText();
     private const buyButtonContainer:Sprite = makeBuyButtonContainer();
     private const limitedBanner:CharacterSkinLimitedBanner = makeLimitedBanner();
-    public const buy:Signal = new Signal();
-    public const over:Signal = new Signal();
-    public const out:Signal = new Signal();
-    public const selected:Signal = selectionButton.changed;
 
-    private var model:CharacterSkin;
+    public var model:CharacterSkin;
     private var state:CharacterSkinState;
     private var isSelected:Boolean = false;
     private var skinIcon:Bitmap;
@@ -59,11 +53,33 @@ public class CharacterSkinListItem extends Sprite {
         this.state = CharacterSkinState.NULL;
         super();
         buyButtonContainer.addEventListener(MouseEvent.CLICK, onBuy);
+        addEventListener(Event.REMOVED_FROM_STAGE, destroy);
     }
 
-    private function onBuy(e:MouseEvent):void
+    private function destroy(e:Event):void
     {
-        buy.dispatch();
+        setModel(null);
+    }
+
+    private function onOver(e:MouseEvent):void {
+        this.isOver = true;
+        this.updateBackground();
+        var csv:CharacterSkinView = parent.parent.parent.parent.parent as CharacterSkinView;
+        if (csv == null) return;
+        csv.detail.onFocusSet(this.getModel());
+    }
+
+    private function onOut(e:MouseEvent):void {
+        this.isOver = false;
+        this.updateBackground();
+        var csv:CharacterSkinView = parent.parent.parent.parent.parent as CharacterSkinView;
+        if (csv == null) return;
+        csv.detail.onFocusSet(null);
+    }
+
+    private function onBuy(e:MouseEvent):void {
+        var _local1:CharacterSkin = this.getModel();
+        Global.buyCharacterSkin(_local1);
     }
 
     private function makeBackground():Shape {
@@ -284,18 +300,6 @@ public class CharacterSkinListItem extends Sprite {
 
     private function onClick(_arg1:MouseEvent):void {
         this.setIsSelected(true);
-    }
-
-    private function onOver(_arg1:MouseEvent):void {
-        this.isOver = true;
-        this.updateBackground();
-        this.over.dispatch();
-    }
-
-    private function onOut(_arg1:MouseEvent):void {
-        this.isOver = false;
-        this.updateBackground();
-        this.out.dispatch();
     }
 
     private function updateBackground():void {

@@ -23,10 +23,6 @@ public class NillysRealmSetup implements ApplicationSetup {
         return false;
     }
     
-    public function isToolingEnabled():Boolean {
-        return false;
-    }
-    
     public function useProductionDialogs():Boolean {
         return true;
     }

@@ -69,8 +69,8 @@ public class PetsTab extends DefaultTab {
             this.noPetsText_ = new TextFieldDisplayConcrete().setColor(0xB3B3B3).setSize(14);
             this.noPetsText_.setAutoSize(TextFieldAutoSize.CENTER);
             this.noPetsText_.setStringBuilder(new StaticStringBuilder("You currently do not have any pets"));
-            this.noPetsText_.x = WebMain.DefaultWidth / 2;
-            this.noPetsText_.y = (WebMain.DefaultWidth / 2 - WebMain.DefaultWidth / 5) - 10;
+            this.noPetsText_.x = Main.DefaultWidth / 2;
+            this.noPetsText_.y = (Main.DefaultWidth / 2 - Main.DefaultWidth / 5) - 10;
             this.noPetsText_.filters = [new DropShadowFilter(0, 0, 0)];
             if (!contains(this.noPetsText_)) {
                 addChild(this.noPetsText_);

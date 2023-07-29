@@ -112,13 +112,13 @@ public class StatusBar extends Sprite {
     private function drawBackground():void
     {
         graphics.clear();
-        graphics.beginFill(Utils.color(backColor_, 1/(1.3*1.3)));
+        graphics.beginFill(Utils.color(backColor_, 1/(1.35*1.35)));
         graphics.drawRect(-28, -4, w_ + 32, h_ + 8);
         graphics.beginFill(backColor_);
         graphics.drawRect(-26, -2, w_ + 28, h_ + 4);
         if (backColor_ == 0xAEA9A9)
         {
-            graphics.beginFill(backColor_ == 0xAEA9A9 ? Utils.color(0xAEA9A9, 1/1.3) : backColor_);
+            graphics.beginFill(backColor_ == 0xAEA9A9 ? Utils.color(0xAEA9A9, 1/1.35) : backColor_);
             graphics.drawRect(0, 0, w_, h_);
         }
         var color:int = 0;

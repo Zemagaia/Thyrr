@@ -23,10 +23,6 @@ public class PrivateSetup implements ApplicationSetup {
         return (true);
     }
 
-    public function isToolingEnabled():Boolean {
-        return (true);
-    }
-
     public function useProductionDialogs():Boolean {
         return (false);
     }

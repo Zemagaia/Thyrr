@@ -15,9 +15,7 @@ import flash.geom.Matrix;
 
 import kabam.rotmg.constants.ItemConstants;
 
-import kabam.rotmg.core.StaticInjectorContext;
 import kabam.rotmg.game.model.AddSpeechBalloonVO;
-import kabam.rotmg.game.signals.AddSpeechBalloonSignal;
 import kabam.rotmg.language.model.StringMap;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 
@@ -44,7 +42,6 @@ public class Merchant extends SellableObject implements IInteractiveObject {
     public var merchandiseTexture_:BitmapData = null;
     public var untilNextMessage_:int = 0;
     public var alpha_:Number = 1;
-    private var addSpeechBalloon:AddSpeechBalloonSignal;
     private var stringMap:StringMap;
     private var firstUpdate_:Boolean = true;
     private var messageIndex_:int = 0;
@@ -52,8 +49,7 @@ public class Merchant extends SellableObject implements IInteractiveObject {
 
     public function Merchant(_arg1:XML) {
         this.ct_ = new ColorTransform(1, 1, 1, 1);
-        this.addSpeechBalloon = StaticInjectorContext.getInjector().getInstance(AddSpeechBalloonSignal);
-        this.stringMap = StaticInjectorContext.getInjector().getInstance(StringMap);
+        this.stringMap = Global.stringMap;
         super(_arg1);
         isInteractive_ = true;
     }
@@ -167,7 +163,7 @@ public class Merchant extends SellableObject implements IInteractiveObject {
         }
         this.messageIndex_ = (++this.messageIndex_ % _local3.length);
         var _local4:int = _local3[this.messageIndex_];
-        this.addSpeechBalloon.dispatch(this.getSpeechBalloon(_local4));
+        Global.addSpeechBalloon(this.getSpeechBalloon(_local4));
         return (true);
     }
 
@@ -181,7 +177,7 @@ public class Merchant extends SellableObject implements IInteractiveObject {
     }
 
     override public function getTooltip():ToolTip {
-        var itemData:ItemData = ItemConstants.DEFAULT_ITEM;
+        var itemData:ItemData = new ItemData(null);
         itemData.ObjectType = this.merchandiseType_;
         return (new EquipmentToolTip(itemData, map_.player_, -1, InventoryOwnerTypes.NPC));
     }

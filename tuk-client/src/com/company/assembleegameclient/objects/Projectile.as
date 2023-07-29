@@ -109,7 +109,7 @@ public class Projectile extends BasicObject {
         {
             var size:Number = (this.projProps_.size_ >= 0 ? this.projProps_.size_
                     : ObjectLibrary.getSizeFromType(this.containerType_)) * 8;
-            this.texture_ = TextureRedrawer.glowRedraw(this.texture_, size, true, 0, true, 5, 18 * (size / WebMain.DefaultWidth));
+            this.texture_ = TextureRedrawer.glowRedraw(this.texture_, size, true, 0, true, 5, 18 * (size / Main.DefaultWidth));
         }
         this.damagesPlayers_ = this.containerProps_.isEnemy_;
         this.damagesEnemies_ = !(this.damagesPlayers_);

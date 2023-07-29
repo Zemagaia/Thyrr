@@ -12,6 +12,7 @@ import kabam.rotmg.servers.api.Server;
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 import kabam.rotmg.ui.view.ButtonFactory;
+import kabam.rotmg.ui.view.TitleView;
 import kabam.rotmg.ui.view.components.MenuOptionsBar;
 import kabam.rotmg.ui.view.components.ScreenBase;
 
@@ -25,13 +26,20 @@ public class ServersScreen extends Sprite {
     private var serverBoxes_:ServerBoxes;
     private var scrollBar_:LegacyScrollbar;
     private var servers:Vector.<Server>;
-    public var gotoTitle:Signal;
 
     public function ServersScreen() {
         addChild(new ScreenBase());
-        this.gotoTitle = new Signal();
         addChild(new ScreenBase());
         addChild(new AccountScreen());
+        addEventListener(Event.ADDED_TO_STAGE, onAdded);
+    }
+
+    public function onAdded(e:Event):void {
+        this.initialize(Global.serverModel.getServers());
+    }
+
+    private function onGotoTitle():void {
+        Global.setScreen(new TitleView());
     }
 
     private function onScrollBarChange(_arg1:Event):void {
@@ -58,7 +66,7 @@ public class ServersScreen extends Sprite {
 
     private function makeScrollbar():void {
         this.scrollBar_ = new LegacyScrollbar(16, 400);
-        this.scrollBar_.x = ((WebMain.DefaultWidth - this.scrollBar_.width) - 4);
+        this.scrollBar_.x = ((Main.DefaultWidth - this.scrollBar_.width) - 4);
         this.scrollBar_.y = 104;
         this.scrollBar_.setIndicatorSize(400, this.serverBoxes_.height);
         this.scrollBar_.addEventListener(Event.CHANGE, this.onScrollBarChange);
@@ -78,7 +86,7 @@ public class ServersScreen extends Sprite {
         this.content_.y = 100;
         var _local1:Shape = new Shape();
         _local1.graphics.beginFill(0xFFFFFF);
-        _local1.graphics.drawRect(0, 0, WebMain.DefaultWidth - 34, WebMain.DefaultHeight - 170);
+        _local1.graphics.drawRect(0, 0, Main.DefaultWidth - 34, Main.DefaultHeight - 170);
         _local1.graphics.endFill();
         this.content_.addChild(_local1);
         this.content_.mask = _local1;
@@ -106,7 +114,7 @@ public class ServersScreen extends Sprite {
     }
 
     private function onDone():void {
-        this.gotoTitle.dispatch();
+        this.onGotoTitle();
     }
 
 

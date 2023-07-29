@@ -7,7 +7,6 @@ import com.company.assembleegameclient.parameters.Parameters;
 import flash.display.BitmapData;
 import flash.geom.ColorTransform;
 import flash.display.GraphicsBitmapFill;
-import kabam.rotmg.core.StaticInjectorContext;
 import kabam.rotmg.stage3D.proxies.Context3DProxy;
 import flash.display3D.VertexBuffer3D;
 import flash.display3D.Context3DVertexBufferFormat;
@@ -123,7 +122,7 @@ public class GraphicsFillExtra
         {
             return;
         }
-        var _local3:Context3DProxy = StaticInjectorContext.getInjector().getInstance(Context3DProxy);
+        var _local3:Context3DProxy = Global.context3DProxy;
         var _local4:VertexBuffer3D = _local3.GetContext3D().createVertexBuffer(4, 5);
         _local4.uploadFromVector(_arg2, 0, 4);
         _local3.GetContext3D().setVertexBufferAt(0, _local4, 0, Context3DVertexBufferFormat.FLOAT_3);

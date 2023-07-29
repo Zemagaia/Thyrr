@@ -9,8 +9,8 @@ import flash.display.Shape;
 
 public class GradientOverlay extends Shape {
 
-    private const gradientFill_:GraphicsGradientFill = new GraphicsGradientFill(GradientType.LINEAR, [0, 0], [0, 1], [0, 0xFF], GraphicsUtil.getGradientMatrix(10, WebMain.DefaultHeight));
-    private const gradientPath_:GraphicsPath = GraphicsUtil.getRectPath(0, 0, 10, WebMain.DefaultHeight);
+    private const gradientFill_:GraphicsGradientFill = new GraphicsGradientFill(GradientType.LINEAR, [0, 0], [0, 1], [0, 0xFF], GraphicsUtil.getGradientMatrix(10, Main.DefaultHeight));
+    private const gradientPath_:GraphicsPath = GraphicsUtil.getRectPath(0, 0, 10, Main.DefaultHeight);
     private const gradientGraphicsData_:Vector.<IGraphicsData> = new <IGraphicsData>[gradientFill_, gradientPath_, GraphicsUtil.END_FILL];
 
     public function GradientOverlay() {

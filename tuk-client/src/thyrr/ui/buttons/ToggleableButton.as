@@ -3,16 +3,20 @@ package thyrr.ui.buttons
 
 import flash.events.MouseEvent;
 
+import org.osflash.signals.Signal;
+
 import thyrr.ui.items.FlexibleBox;
 import thyrr.ui.interfaces.IButton;
 import thyrr.utils.Utils;
 
 public class ToggleableButton extends FlexibleBox implements IButton
 {
+    public var selected:Signal;
     protected var selected_:Boolean;
 
     public function ToggleableButton(width:int, height:int, color:uint = 0xAEA9A9, texIndex:int = 0, bottomLine:Boolean = true)
     {
+        selected = new Signal(Boolean);
         super(width, height, color, texIndex, bottomLine);
 
         addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
@@ -27,6 +31,7 @@ public class ToggleableButton extends FlexibleBox implements IButton
     private function onMouseDown(e:MouseEvent):void
     {
         setSelected(selected_ = !selected_);
+        selected.dispatch(selected_);
     }
 
     public function removeListeners():void

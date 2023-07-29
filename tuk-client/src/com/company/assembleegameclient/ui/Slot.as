@@ -1,20 +1,18 @@
 ﻿package com.company.assembleegameclient.ui
 {
-import flash.display.Sprite;
-import flash.geom.Matrix;
-import flash.filters.ColorMatrixFilter;
-import com.company.util.MoreColorUtil;
-import flash.display.Bitmap;
-import flash.display.GraphicsSolidFill;
-import flash.display.GraphicsPath;
-import flash.display.IGraphicsData;
 import com.company.util.GraphicsUtil;
-import flash.geom.Point;
-import kabam.rotmg.constants.ItemConstants;
-import kabam.rotmg.text.view.BitmapTextFactory;
+import com.company.util.MoreColorUtil;
+
+import flash.display.Bitmap;
 import flash.display.BitmapData;
-import kabam.rotmg.core.StaticInjectorContext;
-import kabam.rotmg.text.view.stringBuilder.StaticStringBuilder;
+import flash.display.GraphicsPath;
+import flash.display.GraphicsSolidFill;
+import flash.display.IGraphicsData;
+import flash.display.Sprite;
+import flash.filters.ColorMatrixFilter;
+import flash.geom.Matrix;
+
+import kabam.rotmg.constants.ItemConstants;
 
 public class Slot extends Sprite
 {

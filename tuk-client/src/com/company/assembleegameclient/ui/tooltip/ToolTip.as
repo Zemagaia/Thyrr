@@ -1,24 +1,18 @@
 ﻿package com.company.assembleegameclient.ui.tooltip {
 import com.company.assembleegameclient.game.GameSprite;
-import com.company.assembleegameclient.parameters.Parameters;
 import com.company.assembleegameclient.ui.options.Options;
-import com.company.util.GraphicsUtil;
 
-import flash.display.CapsStyle;
 import flash.display.DisplayObject;
-import flash.display.GraphicsPath;
-import flash.display.GraphicsSolidFill;
-import flash.display.GraphicsStroke;
-import flash.display.IGraphicsData;
-import flash.display.JointStyle;
-import flash.display.LineScaleMode;
 import flash.display.Sprite;
 import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.filters.DropShadowFilter;
 
-import kabam.rotmg.tooltips.view.TooltipsView;
+import kabam.rotmg.tooltips.Tooltips;
 import kabam.rotmg.ui.view.SignalWaiter;
+
+import thyrr.ui.items.SimpleBox;
+import thyrr.utils.Utils;
 
 public class ToolTip extends Sprite {
 
@@ -34,15 +28,14 @@ public class ToolTip extends Sprite {
     public var contentWidth_:int;
     public var contentHeight_:int;
     private var targetObj:DisplayObject;
-    private var backgroundFill_:GraphicsSolidFill = new GraphicsSolidFill(0, 1);
-    private var outlineFill_:GraphicsSolidFill = new GraphicsSolidFill(0xFFFFFF, 1);
-    private var lineStyle_:GraphicsStroke = new GraphicsStroke(2, false, LineScaleMode.NORMAL, CapsStyle.NONE, JointStyle.ROUND, 3, outlineFill_);
-    private var path_:GraphicsPath = new GraphicsPath(new Vector.<int>(), new Vector.<Number>());
     public var _addExtraWidth:Boolean;
-
-    private const graphicsData_:Vector.<IGraphicsData> = new <IGraphicsData>[lineStyle_, backgroundFill_, path_, GraphicsUtil.END_FILL, GraphicsUtil.END_STROKE];
+    private var simpleBox:SimpleBox;
 
     public function ToolTip(bgColor:uint, bgAlpha:Number, outColor:uint, outAlpha:Number, followMouse:Boolean = true, extraWidth:Boolean = false) {
+        simpleBox = new SimpleBox(24, 24, bgColor).setOutline(outColor);
+        addChild(simpleBox);
+        simpleBox.x = -6;
+        simpleBox.y = -6;
         this.background_ = bgColor;
         this.backgroundAlpha_ = bgAlpha;
         this.outline_ = outColor;
@@ -51,7 +44,7 @@ public class ToolTip extends Sprite {
         _addExtraWidth = extraWidth;
         mouseEnabled = false;
         mouseChildren = false;
-        filters = [new DropShadowFilter(0, 0, 0, 1, 16, 16)];
+        filters = [Utils.OutlineFilter];
         addEventListener(Event.ADDED_TO_STAGE, this.onAddedToStage);
         addEventListener(Event.REMOVED_FROM_STAGE, this.onRemovedFromStage);
         this.waiter.complete.add(this.alignUIAndDraw);
@@ -121,18 +114,18 @@ public class ToolTip extends Sprite {
     {
         var _local_1:Number = NaN;
         var _local_2:Number = NaN;
-        var _local_3:Number = WebMain.DefaultWidth / stage.stageWidth;
-        var _local_4:Number = WebMain.DefaultHeight / stage.stageHeight;
+        var _local_3:Number = Main.DefaultWidth / stage.stageWidth;
+        var _local_4:Number = Main.DefaultHeight / stage.stageHeight;
         if (this.parent is Options || this.parent is GameSprite)
         {
-            _local_1 = (stage.mouseX + stage.stageWidth / 2 - (400 * WebMain.DefaultWidth / 800)) / stage.stageWidth * WebMain.DefaultWidth;
-            _local_2 = (stage.mouseY + stage.stageHeight / 2 - (300 * WebMain.DefaultHeight / 600)) / stage.stageHeight * WebMain.DefaultHeight;
+            _local_1 = (stage.mouseX + stage.stageWidth / 2 - (400 * Main.DefaultWidth / 800)) / stage.stageWidth * Main.DefaultWidth;
+            _local_2 = (stage.mouseY + stage.stageHeight / 2 - (300 * Main.DefaultHeight / 600)) / stage.stageHeight * Main.DefaultHeight;
         }
         else
         {
-            _local_1 = (stage.stageWidth - WebMain.DefaultWidth) / 2 + stage.mouseX;
-            _local_2 = (stage.stageHeight - WebMain.DefaultHeight) / 2 + stage.mouseY;
-            if(this.parent is TooltipsView)
+            _local_1 = (stage.stageWidth - Main.DefaultWidth) / 2 + stage.mouseX;
+            _local_2 = (stage.stageHeight - Main.DefaultHeight) / 2 + stage.mouseY;
+            if(this.parent is Tooltips)
             {
                 this.parent.scaleX = _local_3 / _local_4;
                 this.parent.scaleY = 1;
@@ -180,17 +173,17 @@ public class ToolTip extends Sprite {
         _extraHeight = h;
     }
 
+    private var bw:int;
+    private var bh:int;
     public function draw():void {
-        this.backgroundFill_.color = this.background_;
-        this.backgroundFill_.alpha = this.backgroundAlpha_;
-        this.outlineFill_.color = this.outline_;
-        this.outlineFill_.alpha = this.outlineAlpha_;
-        graphics.clear();
         this.contentWidth_ = width;
         this.contentHeight_ = height;
-        GraphicsUtil.clearPath(this.path_);
-        GraphicsUtil.drawCutEdgeRect(-6, -6, this.contentWidth_ + (_addExtraWidth ? 12 : 0) + _extraWidth, this.contentHeight_ + 12 + _extraHeight, 0, [0, 0, 0, 0], this.path_);
-        graphics.drawGraphicsData(this.graphicsData_);
+        if (bw == 0)
+        {
+            bw = this.contentWidth_ + (_addExtraWidth ? 12 : 0) + _extraWidth;
+            bh = this.contentHeight_ + 12 + _extraHeight;
+        }
+        simpleBox.modify(bw, bh);
     }
 
 

@@ -8,15 +8,15 @@ import kabam.rotmg.characters.model.CharacterModel;
 
 public class DeleteCharacterTask extends BaseTask {
 
-    [Inject]
     public var character:SavedCharacter;
-    [Inject]
-    public var client:AppEngineClient;
-    [Inject]
-    public var account:Account;
-    [Inject]
-    public var model:CharacterModel;
+    public var client:AppEngineClient = Global.appEngine;
+    public var account:Account = Global.account;
+    public var model:CharacterModel = Global.characterModel;
 
+    public function DeleteCharacterTask(savedCharacter:SavedCharacter)
+    {
+        character = savedCharacter;
+    }
 
     override protected function startTask():void {
         this.client.setMaxRetries(2);
@@ -25,15 +25,15 @@ public class DeleteCharacterTask extends BaseTask {
     }
 
     private function getRequestPacket():Object {
-        var _local1:Object = this.account.getCredentials();
-        _local1.charId = this.character.charId();
-        _local1.reason = 1;
-        return (_local1);
+        var credentials:Object = this.account.getCredentials();
+        credentials.charId = this.character.charId();
+        credentials.reason = 1;
+        return credentials;
     }
 
-    private function onComplete(_arg1:Boolean, _arg2:*):void {
-        ((_arg1) && (this.updateUserData()));
-        completeTask(_arg1, _arg2);
+    private function onComplete(isOk:Boolean, data:*):void {
+        if (isOk) updateUserData();
+        completeTask(isOk, data);
     }
 
     private function updateUserData():void {

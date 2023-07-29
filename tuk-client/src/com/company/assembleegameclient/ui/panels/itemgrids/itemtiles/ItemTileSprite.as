@@ -6,8 +6,8 @@ import com.company.assembleegameclient.objects.Player;
 import com.company.assembleegameclient.objects.animation.Animations;
 import com.company.assembleegameclient.objects.animation.AnimationsData;
 import com.company.assembleegameclient.util.TextureRedrawer;
-import com.company.assembleegameclient.util.TextureRedrawer;
 import com.company.util.AssetLibrary;
+import com.company.util.BitmapUtil;
 
 import flash.display.Bitmap;
 import flash.display.BitmapData;
@@ -50,7 +50,13 @@ public class ItemTileSprite extends Sprite
         this.player_ = player;
         this.itemBitmap = new Bitmap();
         addChild(this.itemBitmap);
-        this.item = ItemConstants.DEFAULT_ITEM;
+        this.item = new ItemData(null);
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
+    }
+
+    public function initialize(e:Event):void {
+        this.setBitmapFactory(Global.bitmapTextFactory);
+        this.drawTile();
     }
 
     public function setDim(_arg1:Boolean):void
@@ -90,30 +96,32 @@ public class ItemTileSprite extends Sprite
                 data = this.bitmapFactory.make(new StaticStringBuilder(String(quantity)), 12, 0xFFFFFF, false, IDENTITY_MATRIX, false);
                 tex.draw(data, matrixTranslate(10, 8));
             }
-            var usable:Boolean = true;
             this.itemBitmap.bitmapData = tex;
             this.itemBitmap.x = (-(tex.width) / 2);
             this.itemBitmap.y = (-(tex.height) / 2);
-            if (item != null)
+
+            if (unusable != null && contains(unusable))
+                removeChild(unusable);
+            data = TextureRedrawer.redraw(usableIcon, 20, true, 0);
+            data = BitmapUtil.cropToBitmapData(data, 8, 8, data.width - 16, data.height - 16);
+            unusable = new Bitmap(data);
+            unusable.x = itemBitmap.x + 29;
+            unusable.y = itemBitmap.y + 28;
+            addChild(unusable);
+            unusable.visible = !ObjectLibrary.isUsableByPlayer(itemId, this.player_);
+
+            if (item != null && this.player_ != null)
             {
-                if (unusable == null && !(ObjectLibrary.isUsableByPlayer(itemId, this.player_)))
-                {
-                    data = TextureRedrawer.redraw(usableIcon, 20, true, 0);
-                    unusable = new Bitmap(data);
-                    unusable.x = itemBitmap.x + 20;
-                    unusable.y = itemBitmap.y + 20;
-                    addChild(unusable);
-                    usable = false;
-                }
-                if (levelReqIcon == null && this.player_ != null && this.player_.level_ < item.LevelReq)
-                {
-                    usableIcon = AssetLibrary.getImageFromSet("interfaceNew", 0x02);
-                    data = TextureRedrawer.redraw(usableIcon, 20, true, 0);
-                    levelReqIcon = new Bitmap(data);
-                    levelReqIcon.x = itemBitmap.x + 20;
-                    levelReqIcon.y = itemBitmap.y + (usable ? 20 : 8);
-                    addChild(levelReqIcon);
-                }
+                if (levelReqIcon != null && contains(levelReqIcon))
+                    removeChild(levelReqIcon);
+                usableIcon = AssetLibrary.getImageFromSet("interfaceNew", 0x02);
+                data = TextureRedrawer.redraw(usableIcon, 20, true, 0);
+                data = BitmapUtil.cropToBitmapData(data, 8, 8, data.width - 16, data.height - 16);
+                levelReqIcon = new Bitmap(data);
+                levelReqIcon.x = itemBitmap.x + 29;
+                levelReqIcon.y = itemBitmap.y + (!unusable.visible ? 28 : 16);
+                addChild(levelReqIcon);
+                levelReqIcon.visible = this.player_.level_ < item.LevelReq;
             }
 
             var animationsData:AnimationsData = ObjectLibrary.typeToAnimationsData_[itemId];
@@ -145,21 +153,22 @@ public class ItemTileSprite extends Sprite
     private var animCache:BitmapData;
     public function tickSprite():void
     {
-        var anim:Animations = this.animations_;
-        if (anim == null)
+        if (this.animations_ == null)
         {
             return;
         }
+        var anim:Animations = this.animations_;
         var timer:int = getTimer();
         var texture:BitmapData = anim.getTexture(timer);
-        if (texture != null && animCache != texture)
+        if (texture == null || animCache == texture)
         {
-            animCache = texture != animCache ? texture : animCache;
-            texture = TextureRedrawer.redraw(texture, this.size_, true, 0);
-            this.itemBitmap.bitmapData = texture;
-            this.itemBitmap.x = -texture.width / 2;
-            this.itemBitmap.y = -texture.height / 2;
+            return;
         }
+        animCache = texture;
+        texture = TextureRedrawer.redraw(texture, this.size_, true, 0);
+        this.itemBitmap.bitmapData = texture;
+        this.itemBitmap.x = -texture.width / 2;
+        this.itemBitmap.y = -texture.height / 2;
     }
 
 }

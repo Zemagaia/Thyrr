@@ -18,7 +18,7 @@ import thyrr.oldui.closeButton.DialogCloseButton;
 public class DefaultFrame extends Sprite
 {
 
-    private static const WIDTH:int = WebMain.DefaultWidth / 2;
+    private static const WIDTH:int = Main.DefaultWidth / 2;
     private static const HEIGHT:int = WIDTH - 54;
 
     protected var gameSprite_:GameSprite;
@@ -64,15 +64,15 @@ public class DefaultFrame extends Sprite
     {
         this.background_.graphics.clear();
         this.background_.draw(width, height, 0);
-        this.background_.x = WebMain.DefaultWidth / 2 - width / 2;
-        this.background_.y = WebMain.DefaultHeight / 2 - (height - 30) / 2;
+        this.background_.x = Main.DefaultWidth / 2 - width / 2;
+        this.background_.y = Main.DefaultHeight / 2 - (height - 30) / 2;
     }
 
     private function drawDarkLayer():void
     {
         graphics.clear();
         graphics.beginFill(0x2B2B2B, 0.8);
-        graphics.drawRect(0, 0, WebMain.DefaultWidth, WebMain.DefaultHeight);
+        graphics.drawRect(0, 0, Main.DefaultWidth, Main.DefaultHeight);
         graphics.endFill();
     }
 

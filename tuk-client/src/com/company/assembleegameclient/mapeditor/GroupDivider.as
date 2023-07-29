@@ -6,7 +6,6 @@ import com.company.util.MoreStringUtil;
 
 import flash.utils.Dictionary;
 
-import kabam.rotmg.core.StaticInjectorContext;
 import kabam.rotmg.core.model.PlayerModel;
 
 public class GroupDivider {
@@ -107,7 +106,7 @@ public class GroupDivider {
 
     public static function getCategoryByType(_arg1:int, _arg2:int):String {
         var _local4:XML;
-        var _local3:PlayerModel = StaticInjectorContext.getInjector().getInstance(PlayerModel);
+        var _local3:PlayerModel = Global.playerModel;
         if (_arg2 == Layer.REGION) {
             return (GROUP_LABELS[6]);
         }

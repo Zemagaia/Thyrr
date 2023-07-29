@@ -4,6 +4,7 @@ import com.company.assembleegameclient.ui.dialogs.Dialog;
 import flash.display.Sprite;
 import flash.events.Event;
 
+import kabam.rotmg.core.model.PlayerModel;
 
 
 import org.osflash.signals.Signal;
@@ -12,12 +13,20 @@ public class CharacterSlotNeedGoldDialog extends Sprite {
 
     private static const ANALYTICS_PAGE:String = "/charSlotNeedGold";
 
-    public const buyGold:Signal = new Signal();
-    public const cancel:Signal = new Signal();
+    public var model:PlayerModel = Global.playerModel;
 
     private var dialog:Dialog;
     private var price:int;
 
+    public function CharacterSlotNeedGoldDialog()
+    {
+        addEventListener(Event.ADDED_TO_STAGE, initialize);
+    }
+
+    private function initialize(e:Event):void
+    {
+        setPrice(this.model.getCharSlotPrice());
+    }
 
     public function setPrice(_arg1:int):void {
         this.price = _arg1;
@@ -34,11 +43,11 @@ public class CharacterSlotNeedGoldDialog extends Sprite {
     }
 
     public function onCancel(_arg1:Event):void {
-        this.cancel.dispatch();
+        Global.closeDialogs();
     }
 
     public function onBuyGold(_arg1:Event):void {
-        this.buyGold.dispatch();
+        Global.openMoneyWindow();
     }
 
 

@@ -14,8 +14,8 @@ public class BadDomainView extends Sprite {
         _local2.size = 20;
         _local1.defaultTextFormat = _local2;
         _local1.htmlText = BAD_DOMAIN_TEXT;
-        _local1.width = WebMain.DefaultWidth;
-        _local1.y = ((WebMain.DefaultHeight / 2) - (_local1.height / 2));
+        _local1.width = Main.DefaultWidth;
+        _local1.y = ((Main.DefaultHeight / 2) - (_local1.height / 2));
         addChild(_local1);
     }
 

@@ -9,8 +9,8 @@ import kabam.rotmg.core.model.PlayerModel;
 
 public class CharacterList extends Sprite {
 
-    public static const WIDTH:int = WebMain.DefaultWidth - 40;
-    public static const HEIGHT:int = WebMain.DefaultHeight - 195;
+    public static const WIDTH:int = Main.DefaultWidth - 40;
+    public static const HEIGHT:int = Main.DefaultHeight - 195;
     public static const TYPE_CHAR_SELECT:int = 1;
     public static const TYPE_GRAVE_SELECT:int = 2;
 

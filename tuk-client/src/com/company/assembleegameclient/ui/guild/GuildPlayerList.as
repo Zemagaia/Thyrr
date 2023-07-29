@@ -14,8 +14,6 @@ import flash.text.TextFieldAutoSize;
 
 import kabam.rotmg.account.core.Account;
 import kabam.rotmg.appengine.api.AppEngineClient;
-import kabam.rotmg.core.StaticInjectorContext;
-
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 
@@ -46,16 +44,16 @@ public class GuildPlayerList extends Sprite {
         this.loadingText_.setStringBuilder(new LineBuilder().setParams("Loading..."));
         this.loadingText_.filters = [new DropShadowFilter(0, 0, 0, 1, 8, 8)];
         this.loadingText_.setAutoSize(TextFieldAutoSize.CENTER).setVerticalAlign(TextFieldDisplayConcrete.MIDDLE);
-        this.loadingText_.x = (WebMain.DefaultWidth / 2);
-        this.loadingText_.y = WebMain.DefaultHeight - 50;
+        this.loadingText_.x = (Main.DefaultWidth / 2);
+        this.loadingText_.y = Main.DefaultHeight - 50;
         addChild(this.loadingText_);
-        var _local5:Account = StaticInjectorContext.getInjector().getInstance(Account);
+        var _local5:Account = Global.account;
         var _local6:Object = {
             "num": num,
             "offset": offset
         };
         MoreObjectUtil.addToObject(_local6, _local5.getCredentials());
-        this.listClient_ = StaticInjectorContext.getInjector().getInstance(AppEngineClient);
+        this.listClient_ = Global.appEngine;
         this.listClient_.setMaxRetries(2);
         this.listClient_.complete.addOnce(this.onComplete);
         this.listClient_.sendRequest("/guild/listMems", _local6);
@@ -91,17 +89,17 @@ public class GuildPlayerList extends Sprite {
         this.titleText_.useTextDimensions();
         this.titleText_.filters = [new DropShadowFilter(0, 0, 0, 1, 8, 8)];
         this.titleText_.y = 24;
-        this.titleText_.x = ((WebMain.DefaultWidth / 2) - (this.titleText_.width / 2));
+        this.titleText_.x = ((Main.DefaultWidth / 2) - (this.titleText_.width / 2));
         addChild(this.titleText_);
         this.guildFameText_ = new BaseSimpleText(22, 0xFFFFFF, false, 0, 0);
         this.guildFameText_.text = guild.CurrentFame;
         this.guildFameText_.useTextDimensions();
         this.guildFameText_.filters = [new DropShadowFilter(0, 0, 0, 1, 8, 8)];
-        this.guildFameText_.x = (WebMain.DefaultWidth - 32 - this.guildFameText_.width);
+        this.guildFameText_.x = (Main.DefaultWidth - 32 - this.guildFameText_.width);
         this.guildFameText_.y = ((32 / 2) - (this.guildFameText_.height / 2));
         addChild(this.guildFameText_);
         this.guildFameIcon_ = new Bitmap(GuildUtil.guildFameIcon(40));
-        this.guildFameIcon_.x = WebMain.DefaultWidth - 40;
+        this.guildFameIcon_.x = Main.DefaultWidth - 40;
         this.guildFameIcon_.y = ((32 / 2) - (this.guildFameIcon_.height / 2));
         addChild(this.guildFameIcon_);
         this.lines_ = new Shape();
@@ -118,7 +116,7 @@ public class GuildPlayerList extends Sprite {
         var _local3:Shape = new Shape();
         _local2 = _local3.graphics;
         _local2.beginFill(0);
-        _local2.drawRect(0, 0, MemberListLine.WIDTH, WebMain.DefaultHeight - 370);
+        _local2.drawRect(0, 0, MemberListLine.WIDTH, Main.DefaultHeight - 370);
         _local2.endFill();
         this.mainSprite_.addChild(_local3);
         this.mainSprite_.mask = _local3;
@@ -156,7 +154,7 @@ public class GuildPlayerList extends Sprite {
         this.mainSprite_.addChild(this.listSprite_);
         if (this.listSprite_.height > 400) {
             this.scrollBar_ = new LegacyScrollbar(16, 400);
-            this.scrollBar_.x = ((WebMain.DefaultWidth - this.scrollBar_.width) - 4);
+            this.scrollBar_.x = ((Main.DefaultWidth - this.scrollBar_.width) - 4);
             this.scrollBar_.y = 104;
             this.scrollBar_.setIndicatorSize(400, this.listSprite_.height);
             this.scrollBar_.addEventListener(Event.CHANGE, this.onScrollBarChange);

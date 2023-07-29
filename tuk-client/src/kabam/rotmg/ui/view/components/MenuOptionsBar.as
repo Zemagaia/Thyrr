@@ -8,7 +8,7 @@ import thyrr.ui.buttons.TextButton;
 
 public class MenuOptionsBar extends Sprite {
 
-    private static const Y_POSITION:Number = WebMain.DefaultHeight - 50;
+    private static const Y_POSITION:Number = Main.DefaultHeight - 50;
     private static const SPACING:int = 20;
     public static const CENTER:String = "CENTER";
     public static const RIGHT:String = "RIGHT";
@@ -24,7 +24,7 @@ public class MenuOptionsBar extends Sprite {
         switch (_arg2) {
             case CENTER:
                 this.leftObjects[0] = (this.rightObjects[0] = _arg1);
-                _arg1.x = (WebMain.DefaultWidth / 2) - (_arg1.width / 2);
+                _arg1.x = (Main.DefaultWidth / 2) - (_arg1.width / 2);
                 _arg1.y = Y_POSITION;
                 return;
             case LEFT:

@@ -377,7 +377,7 @@ public class QuestContent extends Sprite {
             this.rewards_ = new Vector.<BaseSimpleText>(data.rewards_.length);
             while (i < data.rewards_.length) {
                 var reward:String = ObjectLibrary.typeToDisplayId_[data.rewards_[i]];
-                this.rewardIcons_[i] = new QuestItem(data.rewards_[i], ItemConstants.DEFAULT_ITEM);
+                this.rewardIcons_[i] = new QuestItem(data.rewards_[i], new ItemData(null));
                 this.rewardIcons_[i].x = 16;
                 this.rewardIcons_[i].y = yOffset;
                 this.rewards_[i] = new BaseSimpleText(14, 0xB3B3B3, false, 400).setBold(true);

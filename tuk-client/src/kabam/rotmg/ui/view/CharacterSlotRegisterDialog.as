@@ -14,8 +14,6 @@ public class CharacterSlotRegisterDialog extends Sprite {
     private static const REGISTER:String = "Register";
     private static const ANALYTICS_PAGE:String = "/charSlotNeedRegister";
 
-    public var cancel:Signal;
-    public var register:Signal;
     private var dialog:Dialog;
 
     public function CharacterSlotRegisterDialog() {
@@ -29,20 +27,18 @@ public class CharacterSlotRegisterDialog extends Sprite {
     }
 
     private function makeSignals():void {
-        this.cancel = new Signal();
-        this.register = new Signal();
         dialog.addEventListener(Dialog.LEFT_BUTTON, onCancel);
         dialog.addEventListener(Dialog.RIGHT_BUTTON, onRegister);
     }
 
     private function onCancel(e:Event):void
     {
-        cancel.dispatch();
+        Global.closeDialogs();
     }
 
     private function onRegister(e:Event):void
     {
-        register.dispatch();
+        Global.openAccountInfo();
     }
 
 

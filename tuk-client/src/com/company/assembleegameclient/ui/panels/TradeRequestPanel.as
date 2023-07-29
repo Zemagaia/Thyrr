@@ -11,7 +11,6 @@ import flash.filters.DropShadowFilter;
 import flash.text.TextFieldAutoSize;
 import flash.utils.Timer;
 
-
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 import kabam.rotmg.ui.view.SignalWaiter;
@@ -26,7 +25,6 @@ public class TradeRequestPanel extends Panel {
 
     public function TradeRequestPanel(_arg1:GameSprite, _arg2:String) {
         super(_arg1);
-        DrawPanelBg();
         this.name_ = _arg2;
         this.title_ = new TextFieldDisplayConcrete().setSize(18).setColor(0xFFFFFF).setTextWidth(WIDTH);
         this.title_.setStringBuilder(new LineBuilder().setParams("{name} wants to trade with you", {"name": _arg2}));

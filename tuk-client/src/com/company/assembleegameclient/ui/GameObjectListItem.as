@@ -111,7 +111,7 @@ public class GameObjectListItem extends Sprite {
 
     private function redraw(isParty:Boolean):void {
         if (isParty)
-            this.portrait.bitmapData = this.go.getPortrait2();
+            this.portrait.bitmapData = this.go.getPortrait(140, true);
         else {
             this.portrait.bitmapData = this.go.getPortrait();
             this.text.setStringBuilder(this.prepareText());

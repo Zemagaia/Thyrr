@@ -1,17 +1,10 @@
 ﻿package kabam.rotmg.account.core.control {
 import kabam.rotmg.account.core.Account;
 import kabam.rotmg.account.core.view.RegisterPromptDialog;
-import kabam.rotmg.dialogs.control.OpenDialogSignal;
 
-import robotlegs.bender.framework.api.IGuard;
+public class IsAccountRegisteredGuard {
 
-public class IsAccountRegisteredGuard implements IGuard {
-
-    [Inject]
-    public var account:Account;
-    [Inject]
-    public var openDialog:OpenDialogSignal;
-
+    public var account:Account = Global.account;
 
     public function approve():Boolean {
         var _local1:Boolean = this.account.isRegistered();
@@ -24,7 +17,7 @@ public class IsAccountRegisteredGuard implements IGuard {
     }
 
     private function enterRegisterFlow():void {
-        this.openDialog.dispatch(new RegisterPromptDialog(this.getString()));
+        Global.openDialog(new RegisterPromptDialog(this.getString()));
     }
 
 

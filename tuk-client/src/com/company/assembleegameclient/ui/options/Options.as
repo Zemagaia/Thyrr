@@ -4,14 +4,12 @@ import com.company.assembleegameclient.parameters.Parameters;
 import com.company.assembleegameclient.screens.TitleMenuOption;
 import com.company.assembleegameclient.sound.Music;
 import com.company.assembleegameclient.sound.SFX;
-import com.company.assembleegameclient.ui.StatusBar;
 import com.company.util.AssetLibrary;
 import com.company.util.KeyCodes;
 
 import flash.display.BitmapData;
 import flash.display.Sprite;
 import flash.display.StageDisplayState;
-import flash.display.StageScaleMode;
 import flash.events.Event;
 import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
@@ -31,11 +29,12 @@ import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 import kabam.rotmg.text.view.stringBuilder.StaticStringBuilder;
 import kabam.rotmg.text.view.stringBuilder.StringBuilder;
 import kabam.rotmg.ui.UIUtils;
+import kabam.rotmg.ui.view.SignalWaiter;
 
 public class Options extends Sprite {
 
     private static const TABS:Vector.<String> = new <String>["Controls", "Hot Keys", "Chat", "Graphics", "Sound", "Misc"];
-    public static const Y_POSITION:int = WebMain.DefaultHeight - 50;
+    public static const Y_POSITION:int = Main.DefaultHeight - 50;
     public static const CHAT_COMMAND:String = "chatCommand";
     public static const CHAT:String = "chat";
     public static const TELL:String = "tell";
@@ -62,18 +61,18 @@ public class Options extends Sprite {
         this.gs_ = _arg1;
         graphics.clear();
         graphics.beginFill(0x2B2B2B, 0.8);
-        graphics.drawRect(0, 0, WebMain.DefaultWidth, WebMain.DefaultHeight);
+        graphics.drawRect(0, 0, Main.DefaultWidth, Main.DefaultHeight);
         graphics.endFill();
         graphics.lineStyle(1, 0x5E5E5E);
         graphics.moveTo(0, 100);
-        graphics.lineTo(WebMain.DefaultWidth, 100);
+        graphics.lineTo(Main.DefaultWidth, 100);
         graphics.lineStyle();
         _local2 = new TextFieldDisplayConcrete().setSize(36).setColor(0xFFFFFF);
         _local2.setBold(true);
         _local2.setStringBuilder(new LineBuilder().setParams("Options"));
         _local2.setAutoSize(TextFieldAutoSize.CENTER);
         _local2.filters = [new DropShadowFilter(0, 0, 0)];
-        _local2.x = ((WebMain.DefaultWidth / 2) - (_local2.width / 2));
+        _local2.x = ((Main.DefaultWidth / 2) - (_local2.width / 2));
         _local2.y = 8;
         addChild(_local2);
         this.continueButton_ = new TitleMenuOption("continue", 36, 24);
@@ -173,7 +172,7 @@ public class Options extends Sprite {
 
     private function onHomeClick(_arg1:MouseEvent):void {
         this.close();
-        this.gs_.closed.dispatch();
+        this.gs_.close();
     }
 
     private function onTabClick(_arg1:MouseEvent):void {
@@ -217,11 +216,13 @@ public class Options extends Sprite {
     }
 
     private function onAddedToStage(_arg1:Event):void {
-        this.continueButton_.x = (WebMain.DefaultWidth / 2);
         this.continueButton_.y = Y_POSITION;
         this.resetToDefaultsButton_.x = 20;
         this.resetToDefaultsButton_.y = Y_POSITION;
-        this.homeButton_.x = (WebMain.DefaultWidth - 20);
+        var waiter:SignalWaiter = new SignalWaiter();
+        waiter.push(this.homeButton_.changed);
+        waiter.push(this.continueButton_.changed);
+        waiter.complete.addOnce(positionButtons);
         this.homeButton_.y = Y_POSITION;
         if (Capabilities.playerType == "Desktop") {
             Parameters.data_.fullscreenMode = (stage.displayState == "fullScreenInteractive");
@@ -230,6 +231,12 @@ public class Options extends Sprite {
         this.setSelected(this.tabs_[0]);
         stage.addEventListener(KeyboardEvent.KEY_DOWN, this.onKeyDown, false, 1);
         stage.addEventListener(KeyboardEvent.KEY_UP, this.onKeyUp, false, 1);
+    }
+
+    private function positionButtons():void
+    {
+        this.continueButton_.x = Main.DefaultWidth / 2 - continueButton_.width / 2;
+        this.homeButton_.x = Main.DefaultWidth - homeButton_.width - 20;
     }
 
     private function onRemovedFromStage(_arg1:Event):void {
@@ -275,14 +282,14 @@ public class Options extends Sprite {
         this.addOptionAndPosition(this.makeAllowMiniMapRotation());
         this.addOptionAndPosition(new KeyMapper("rotateLeft", "Rotate Left", "Key to rotate the camera to the left", !(Parameters.data_.allowRotation)));
         this.addOptionAndPosition(new KeyMapper("rotateRight", "Rotate Right", "Key to rotate the camera to the right", !(Parameters.data_.allowRotation)));
-        this.addOptionAndPosition(new KeyMapper("useSpecial", "Use Special Ability", "This key will activate your special ability"));
+        this.addOptionAndPosition(new KeyMapper("useSpecial", "Cast Main Ability", "This key will activate your main ability"));
         this.addOptionAndPosition(new KeyMapper("autofireToggle", "Autofire Toggle", "This key will toggle autofire"));
         this.addOptionAndPosition(new KeyMapper("toggleHPBar", "Toggle Status Bars", "Toggle self HP and MP bars and enemy and other players' HP bars"));
         this.addOptionAndPosition(new KeyMapper("resetToDefaultCameraAngle", "Reset To Default Camera Angle", "This key will reset the camera angle to the default angle"));
         this.addOptionAndPosition(new KeyMapper("togglePerformanceStats", "Toggle Performance Stats", "This key will toggle a display of fps and memory usage"));
         this.addOptionAndPosition(new KeyMapper("toggleCentering", "Toggle Centering of Player", "This key will toggle the position between centered and offset"));
         this.addOptionAndPosition(new KeyMapper("interact", "Interact/Buy", "This key will allow you to enter a portal or buy an item"));
-        this.addOptionAndPosition(new KeyMapper("secondAbility", "Use Secondary Ability", "This key will activate your secondary special ability if available"));
+        this.addOptionAndPosition(new KeyMapper("secondAbility", "Cast Alternative Ability", "This key will activate your alternative ability if available"));
         this.addOptionAndPosition(new KeyMapper("skillTreeOffensive", "Use Offensive Ability", "This key will activate your skill tree's offensive ability if available"));
         this.addOptionAndPosition(new KeyMapper("skillTreeDefensive", "Use Defensive Ability", "This key will activate your skill tree's defensive ability if available"));
     }
@@ -422,7 +429,6 @@ public class Options extends Sprite {
         var hwaColor:Number;
         this.addOptionAndPosition(new ChoiceOption("defaultCameraAngle", makeDegreeOptions(), [((7 * Math.PI) / 4), 0], "Default Camera Angle", "This toggles the default camera angle", onDefaultCameraAngleChange));
         this.addOptionAndPosition(new ChoiceOption("centerOnPlayer", makeOnOffLabels(), [true, false], "Center On Player", "This toggles whether the player is centered or offset", null));
-        this.addOptionAndPosition(new ChoiceOption("showProtips", makeOnOffLabels(), [true, false], "Show Tips", "This toggles whether a tip is displayed when you join a new game", null));
         this.addOptionAndPosition(new ChoiceOption("drawShadows", makeOnOffLabels(), [true, false], "Draw Shadows", "This toggles whether to draw shadows", null));
         this.addOptionAndPosition(new ChoiceOption("textBubbles", makeOnOffLabels(), [true, false], "Draw Text Bubbles", "This toggles whether to draw text bubbles", null));
         this.addOptionAndPosition(new ChoiceOption("showTradePopup", makeOnOffLabels(), [true, false],"Show Trade Request Panel", "This toggles whether to show trade requests in the lower-right panel or just in chat.", null));
@@ -459,9 +465,9 @@ public class Options extends Sprite {
     }
 
     private function addMiscOptions():void {
-        this.addOptionAndPosition(new ChoiceOption("showProtips", new <StringBuilder>[makeLineBuilder("View"), makeLineBuilder("View")], [Parameters.data_.showProtips, Parameters.data_.showProtips], "Privacy Policy", "Privacy Policy for Realm of the Mad God", this.onLegalPrivacyClick));
+        this.addOptionAndPosition(new ChoiceOption("IGNORETHIS", new <StringBuilder>[makeLineBuilder("View"), makeLineBuilder("View")], [Parameters.data_.showProtips, Parameters.data_.showProtips], "Privacy Policy", "Privacy Policy for Realm of the Mad God", this.onLegalPrivacyClick));
         this.addOptionAndPosition(new NullOption());
-        this.addOptionAndPosition(new ChoiceOption("showProtips", new <StringBuilder>[makeLineBuilder("View"), makeLineBuilder("View")], [Parameters.data_.showProtips, Parameters.data_.showProtips], "Terms of Service & EULA", "Terms of Service and End User License Agreement for Realm of the Mad God", this.onLegalTOSClick));
+        this.addOptionAndPosition(new ChoiceOption("IGNORETHIS", new <StringBuilder>[makeLineBuilder("View"), makeLineBuilder("View")], [Parameters.data_.showProtips, Parameters.data_.showProtips], "Terms of Service & EULA", "Terms of Service and End User License Agreement for Realm of the Mad God", this.onLegalTOSClick));
         this.addOptionAndPosition(new NullOption());
     }
 
@@ -506,7 +512,7 @@ public class Options extends Sprite {
     private function addOptionAndPosition(option:Option, offsetX:Number = 0, offsetY:Number = 0):void {
         var positionOption:Function;
         positionOption = function ():void {
-            option.x = (options_.length % 2 == 0 ? 20 : WebMain.DefaultWidth - 395) + offsetX;
+            option.x = (options_.length % 2 == 0 ? 20 : Main.DefaultWidth - 395) + offsetX;
             option.y = (((int((options_.length / 2)) * 44) + 122) + offsetY);
         };
         option.textChanged.addOnce(positionOption);

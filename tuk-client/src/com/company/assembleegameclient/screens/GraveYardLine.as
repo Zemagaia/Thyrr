@@ -9,16 +9,17 @@ import flash.filters.DropShadowFilter;
 import flash.net.URLRequest;
 import flash.net.navigateToURL;
 
+import kabam.rotmg.fame.model.SimpleFameVO;
+
 import org.osflash.signals.Signal;
 
 public class GraveYardLine extends Sprite {
 
-    public static const WIDTH:int = WebMain.DefaultWidth - 60;
+    public static const WIDTH:int = Main.DefaultWidth - 60;
     public static const HEIGHT:int = 52;
     public static const COLOR:uint = 0xB3B3B3;
     public static const OVER_COLOR:uint = 0xFFC800;
 
-    public var viewCharacterFame:Signal;
     public var icon_:Bitmap;
     public var titleText_:BaseSimpleText;
     public var taglineText_:BaseSimpleText;
@@ -27,7 +28,6 @@ public class GraveYardLine extends Sprite {
     public var accountId:String;
 
     public function GraveYardLine(_arg1:BitmapData, _arg2:String, _arg3:String, _arg4:String, _arg5:int, _arg6:String) {
-        this.viewCharacterFame = new Signal(int);
         super();
         this.link = _arg4;
         this.accountId = _arg6;
@@ -63,6 +63,10 @@ public class GraveYardLine extends Sprite {
         addEventListener(MouseEvent.MOUSE_DOWN, this.onMouseDown);
     }
 
+    private function onViewFame(_arg1:int):void {
+        Global.showFameView(new SimpleFameVO(this.accountId, _arg1));
+    }
+
     protected function onMouseOver(_arg1:MouseEvent):void {
         this.titleText_.setColor(OVER_COLOR);
         this.taglineText_.setColor(OVER_COLOR);
@@ -79,7 +83,7 @@ public class GraveYardLine extends Sprite {
         var _local2:Array = this.link.split(":", 2);
         switch (_local2[0]) {
             case "fame":
-                this.viewCharacterFame.dispatch(int(_local2[1]));
+                this.onViewFame(int(_local2[1]));
                 return;
             case "http":
             case "https":

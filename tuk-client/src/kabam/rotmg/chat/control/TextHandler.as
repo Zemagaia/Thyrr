@@ -8,12 +8,8 @@ import kabam.rotmg.account.core.view.ConfirmEmailModal;
 import kabam.rotmg.chat.model.ChatMessage;
 import kabam.rotmg.chat.model.TellModel;
 import kabam.rotmg.chat.view.ChatListItemFactory;
-import kabam.rotmg.core.StaticInjectorContext;
-import kabam.rotmg.dialogs.control.OpenDialogSignal;
 import kabam.rotmg.game.model.AddSpeechBalloonVO;
 import kabam.rotmg.game.model.GameModel;
-import kabam.rotmg.game.signals.AddSpeechBalloonSignal;
-import kabam.rotmg.game.signals.AddTextLineSignal;
 import kabam.rotmg.language.model.StringMap;
 import kabam.rotmg.messaging.impl.incoming.Text;
 import kabam.rotmg.servers.api.ServerModel;
@@ -27,24 +23,12 @@ public class TextHandler {
     private const TELL_SPEECH_COLORS:TextColors = new TextColors(2493110, 61695, 13880567);
     private const GUILD_SPEECH_COLORS:TextColors = new TextColors(0x3E8A00, 10944349, 13891532);
 
-    [Inject]
-    public var account:Account;
-    [Inject]
-    public var model:GameModel;
-    [Inject]
-    public var addTextLine:AddTextLineSignal;
-    [Inject]
-    public var addSpeechBalloon:AddSpeechBalloonSignal;
-    [Inject]
-    public var stringMap:StringMap;
-    [Inject]
-    public var tellModel:TellModel;
-    [Inject]
-    public var spamFilter:SpamFilter;
-    [Inject]
-    public var openDialogSignal:OpenDialogSignal;
-    [Inject]
-    public var hudModel:HUDModel;
+    public var account:Account = Global.account;
+    public var model:GameModel = Global.gameModel;
+    public var stringMap:StringMap = Global.stringMap;
+    public var tellModel:TellModel = Global.tellModel;
+    public var spamFilter:SpamFilter = Global.spamFilter;
+    public var hudModel:HUDModel = Global.hudModel;
 
 
     public function execute(_arg1:Text):void {
@@ -76,7 +60,7 @@ public class TextHandler {
         }
         if (((!(_local2)) && (this.spamFilter.isSpam(_local3)))) {
             if (_arg1.name_ == this.model.player.name_) {
-                this.addTextLine.dispatch(ChatMessage.make(Parameters.ERROR_CHAT_NAME, "This message has been flagged as spam."));
+                Global.addTextLine(ChatMessage.make(Parameters.ERROR_CHAT_NAME, "This message has been flagged as spam."));
             }
             return;
         }
@@ -103,8 +87,8 @@ public class TextHandler {
             _arg1.text_ = _local5;
         }
         if (_local2) {
-            if ((((((((_arg1.text_ == "Please verify your email before chat")) && (!((this.hudModel == null))))) && ((this.hudModel.gameSprite.map.name_ == "Nexus")))) && (!((this.openDialogSignal == null))))) {
-                this.openDialogSignal.dispatch(new ConfirmEmailModal());
+            if ((((((((_arg1.text_ == "Please verify your email before chat")) && (!((this.hudModel == null))))) && ((this.hudModel.gameSprite.map.name_ == "Nexus")))))) {
+                Global.openDialog(new ConfirmEmailModal());
             }
         }
         if (_arg1.objectId_ >= 0) {
@@ -131,7 +115,7 @@ public class TextHandler {
         _local2.nameColor = _arg1.nameColor_;
         _local2.textColor = _arg1.textColor_;
         this.addMessageText(_arg1, _local2);
-        this.addTextLine.dispatch(_local2);
+        Global.addTextLine(_local2);
     }
 
     public function addMessageText(text:Text, message:ChatMessage):void {
@@ -149,7 +133,7 @@ public class TextHandler {
     private function replaceIfSlashServerCommand(_arg1:String):String {
         var _local2:ServerModel;
         if (_arg1.substr(0, 7) == "74026S9") {
-            _local2 = StaticInjectorContext.getInjector().getInstance(ServerModel);
+            _local2 = Global.serverModel;
             if (((_local2) && (_local2.getServer()))) {
                 return (_arg1.replace("74026S9", (_local2.getServer().name + ", ")));
             }
@@ -178,7 +162,7 @@ public class TextHandler {
             _local5 = ChatListItemFactory.isTradeMessage(_arg1.numStars_, _arg1.objectId_, _arg2);
             _local6 = ChatListItemFactory.isGuildMessage(_arg1.name_);
             _local7 = new AddSpeechBalloonVO(_local3, _arg2, _arg1.name_, _local5, _local6, _local4.back, 1, _local4.outline, 1, _local4.text, _arg1.bubbleTime_, false, true);
-            this.addSpeechBalloon.dispatch(_local7);
+            Global.addSpeechBalloon(_local7);
         }
     }
 

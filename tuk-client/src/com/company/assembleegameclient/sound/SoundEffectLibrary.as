@@ -9,9 +9,6 @@ import flash.media.SoundTransform;
 import flash.net.URLRequest;
 import flash.utils.Dictionary;
 
-import kabam.rotmg.application.api.ApplicationSetup;
-import kabam.rotmg.core.StaticInjectorContext;
-
 public class SoundEffectLibrary {
 
     private static const URL_PATTERN:String = "{URLBASE}/sfx/{NAME}.mp3";

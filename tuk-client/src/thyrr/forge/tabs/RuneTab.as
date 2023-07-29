@@ -19,8 +19,8 @@ import thyrr.oldui.DefaultTab;
 
 public class RuneTab extends DefaultTab {
 
-    private static const CENTER_X:int = WebMain.DefaultWidth / 2;
-    private static const CENTER_Y:int = WebMain.DefaultHeight / 2;
+    private static const CENTER_X:int = Main.DefaultWidth / 2;
+    private static const CENTER_Y:int = Main.DefaultHeight / 2;
     private static const ITEM_CENTER_X:int = CENTER_X - 21; // 42 / 2
     private static const RESULT_CENTER_Y:int = CENTER_Y - 80;
     private static const BOTTOM_Y:int = CENTER_Y + 85;
@@ -44,7 +44,7 @@ public class RuneTab extends DefaultTab {
     }
 
     private function drawTops():void {
-        this.selectedItem_ = new ForgeItem(ItemConstants.DEFAULT_ITEM, null, -1, false);
+        this.selectedItem_ = new ForgeItem(new ItemData(null), null, -1, false);
         this.selectedItem_.x = ITEM_CENTER_X;
         this.selectedItem_.y = RESULT_CENTER_Y;
         addChild(this.selectedItem_);
@@ -222,7 +222,7 @@ public class RuneTab extends DefaultTab {
                 this.itemRunes_ = new Vector.<ForgeItem>(itemData.Runes ? itemData.Runes.length : 1);
                 i = 0;
                 while (i < this.itemRunes_.length) {
-                    var data:ItemData = ItemConstants.DEFAULT_ITEM;
+                    var data:ItemData = new ItemData(null);
                     data.ObjectType = itemData.Runes ? itemData.Runes[i] : -1;
                     this.itemRunes_[i] = new ForgeItem(data, null, -1, false);
                     this.objTypes_[i] = data.ObjectType;

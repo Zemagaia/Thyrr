@@ -8,7 +8,6 @@ import thyrr.utils.ItemData;
 public class ItemConstants {
 
     public static const NO_ITEM:int = -1;
-    public static const DEFAULT_ITEM:ItemData = new ItemData(null);
     public static const ALL_TYPE:int = 0;
     public static const SWORD_TYPE:int = 1;
     public static const DAGGER_TYPE:int = 2;
@@ -40,6 +39,8 @@ public class ItemConstants {
     public static const CARD_TYPE:int = 28;
     public static const RUNE_TYPE:int = 29;
     public static const ORB_TYPE:int = 30;
+    public static const ARTIFACT_TYPE:int = 31;
+    public static const CHARM_TYPE:int = 32;
 
 
     public static function itemTypeToName(itemType:int):String {
@@ -100,6 +101,10 @@ public class ItemConstants {
                 return ("Rune");
             case ORB_TYPE:
                 return ("Orb");
+            case ARTIFACT_TYPE:
+                return "Artifact";
+            case CHARM_TYPE:
+                return "Charm";
         }
         return ("Invalid Type!");
     }
@@ -185,6 +190,12 @@ public class ItemConstants {
                 break;
             case ORB_TYPE:
                 bitmap = AssetLibrary.getImageFromSet("equipmentTiered2", 0x90);
+                break;
+            case ARTIFACT_TYPE:
+                bitmap = AssetLibrary.getImageFromSet("equipmentTiered2", 0x160);
+                break;
+            case CHARM_TYPE:
+                bitmap = AssetLibrary.getImageFromSet("equipmentTiered2", 0x1b0);
                 break;
         }
         return (bitmap);

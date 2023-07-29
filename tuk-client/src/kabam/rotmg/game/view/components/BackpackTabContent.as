@@ -7,10 +7,12 @@ import flash.display.Sprite;
 import kabam.rotmg.constants.GeneralConstants;
 import kabam.rotmg.ui.model.TabStripModel;
 
+import thyrr.utils.Utils;
+
 public class BackpackTabContent extends Sprite {
 
     private var backpackContent:Sprite;
-    public var Backpack:InventoryGrid;
+    public var inv:InventoryGrid;
 
     public function BackpackTabContent(_arg1:Player) {
         this.backpackContent = new Sprite();
@@ -22,7 +24,10 @@ public class BackpackTabContent extends Sprite {
 
     private function init(_arg1:Player):void {
         this.backpackContent.name = TabStripModel.BACKPACK;
-        Backpack = new InventoryGrid(_arg1, _arg1, (GeneralConstants.NUM_EQUIPMENT_SLOTS + GeneralConstants.NUM_INVENTORY_SLOTS), true);
+        inv = new InventoryGrid(_arg1, _arg1, (GeneralConstants.NUM_EQUIPMENT_SLOTS + GeneralConstants.NUM_INVENTORY_SLOTS), true);
+        inv.filters = [Utils.OutlineFilter];
+        inv.x -= 2;
+        inv.y -= 2;
     }
 
     private function positionChildren():void {
@@ -31,7 +36,7 @@ public class BackpackTabContent extends Sprite {
     }
 
     private function addChildren():void {
-        this.backpackContent.addChild(Backpack);
+        this.backpackContent.addChild(inv);
         addChild(this.backpackContent);
     }
 

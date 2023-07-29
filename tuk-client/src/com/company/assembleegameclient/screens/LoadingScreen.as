@@ -8,6 +8,7 @@ import flash.text.TextFieldAutoSize;
 
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
+import kabam.rotmg.ui.view.components.DarkLayer;
 import kabam.rotmg.ui.view.components.ScreenBase;
 
 public class LoadingScreen extends Sprite {
@@ -17,9 +18,9 @@ public class LoadingScreen extends Sprite {
     public function LoadingScreen() {
         this.text = new TextFieldDisplayConcrete();
         super();
-        addChild(new ScreenBase());
+        addChild(new DarkLayer());
         this.text.setSize(30).setColor(0xFFFFFF).setVerticalAlign(TextFieldDisplayConcrete.MIDDLE).setAutoSize(TextFieldAutoSize.CENTER).setBold(true);
-        this.text.y = WebMain.DefaultHeight - 50;
+        this.text.y = Main.DefaultHeight - 50;
         addEventListener(Event.ADDED_TO_STAGE, this.onAdded);
         this.text.setStringBuilder(new LineBuilder().setParams("Loading..."));
         this.text.filters = [new DropShadowFilter(0, 0, 0, 1, 4, 4)];

@@ -23,9 +23,6 @@ import kabam.rotmg.appengine.api.AppEngineClient;
 import kabam.rotmg.application.api.ApplicationSetup;
 import kabam.rotmg.build.api.BuildData;
 import kabam.rotmg.build.api.BuildEnvironment;
-import kabam.rotmg.core.StaticInjectorContext;
-import kabam.rotmg.dialogs.control.CloseDialogsSignal;
-
 import kabam.rotmg.text.view.TextFieldDisplayConcrete;
 import kabam.rotmg.text.view.stringBuilder.LineBuilder;
 import kabam.rotmg.text.view.stringBuilder.StaticStringBuilder;
@@ -73,7 +70,7 @@ public class TOSPopup extends Sprite {
 
     private function _makeUIAndAdd():void {
         this.makeButton();
-        var _local1:BuildData = StaticInjectorContext.getInjector().getInstance(BuildData);
+        var _local1:BuildData = Global.buildData;
         if (_local1.getEnvironment() != BuildEnvironment.PRODUCTION) {
             this.initText3();
             this.addTextFieldDisplay(this.textText3_);
@@ -126,7 +123,7 @@ public class TOSPopup extends Sprite {
         this.textText3_.x = this.textMargin;
         this.textText3_.y = this.textTextYPosition;
         this.textText3_.setMultiLine(true).setWordWrap(true).setAutoSize(TextFieldAutoSize.CENTER);
-        var _local1:ApplicationSetup = StaticInjectorContext.getInjector().getInstance(ApplicationSetup);
+        var _local1:ApplicationSetup = Global.applicationSetup;
         var _local2:String = (_local1.getAppEngineUrl(true) + Parameters.USER_GENERATED_CONTENT_TERMS);
         var _local3:String = (((((((("I agree to Kabam's <font color=\"#7777EE\"><a href=\"" + Parameters.TERMS_OF_USE_URL) + '">terms of service</a></font>, ') + '<font color="#7777EE"><a href="') + Parameters.PRIVACY_POLICY_URL) + '">privacy policy</a></font>, and ') + '<font color="#7777EE"><a href="') + _local2) + '">user generated content terms</a></font>.');
         var _local4:StaticStringBuilder = new StaticStringBuilder(_local3);
@@ -152,8 +149,8 @@ public class TOSPopup extends Sprite {
     }
 
     private function positionDialogAndTryAnalytics():void {
-        this.box_.x = ((this.offsetX + (WebMain.STAGE.stageWidth / 2)) - (this.box_.width / 2));
-        this.box_.y = ((this.offsetY + (WebMain.STAGE.stageHeight / 2)) - (this.getBoxHeight() / 2));
+        this.box_.x = ((this.offsetX + (Main.STAGE.stageWidth / 2)) - (this.box_.width / 2));
+        this.box_.y = ((this.offsetY + (Main.STAGE.stageHeight / 2)) - (this.getBoxHeight() / 2));
     }
 
     private function draw():void {
@@ -197,13 +194,12 @@ public class TOSPopup extends Sprite {
     }
 
     protected function onLeftButtonClick(_arg1:MouseEvent):void {
-        var _local2:AppEngineClient = StaticInjectorContext.getInjector().getInstance(AppEngineClient);
-        var _local3:Account = StaticInjectorContext.getInjector().getInstance(Account);
+        var _local2:AppEngineClient = Global.appEngine;
+        var _local3:Account = Global.account;
         var _local4:Object = _local3.getCredentials();
         _local2.sendRequest("account/acceptTOS", _local4);
         this.buttonAccept.removeEventListener(MouseEvent.CLICK, this.onLeftButtonClick);
-        var _local5:CloseDialogsSignal = StaticInjectorContext.getInjector().getInstance(CloseDialogsSignal);
-        _local5.dispatch();
+        Global.closeDialogs();
     }
 
 

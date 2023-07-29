@@ -8,8 +8,7 @@ import kabam.rotmg.text.view.DebugTextField;
 
 public class DebugTextAndMapProvider implements TextAndMapProvider {
 
-    [Inject]
-    public var debugStringMap:DebugStringMap;
+    public var debugStringMap:DebugStringMap = Global.debugStringMap;
 
 
     public function getTextField():TextField {
