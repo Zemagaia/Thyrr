@@ -1,4 +1,6 @@
 ﻿package kabam.rotmg.account.core.services {
+import flash.net.URLLoaderDataFormat;
+
 import kabam.lib.tasks.BaseTask;
 import kabam.rotmg.account.core.Account;
 import kabam.rotmg.account.web.model.AccountData;
@@ -13,6 +15,8 @@ public class LoginTask extends BaseTask {
 
     override protected function startTask():void {
         this.client.complete.addOnce(this.onComplete);
+        this.client.setDataFormat(URLLoaderDataFormat.TEXT);
+        this.client.setMaxRetries(0);
         this.client.sendRequest("/account/verify", {
             "guid": this.data.username,
             "password": this.data.password
@@ -21,13 +25,9 @@ public class LoginTask extends BaseTask {
 
     private function onComplete(isOk:Boolean, data:*):void {
         if (isOk) {
-            this.updateUser(data);
+            this.account.updateUser(this.data.username, this.data.password, "");
         }
         completeTask(isOk, data);
-    }
-
-    private function updateUser(ignored:String):void {
-        this.account.updateUser(this.data.username, this.data.password, "");
     }
 
 }

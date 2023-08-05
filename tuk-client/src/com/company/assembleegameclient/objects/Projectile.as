@@ -21,6 +21,7 @@ import flash.display.IGraphicsData;
 import flash.geom.Matrix;
 import flash.geom.Point;
 import flash.geom.Vector3D;
+import flash.utils.ByteArray;
 import flash.utils.Dictionary;
 
 import thyrr.utils.DamageTypes;
@@ -84,12 +85,11 @@ public class Projectile extends BasicObject {
         objBullIdToObjId_ = new Dictionary();
     }
 
-
-    public function reset(_arg1:int, _arg2:int, _arg3:int, _arg4:int, projectileId:int, _arg5:Number, _arg6:int,
-                          _arg7:String = "", _arg8:String = ""):void {
+    public function reset(equipType:int, _arg2:int, _arg3:int, _arg4:int, projectileId:int, _arg5:Number, _arg6:int,
+                          _arg7:String = "", _arg8:String = "", projProps:ProjectileProperties = null, objProps:ObjectProperties = null):void {
         var _local11:Number;
         clear();
-        this.containerType_ = _arg1;
+        this.containerType_ = equipType;
         this.bulletType_ = _arg2;
         this.ownerId_ = _arg3;
         this.bulletId_ = _arg4;
@@ -98,8 +98,8 @@ public class Projectile extends BasicObject {
         this.startTime_ = _arg6;
         objectId_ = getNewObjId(this.ownerId_, this.bulletId_);
         z_ = 0.5;
-        this.containerProps_ = ObjectLibrary.propsLibrary_[this.containerType_];
-        this.projProps_ = this.containerProps_.projectiles_[_arg2];
+        this.containerProps_ = objProps != null ? objProps : ObjectLibrary.propsLibrary_[this.containerType_];
+        this.projProps_ = projProps != null ? projProps : this.containerProps_.projectiles_[_arg2];
         var _local9:String = ((((!((_arg7 == ""))) && ((this.projProps_.objectId_ == _arg8)))) ? _arg7 : this.projProps_.objectId_);
         this.props_ = ObjectLibrary.getPropsFromId(_local9);
         hasShadow_ = (this.props_.shadowSize_ > 0);

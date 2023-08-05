@@ -1,6 +1,8 @@
 ﻿package com.company.assembleegameclient.objects {
 import com.company.assembleegameclient.util.ConditionEffect;
 
+import flash.utils.ByteArray;
+
 import flash.utils.Dictionary;
 
 import thyrr.utils.DamageTypes;
@@ -32,10 +34,14 @@ public class ProjectileProperties {
     public var acceleration_:Number;
     public var msPerAcceleration_:Number;
     public var speedCap_:Number;
+    public var key:uint;
+    public var root:XML;
 
-    public function ProjectileProperties(_arg1:XML) {
-        var _local2:XML;
+    public function ProjectileProperties(_arg1:XML = null) {
+        this.root = _arg1;
         super();
+        if (_arg1 == null) return;
+        var _local2:XML;
         this.bulletType_ = int(_arg1.@id);
         this.objectId_ = _arg1.ObjectId;
         this.lifetime_ = int(_arg1.LifetimeMS);
@@ -93,6 +99,80 @@ public class ProjectileProperties {
         this.acceleration_ = ((_arg1.hasOwnProperty("Acceleration")) ? Number(_arg1.Acceleration) : 0);
         this.msPerAcceleration_ = ((_arg1.hasOwnProperty("MSPerAcceleration")) ? Number(_arg1.MSPerAcceleration) : 50);
         this.speedCap_ = ((_arg1.hasOwnProperty("SpeedCap")) ? Number(_arg1.SpeedCap) : this.speed_ + this.acceleration_ * 10);
+    }
+
+    public function Import(data:ByteArray):ProjectileProperties {
+        if (data == null || data == new ByteArray()) return null;
+        data.endian = "littleEndian";
+        this.key = data.readUnsignedInt();
+        for (var i:int = 0; i < 8; i++)
+        {
+            if ((this.key & 1 << i) == 0) continue;
+            switch (i)
+            {
+                case 0:
+                    damageType_ = data.readByte();
+                    break;
+                case 1:
+                    lifetime_ += data.readFloat();
+                    break;
+                case 2:
+                    speed_ += data.readFloat();
+                    break;
+                case 3:
+                    minDamage_ += data.readInt();
+                    break;
+                case 4:
+                    maxDamage_ += data.readInt();
+                    break;
+                case 5:
+                    // irrelevant
+                    break;
+                case 6:
+                    amplitude_ += data.readFloat();
+                    break;
+                case 7:
+                    frequency_ += data.readFloat();
+                    break;
+            }
+        }
+        return this;
+    }
+
+    public function importFromProps(data:ProjectileProperties):ProjectileProperties {
+        this.key = data.key;
+        for (var i:int = 0; i < 8; i++)
+        {
+            if ((this.key & 1 << i) == 0) continue;
+            switch (i)
+            {
+                case 0:
+                    damageType_ = data.damageType_;
+                    break;
+                case 1:
+                    lifetime_ += data.lifetime_;
+                    break;
+                case 2:
+                    speed_ += data.speed_;
+                    break;
+                case 3:
+                    minDamage_ += data.minDamage_;
+                    break;
+                case 4:
+                    maxDamage_ += data.maxDamage_;
+                    break;
+                case 5:
+                    // irrelevant
+                    break;
+                case 6:
+                    amplitude_ += data.amplitude_;
+                    break;
+                case 7:
+                    frequency_ += data.frequency_;
+                    break;
+            }
+        }
+        return this;
     }
 
 }

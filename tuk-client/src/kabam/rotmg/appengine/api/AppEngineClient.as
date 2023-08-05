@@ -12,9 +12,8 @@ import org.osflash.signals.OnceSignal;
 
 public class AppEngineClient {
 
-    public var loader:RetryLoader = Global.retryLoader;
+    public var loader:RetryLoader;
     public var setup:ApplicationSetup = Global.applicationSetup;
-    public var account:Account = Global.account;
     private var isEncrypted:Boolean;
     private var maxRetries:int;
     private var dataFormat:String;
@@ -23,6 +22,7 @@ public class AppEngineClient {
         this.isEncrypted = true;
         this.maxRetries = 0;
         this.dataFormat = URLLoaderDataFormat.TEXT;
+        this.loader = new RetryLoader();
     }
 
     public function get complete():OnceSignal {

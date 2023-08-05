@@ -348,6 +348,14 @@ namespace GameServer
                     continue;
                 }
 
+                if (i.Value is byte[])
+                {
+                    var val = (byte[])i.Value;
+                    wtr.Write((short)val.Length);
+                    wtr.Write(val);
+                    continue;
+                }
+
                 throw new InvalidOperationException(
                     $"Stat '{i.Key}' of type '{i.Value?.GetType().ToString() ?? "null"}' not supported.");
             }

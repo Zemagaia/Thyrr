@@ -310,10 +310,18 @@ namespace GameServer.realm.entities
             set => _defensiveAbility.SetValue(value);
         }
         
+        private readonly SV<byte[]> _overrideWeaponProjDescBytes;
+        public byte[] OverrideWeaponProjDescBytes
+        {
+            get => _overrideWeaponProjDescBytes.GetValue();
+            set => _overrideWeaponProjDescBytes.SetValue(value);
+        }
+        
         public List<PoisonTippedProjectiles> PoisonTippedProjectiles;
         public List<OverrideWeaponProjectile> OverrideWeaponProjDescs;
         public ProjectileDesc OverrideWeaponProjDesc;
         public bool UpdateOverrideProjectile = true;
+        private bool _projdescoverriden;
 
         protected override void ExportStats(IDictionary<StatsType, object> stats)
         {
@@ -469,6 +477,7 @@ namespace GameServer.realm.entities
             _shieldMax = new SV<int>(this, StatsType.ShieldPointsMax, -1, true);
             _lightMax = new SV<int>(this, StatsType.LightMax, -1, true);
             _light = new SV<int>(this, StatsType.Light, client.Character.Light, true);
+            _overrideWeaponProjDescBytes = new SV<byte[]>(this, StatsType.OverrideProjDesc, new byte[6], true);
 
             PoisonTippedProjectiles = new List<PoisonTippedProjectiles>();
             OverrideWeaponProjDescs = new List<OverrideWeaponProjectile>();
@@ -776,6 +785,7 @@ namespace GameServer.realm.entities
                     // Quests.QuestGiverTick(time);
 
                 TickPassiveEffects();
+                TickOverrideProj();
             }
 
             base.Tick(time);
@@ -789,6 +799,22 @@ namespace GameServer.realm.entities
             }
         }
 
+        private void TickOverrideProj()
+        {
+            if (OverrideWeaponProjDescs.Count < 1)
+            {
+                _projdescoverriden = false;
+                OverrideWeaponProjDescBytes = new byte[6];
+                return;
+            }
+
+            if (_projdescoverriden)
+                return;
+
+            OverrideWeaponProjDescBytes = OverrideWeaponProjDescs[0].ProjDesc.Export();
+            _projdescoverriden = true;
+        }
+        
         private void TickPassiveEffects()
         {
             if (HasConditionEffect(ConditionEffects.Suppressed))

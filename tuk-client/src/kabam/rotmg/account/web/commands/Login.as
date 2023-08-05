@@ -10,19 +10,16 @@ import kabam.lib.tasks.DispatchSignalTask;
 import kabam.lib.tasks.TaskMonitor;
 import kabam.lib.tasks.TaskSequence;
 import kabam.rotmg.account.core.services.LoginTask;
-import kabam.rotmg.account.web.model.AccountData;
 import kabam.rotmg.core.model.ScreenModel;
 
 public class Login
 {
 
-    public var data:AccountData;
     public var monitor:TaskMonitor = Global.taskMonitor;
     public var screenModel:ScreenModel = Global.screenModel;
     private var setScreenTask:DispatchFunctionTask;
 
-    public function Login(accountData:AccountData) {
-        data = accountData;
+    public function Login() {
         this.setScreenTask = new DispatchFunctionTask(Global.setScreenWithValidData, this.getTargetScreen());
         var task:BranchingTask = new BranchingTask(new LoginTask(), this.makeSuccessTask(), this.makeFailureTask());
         this.monitor.add(task);

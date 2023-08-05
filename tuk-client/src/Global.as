@@ -183,7 +183,6 @@ public class Global
     public static var jsonParser:JsonParser;
     public static var buildEnvironments:BuildEnvironments;
     public static var applicationSetup:ApplicationSetup;
-    public static var retryLoader:RetryLoader;
     public static var appEngine:AppEngineClient;
     public static var externalServiceHelper:ExternalServiceHelper;
     public static var spamFilter:SpamFilter;
@@ -272,7 +271,6 @@ public class Global
         jsonParser = new SoftwareJsonParser();
         buildEnvironments = new BuildEnvironments();
         applicationSetup = makeApplicationSetup();
-        retryLoader = new RetryLoader();
         appEngine = new AppEngineClient();
         externalServiceHelper = new ExternalServiceHelper();
         spamFilter = new SpamFilter();
@@ -699,9 +697,10 @@ public class Global
             openDialog(new WebRegisterDialog());
     }
 
-    public static function login(accountData:AccountData):void
+    public static function login(data:AccountData):void
     {
-        new Login(accountData);
+        accountData = data;
+        new Login();
     }
 
     public static function sendPasswordReminder(email:String):void

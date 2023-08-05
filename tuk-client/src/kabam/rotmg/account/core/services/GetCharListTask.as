@@ -3,6 +3,7 @@ import com.company.assembleegameclient.parameters.Parameters;
 import com.company.util.MoreObjectUtil;
 
 import flash.events.TimerEvent;
+import flash.net.URLLoaderDataFormat;
 import flash.utils.Timer;
 
 import kabam.lib.tasks.BaseTask;
@@ -37,6 +38,8 @@ public class GetCharListTask extends BaseTask {
 
     private function sendRequest():void {
         this.client.complete.addOnce(this.onComplete);
+        this.client.setDataFormat(URLLoaderDataFormat.TEXT);
+        this.client.setMaxRetries(0);
         this.client.sendRequest("/char/list", this.requestData);
     }
 

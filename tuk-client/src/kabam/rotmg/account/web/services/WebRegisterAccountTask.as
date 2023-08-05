@@ -1,4 +1,6 @@
 ﻿package kabam.rotmg.account.web.services {
+import flash.net.URLLoaderDataFormat;
+
 import kabam.lib.tasks.BaseTask;
 import kabam.rotmg.account.core.Account;
 import kabam.rotmg.account.core.services.RegisterAccountTask;
@@ -16,6 +18,8 @@ public class WebRegisterAccountTask extends BaseTask implements RegisterAccountT
 
     override protected function startTask():void {
         this.client.complete.addOnce(this.onComplete);
+        this.client.setDataFormat(URLLoaderDataFormat.TEXT);
+        this.client.setMaxRetries(0);
         this.client.sendRequest("/account/register", this.makeDataPacket());
     }
 

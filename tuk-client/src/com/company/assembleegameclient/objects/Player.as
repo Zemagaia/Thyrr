@@ -2,6 +2,7 @@
 import com.company.assembleegameclient.map.Camera;
 import com.company.assembleegameclient.map.Square;
 import com.company.assembleegameclient.map.mapoverlay.CharacterStatusText;
+import com.company.assembleegameclient.objects.ProjectileProperties;
 import com.company.assembleegameclient.objects.particles.HealingEffect;
 import com.company.assembleegameclient.objects.particles.LevelUpEffect;
 import com.company.assembleegameclient.objects.particles.UnstoppableEffect;
@@ -30,6 +31,7 @@ import flash.display.IGraphicsData;
 import flash.geom.ColorTransform;
 import flash.geom.Matrix;
 import flash.geom.Point;
+import flash.utils.ByteArray;
 import flash.utils.Dictionary;
 import flash.utils.getTimer;
 
@@ -184,6 +186,8 @@ public class Player extends Character {
     public var offensiveAbility_:int = 0;
     public var defensiveAbility_:int = 0;
     public var flamePillarState_:int = 0;
+    public var overrideProjDescTemp:ProjectileProperties;
+    public var overrideProjDesc:ProjectileProperties;
 
     public function Player(_arg1:XML) {
         this.ip_ = new IntPoint();
@@ -1067,64 +1071,71 @@ public class Player extends Character {
         this.doShoot(attackStart_, weapType, weapon, attackAngle_, true);
     }
 
-    private function doShoot(_arg1:int, _arg2:int, _arg3:XML, _arg4:Number, _arg5:Boolean):void {
-        var _local11:uint;
-        var _local12:Projectile;
+    private function doShoot(time:int, equipType:int, xml:XML, angle:Number, isWeapon:Boolean):void {
+        var bulletId:uint;
+        var proj:Projectile;
         var minDmg:int;
         var maxDmg:int;
-        var _local15:Number;
-        var _local16:int;
-        var _local6:int = ((_arg3.hasOwnProperty("NumProjectiles")) ? int(_arg3.NumProjectiles) : 1);
-        var _local7:Number = (((_arg3.hasOwnProperty("ArcGap")) ? Number(_arg3.ArcGap) : 11.25) * Trig.toRadians);
-        var _local8:Number = (_local7 * (_local6 - 1));
-        var _local9:Number = (_arg4 - (_local8 / 2));
-        this.isShooting = _arg5;
-        var _local10:int = 0;
-        while (_local10 < _local6) {
-            _local11 = getBulletId();
-            _local12 = (FreeList.newObject(Projectile) as Projectile);
-            if (((_arg5) && (!((this.projectileIdSetOverrideNew == ""))))) {
-                _local12.reset(_arg2, 0, objectId_, _local11, _local10, _local9, _arg1, this.projectileIdSetOverrideNew, this.projectileIdSetOverrideOld);
+        var attackMult:Number;
+        var damage:int;
+        var numProjs:int = ((xml.hasOwnProperty("NumProjectiles")) ? int(xml.NumProjectiles) : 1);
+        var arcGap:Number = (((xml.hasOwnProperty("ArcGap")) ? Number(xml.ArcGap) : 11.25) * Trig.toRadians);
+        var curGap:Number = (angle - ((arcGap * (numProjs - 1)) / 2));
+        this.isShooting = isWeapon;
+        var i:int = 0;
+        var objProps:ObjectProperties = ObjectLibrary.propsLibrary_[equipType];
+        var tProj:ProjectileProperties = objProps.projectiles_[0];
+        if (this.overrideProjDescTemp.key != 0) {
+            overrideProjDesc = new ProjectileProperties(tProj.root).importFromProps(this.overrideProjDescTemp);
+        }
+        else {
+            overrideProjDesc = null;
+        }
+        while (i < numProjs) {
+            bulletId = getBulletId();
+            proj = (FreeList.newObject(Projectile) as Projectile);
+            if (((isWeapon) && (!((this.projectileIdSetOverrideNew == ""))))) {
+                proj.reset(equipType, 0, objectId_, bulletId, i, curGap, time, this.projectileIdSetOverrideNew, this.projectileIdSetOverrideOld, overrideProjDesc, objProps);
             }
             else {
-                _local12.reset(_arg2, 0, objectId_, _local11, _local10, _local9, _arg1);
+                proj.reset(equipType, 0, objectId_, bulletId, i, curGap, time, "", "", isWeapon ? overrideProjDesc : null, objProps);
             }
-            minDmg = int(_local12.projProps_.minDamage_);
-            maxDmg = int(_local12.projProps_.maxDamage_);
+            minDmg = int(proj.projProps_.minDamage_);
+            maxDmg = int(proj.projProps_.maxDamage_);
             var itemData:ItemData = this.equipment_[1];
-            if (!_arg5)
+            if (!isWeapon)
                 itemData = this.equipment_[2];
-            _local12.damageType_ = _local12.projProps_.damageType_;
-            _local15 = _arg5 ? this.attackMultiplier(_local12) : 1;
-            _local16 = (minDmg == maxDmg ? minDmg : map_.gs_.gsc_.getNextInt(minDmg, maxDmg)) * _local15;
+            proj.damageType_ = proj.projProps_.damageType_;
+            attackMult = isWeapon ? this.attackMultiplier(proj) : 1;
+            damage = (minDmg == maxDmg ? minDmg : map_.gs_.gsc_.getNextInt(minDmg, maxDmg)) * attackMult;
             if (itemData && itemData.Quality > 0) {
-                _local16 *= itemData.Quality;
+                damage *= itemData.Quality;
             }
-            if (_arg1 > (map_.gs_.moveRecords_.lastClearTime_ + 600) || isBlind()) {
-                _local16 = 0;
+            if (time > (map_.gs_.moveRecords_.lastClearTime_ + 600) || isBlind()) {
+                damage = 0;
             }
             if (map_.gs_.gsc_.getNextInt(0, 1000) < (1 + this.criticalStrike_) * 10)
             {
-                var i:int = 0;
-                while (i < 4)
+                var j:int = 0;
+                while (j < 6)
                 {
                     var item:XML = ObjectLibrary.xmlLibrary_[equipment_[i].ObjectType];
                     if (item && item.Power == "Rotting Touch")
-                        _local16 += strength_ / 2;
-                    i++;
+                        damage += strength_ / 2;
+                    j++;
                 }
 
-                _local16 += _local16 * 0.67;
-                _local12.isCrit_ = true;
+                damage += damage * 0.67;
+                proj.isCrit_ = true;
             }
-            _local12.setDamage(_local16);
-            if ((((_local10 == 0)) && (!((_local12.sound_ == null))))) {
-                SoundEffectLibrary.play(_local12.sound_, 0.75, false);
+            proj.setDamage(damage);
+            if ((((i == 0)) && (!((proj.sound_ == null))))) {
+                SoundEffectLibrary.play(proj.sound_, 0.75, false);
             }
-            map_.addObj(_local12, (x_ + (Math.cos(_arg4) * 0.3)), (y_ + (Math.sin(_arg4) * 0.3)));
-            map_.gs_.gsc_.playerShoot(_arg1, _local12, _arg4);
-            _local9 = (_local9 + _local7);
-            _local10++;
+            map_.addObj(proj, (x_ + (Math.cos(angle) * 0.3)), (y_ + (Math.sin(angle) * 0.3)));
+            map_.gs_.gsc_.playerShoot(time, proj, angle);
+            curGap = (curGap + arcGap);
+            i++;
         }
     }
 

@@ -100,21 +100,115 @@ namespace Shared.resources
 
         public byte[] Export(bool server = false)
         {
-            using (var stream = new MemoryStream())
-            using (var rdr = new NReader(stream))
+            using var stream = new MemoryStream();
+            using var wtr = new NWriter(stream);
+            uint key = 0;
+            wtr.Write(key);
+            if (DamageType != default)
             {
-                return Utils.ByteArrayExport(this, server);
+                wtr.Write((byte)DamageType);
+                key |= 1 << 0;
             }
+
+            if (LifetimeMS != default)
+            {
+                wtr.Write(LifetimeMS);
+                key |= 1 << 1;
+            }
+
+            if (Speed != default)
+            {
+                wtr.Write(Speed);
+                key |= 1 << 2;
+            }
+
+            if (MinDamage != default)
+            {
+                wtr.Write(MinDamage);
+                key |= 1 << 3;
+            }
+
+            if (MaxDamage != default)
+            {
+                wtr.Write(MaxDamage);
+                key |= 1 << 4;
+            }
+
+            if (Effects != default)
+            {
+                wtr.Write((short)Effects.Length);
+                for (var i = 0; i < Effects.Length; i++)
+                {
+                    var eff = Effects[i];
+                    wtr.Write((byte)eff.Effect);
+                    wtr.Write(eff.DurationMS);
+                }
+                key |= 1 << 5;
+            }
+
+            if (Amplitude != default)
+            {
+                wtr.Write(Amplitude);
+                key |= 1 << 6;
+            }
+
+            if (Frequency != default)
+            {
+                wtr.Write(Frequency);
+                key |= 1 << 7;
+            }
+
+            stream.Position = 0;
+            wtr.Write(key);
+            return stream.ToArray();
         }
 
         public static ProjectileDesc Import(byte[] data, ProjectileDesc ret)
         {
-            using (var stream = new MemoryStream(data))
-            using (var rdr = new NReader(stream))
+            using var stream = new MemoryStream(data);
+            using var rdr = new NReader(stream);
+            var key = rdr.ReadUInt32();
+            short len;
+            int j;
+            for (var i = 0; i < 8; i++)
             {
-                var key = rdr.ReadUInt32();
-                var key2 = rdr.ReadUInt32();
-                Utils.ByteArrayImport(ret, key, rdr, 0);
+                if ((key & 1 << i) == 0) continue;
+                switch (i)
+                {
+                    case 0:
+                        ret.DamageType = (DamageTypes)rdr.ReadByte();
+                        break;
+                    case 1:
+                        ret.LifetimeMS += rdr.ReadSingle();
+                        break;
+                    case 2:
+                        ret.Speed += rdr.ReadSingle();
+                        break;
+                    case 3:
+                        ret.MinDamage += rdr.ReadInt32();
+                        break;
+                    case 4:
+                        ret.MaxDamage += rdr.ReadInt32();
+                        break;
+                    case 5:
+                        len = rdr.ReadInt16();
+                        ret.Effects = new ConditionEffect[len];
+                        for (j = 0; j < len; j++)
+                        {
+                            ret.Effects[j] = new ConditionEffect()
+                            {
+                                Effect = (ConditionEffectIndex)rdr.ReadByte(),
+                                DurationMS = rdr.ReadInt32(),
+                            };
+                        }
+                        break;
+                    case 6:
+                        ret.Amplitude += rdr.ReadSingle();
+                        break;
+                    case 7:
+                        ret.Frequency += rdr.ReadSingle();
+                        break;
+                }
             }
 
             return ret;

@@ -87,7 +87,7 @@ namespace GameServer.networking.handlers
             {
                 if (player.UpdateOverrideProjectile)
                 {
-                    player.OverrideWeaponProjDesc = ProjectileDesc.Import(proj.ProjDesc.Export(), new ProjectileDesc(prjDesc.Root));
+                    player.OverrideWeaponProjDesc = ProjectileDesc.Import(player.OverrideWeaponProjDescBytes, new ProjectileDesc(prjDesc.Root));
                     player.UpdateOverrideProjectile = false;
                 }
 

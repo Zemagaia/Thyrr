@@ -19,6 +19,7 @@ import com.company.assembleegameclient.objects.Player;
 import com.company.assembleegameclient.objects.Portal;
 import com.company.assembleegameclient.objects.Projectile;
 import com.company.assembleegameclient.objects.ProjectileProperties;
+import com.company.assembleegameclient.objects.ProjectileProperties;
 import com.company.assembleegameclient.objects.SellableObject;
 import com.company.assembleegameclient.objects.particles.AOEEffect;
 import com.company.assembleegameclient.objects.particles.BurstEffect;
@@ -2037,6 +2038,9 @@ public class GameServerConnection {
                     break;
                 case StatData.IMMUNITIES:
                     go.immunities_ = stat.statValues_;
+                    break;
+                case StatData.OVERRIDE_PROJ_DESC:
+                    player.overrideProjDescTemp = new ProjectileProperties().Import(stat.byteArrayValue_);
                     break;
             }
         }

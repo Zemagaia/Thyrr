@@ -1597,13 +1597,12 @@ namespace GameServer.realm.entities
         private void AEShoot(RealmTime time, Item item, ItemData itemData, Position target, ActivateEffect eff,
             long clientTime)
         {
-            /*
             // use item.Projectiles[0] instead, copying from ability xml
             // check ProjectileDesc fields that have a Description attribute
-            var desc = new ProjectileDesc()
+            /*var desc = new ProjectileDesc()
             {
-                MinDamage = 10000,
-                MaxDamage = 11111,
+                Speed = 50,
+                Effects = new[] { new ConditionEffect(ConditionEffectIndex.Confused, 3000) },
             };
             OverrideWeaponProjDescs.Add(new OverrideWeaponProjectile()
             {

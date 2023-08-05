@@ -16,7 +16,7 @@ public class StatData {
     public static const EXP_STAT:int = 6;
     public static const LEVEL_STAT:int = 7;
     public static const INVENTORY_STAT:int = 8;
-    // 9-19 unused
+    // 10-19 unused
     public static const STRENGTH_STAT:int = 20;
     public static const ARMOR_STAT:int = 21;
     public static const AGILITY_STAT:int = 22;
@@ -71,7 +71,7 @@ public class StatData {
     // 89-95 unused
     public static const NEW_CON_STAT:int = 96;
     public static const FORTUNE_TOKEN_STAT:int = 97;
-
+    // 98-101 unused
     public static const LUCK:int = 102;
     public static const RANK:int = 103;
     public static const ADMIN:int = 104;
@@ -112,8 +112,7 @@ public class StatData {
     public static const PIERCING:int = 86;
     public static const PIERCING_BOOST:int = 87;
     public static const IMMUNITIES:int = 88;
-
-    // 98-101 unused
+    public static const OVERRIDE_PROJ_DESC:int = 9;
 
     public var statType_:uint = 0;
     public var statValue_:int;
@@ -194,6 +193,7 @@ public class StatData {
     public function isByteArrayStat():Boolean {
         switch (this.statType_) {
             case PET_DATA_STAT:
+            case OVERRIDE_PROJ_DESC:
                 return (true);
         }
         return (false);
@@ -207,18 +207,19 @@ public class StatData {
         return (false);
     }
 
-    public function parseFromInput(_arg1:ByteArray):void
+    public function parseFromInput(data:ByteArray):void
     {
-        this.statType_ = _arg1.readUnsignedByte();
+        var ba:ByteArray;
+        this.statType_ = data.readUnsignedByte();
         var i:int = 0;
         if (isArrayStat())
         {
-            var len:int = _arg1.readShort();
+            var len:int = data.readShort();
             this.statValues_ = new Vector.<int>();
             i = 0;
             while (i < len)
             {
-                this.statValues_.push(_arg1.readInt());
+                this.statValues_.push(data.readInt());
                 i++;
             }
             return;
@@ -226,26 +227,26 @@ public class StatData {
 
         if (isByteArrayStat())
         {
-            var ba:ByteArray = new ByteArray();
+            ba = new ByteArray();
             ba.endian = "littleEndian";
-            _arg1.readBytes(ba, 0, _arg1.readShort());
+            data.readBytes(ba, 0, data.readShort());
             this.byteArrayValue_ = ba;
             return;
         }
 
         if (this.statType_ == INVENTORY_STAT)
         {
-            this.itemsValue_ = ConversionUtil.itemDataFromBytes(_arg1);
+            this.itemsValue_ = ConversionUtil.itemDataFromBytes(data);
             return;
         }
 
         if (!this.isStringStat())
         {
-            this.statValue_ = _arg1.readInt();
+            this.statValue_ = data.readInt();
             return;
         }
 
-        this.strStatValue_ = _arg1.readUTF();
+        this.strStatValue_ = data.readUTF();
     }
 
     public function writeToOutput(_arg1:ByteArray):void {

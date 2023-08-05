@@ -14,7 +14,7 @@ namespace GameServer.realm
         Experience = 6,
         Level = 7,
         Inventory = 8,
-        /*9-19 unused*/
+        // 10-19 unused
         Strength = 20,
         Armor = 21,
         Agility = 22,
@@ -75,22 +75,13 @@ namespace GameServer.realm
         LTBoostTime = 68,
         HealthStackCount = 69,
         MagicStackCount = 70,
-        /*71-78 unused*/
+        // 71-78 unused
         HasBackpack = 79,
         Skin = 80,
-        PetAbilityPower3 = 89, //unused
-        PetAbilityLevel1 = 90, //unused
-        PetAbilityLevel2 = 91, //unused
-        PetAbilityLevel3 = 92, //unused
-        PetAbilityType1 = 93, //unused
-        PetAbilityType2 = 94, //unused
-        PetAbilityType3 = 95, //unused
+        // 89-95 unused
         Effects2 = 96,
         Tokens = 97,
-        DamageMin = 98, // unused
-        DamageMax = 99, // unused
-        DamageMinBonus = 100, // unused
-        DamageMaxBonus = 101, // unused
+        // 98-101 unused
         Luck = 102,
         Rank = 103,
         Admin = 104,
@@ -131,6 +122,7 @@ namespace GameServer.realm
         Piercing = 86,
         PiercingBoost = 87,
         Immunities = 88,
+        OverrideProjDesc = 9,
 
         None = 255
     }
