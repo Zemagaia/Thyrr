@@ -1078,9 +1078,6 @@ public class Player extends Character {
         var maxDmg:int;
         var attackMult:Number;
         var damage:int;
-        var numProjs:int = ((xml.hasOwnProperty("NumProjectiles")) ? int(xml.NumProjectiles) : 1);
-        var arcGap:Number = (((xml.hasOwnProperty("ArcGap")) ? Number(xml.ArcGap) : 11.25) * Trig.toRadians);
-        var curGap:Number = (angle - ((arcGap * (numProjs - 1)) / 2));
         this.isShooting = isWeapon;
         var i:int = 0;
         var objProps:ObjectProperties = ObjectLibrary.propsLibrary_[equipType];
@@ -1091,6 +1088,15 @@ public class Player extends Character {
         else {
             overrideProjDesc = null;
         }
+        var numProjs:int = ((xml.hasOwnProperty("NumProjectiles")) ? int(xml.NumProjectiles) : 1);
+        var arcGap:Number = xml.hasOwnProperty("ArcGap") ? Number(xml.ArcGap) : 11.25;
+        tProj = this.overrideProjDesc;
+        if (tProj != null) {
+            numProjs = tProj.projCount_ > 0 ? tProj.projCount_ : numProjs + tProj.numProjectiles_;
+            arcGap += tProj.arcGap_;
+        }
+        arcGap *= Trig.toRadians;
+        var curGap:Number = (angle - ((arcGap * (numProjs - 1)) / 2));
         while (i < numProjs) {
             bulletId = getBulletId();
             proj = (FreeList.newObject(Projectile) as Projectile);

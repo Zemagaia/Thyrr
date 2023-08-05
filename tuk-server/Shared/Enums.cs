@@ -234,5 +234,6 @@ namespace Shared
         Orb,
         Tome,
         PoisonTip,
+        WeaponEmpower,
     }
 }

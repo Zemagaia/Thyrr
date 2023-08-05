@@ -34,8 +34,14 @@ public class ProjectileProperties {
     public var acceleration_:Number;
     public var msPerAcceleration_:Number;
     public var speedCap_:Number;
-    public var key:uint;
     public var root:XML;
+
+
+    private const NUM_PROPS:int = 15;
+    public var key:uint;
+    public var arcGap_:Number = 0;
+    public var projCount_:int;
+    public var numProjectiles_:int;
 
     public function ProjectileProperties(_arg1:XML = null) {
         this.root = _arg1;
@@ -105,7 +111,7 @@ public class ProjectileProperties {
         if (data == null || data == new ByteArray()) return null;
         data.endian = "littleEndian";
         this.key = data.readUnsignedInt();
-        for (var i:int = 0; i < 8; i++)
+        for (var i:int = 0; i < NUM_PROPS; i++)
         {
             if ((this.key & 1 << i) == 0) continue;
             switch (i)
@@ -126,13 +132,40 @@ public class ProjectileProperties {
                     maxDamage_ += data.readInt();
                     break;
                 case 5:
-                    // irrelevant
+                    var len:int = data.readShort();
+                    effects_ = new Vector.<uint>(len);
+                    for (var j:int = 0; j < len; j++)
+                    {
+                        effects_[j] = data.readByte();
+                        data.readInt(); // irrelevant
+                    }
                     break;
                 case 6:
                     amplitude_ += data.readFloat();
                     break;
                 case 7:
                     frequency_ += data.readFloat();
+                    break;
+                case 8:
+                    objectId_ = data.readUTF();
+                    break;
+                case 9:
+                    boomerang_ = data.readBoolean();
+                    break;
+                case 10:
+                    wavy_ = data.readBoolean();
+                    break;
+                case 11:
+                    parametric_ = data.readBoolean();
+                    break;
+                case 12:
+                    arcGap_ = data.readFloat();
+                    break;
+                case 13:
+                    projCount_ = data.readByte();
+                    break;
+                case 14:
+                    numProjectiles_ = data.readByte();
                     break;
             }
         }
@@ -141,7 +174,7 @@ public class ProjectileProperties {
 
     public function importFromProps(data:ProjectileProperties):ProjectileProperties {
         this.key = data.key;
-        for (var i:int = 0; i < 8; i++)
+        for (var i:int = 0; i < NUM_PROPS; i++)
         {
             if ((this.key & 1 << i) == 0) continue;
             switch (i)
@@ -162,13 +195,34 @@ public class ProjectileProperties {
                     maxDamage_ += data.maxDamage_;
                     break;
                 case 5:
-                    // irrelevant
+                    effects_ = data.effects_;
                     break;
                 case 6:
                     amplitude_ += data.amplitude_;
                     break;
                 case 7:
                     frequency_ += data.frequency_;
+                    break;
+                case 8:
+                    objectId_ = data.objectId_;
+                    break;
+                case 9:
+                    boomerang_ = data.boomerang_;
+                    break;
+                case 10:
+                    wavy_ = data.wavy_;
+                    break;
+                case 11:
+                    parametric_ = data.parametric_;
+                    break;
+                case 12:
+                    arcGap_ = data.arcGap_;
+                    break;
+                case 13:
+                    projCount_ = data.projCount_;
+                    break;
+                case 14:
+                    numProjectiles_ = data.numProjectiles_;
                     break;
             }
         }

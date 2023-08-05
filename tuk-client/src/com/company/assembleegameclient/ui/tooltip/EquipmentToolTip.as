@@ -1076,7 +1076,7 @@ public class EquipmentToolTip extends ToolTip {
                                 "amount": activate.@totalDamage + " damage",
                                 "range": TooltipHelper.getPlural(activate.@radius, "sqr")
                             }, TooltipHelper.NO_DIFF_COLOR).pushParams("{effect} for {duration} seconds", {
-                                "effect": (activate.hasOwnProperty("@condEffect") ? activate.@condEffect : new LineBuilder().setParams("Slow")),
+                                "effect": (activate.hasOwnProperty("@effect") ? activate.@effect : new LineBuilder().setParams("Slow")),
                                 "duration": (activate.hasOwnProperty("@condDuration") ? activate.@condDuration : "5")
                             }, TooltipHelper.NO_DIFF_COLOR)
                         }));
@@ -2128,13 +2128,13 @@ public class EquipmentToolTip extends ToolTip {
     {
         var duration:ComPair;
         var thisCondition:String;
-        var condition:String = ((activate.hasOwnProperty("@condEffect")) ? activate.@condEffect : effect);
+        var condition:String = ((activate.hasOwnProperty("@effect")) ? activate.@effect : effect);
         if (condition != "Nothing")
         {
             duration = new ComPair(activate, thisActivate, "condDuration", defaultDuration);
             if (thisActivate)
             {
-                thisCondition = ((thisActivate.hasOwnProperty("@condEffect")) ? thisActivate.@condEffect : effect);
+                thisCondition = ((thisActivate.hasOwnProperty("@effect")) ? thisActivate.@effect : effect);
                 if (thisCondition == "Nothing")
                 {
                     duration.b = 0;

@@ -457,6 +457,9 @@ namespace GameServer.realm.entities
                     case ActivateEffects.Tome:
                         AETome(time, item, target, eff);
                         break;
+                    case ActivateEffects.WeaponEmpower:
+                        AEWeaponEmpower(eff);
+                        break;
                     default:
                         Log.Warn("Activate effect {0} not implemented.", eff.Effect);
                         break;
@@ -560,6 +563,35 @@ namespace GameServer.realm.entities
 
             Manager.Database.AddGift(Client.Account, item);
             SendError($"Your inventory is full, and your {item} has been sent to a gift chest.");
+        }
+
+        private void AEWeaponEmpower(ActivateEffect eff)
+        {
+            var desc = new ProjectileDesc()
+            {
+                ObjectId = eff.ObjId,
+                ProjCount = (byte)eff.ProjCount,
+                NumProjectiles = (byte)eff.NumProjectiles,
+                ArcGap = eff.ArcGap,
+                Frequency = eff.Frequency,
+                Amplitude = eff.Amplitude,
+                Speed = eff.Speed,
+                LifetimeMS = eff.LifetimeMS,
+                MinDamage = eff.MinDamage,
+                MaxDamage = eff.MaxDamage,
+                Boomerang = eff.Boomerang,
+                Parametric = eff.Parametric,
+                Wavy = eff.Wavy,
+                DamageType = eff.DamageType,
+                Effects = eff.ConditionEffect != null
+                    ? new[] { new ConditionEffect(eff.ConditionEffect.Value, (int)(eff.EffectDuration * 1000)) }
+                    : null,
+            };
+            OverrideWeaponProjDescs.Add(new OverrideWeaponProjectile()
+            {
+                Times = eff.Times,
+                ProjDesc = desc,
+            });
         }
 
         private void AECreatePet(RealmTime time, Item item, ItemData itemData, Position target, ActivateEffect eff)
@@ -1597,18 +1629,6 @@ namespace GameServer.realm.entities
         private void AEShoot(RealmTime time, Item item, ItemData itemData, Position target, ActivateEffect eff,
             long clientTime)
         {
-            // use item.Projectiles[0] instead, copying from ability xml
-            // check ProjectileDesc fields that have a Description attribute
-            /*var desc = new ProjectileDesc()
-            {
-                Speed = 50,
-                Effects = new[] { new ConditionEffect(ConditionEffectIndex.Confused, 3000) },
-            };
-            OverrideWeaponProjDescs.Add(new OverrideWeaponProjectile()
-            {
-                Times = 1,
-                ProjDesc = desc,
-            });*/
             var arcGap = item.ArcGap * Math.PI / 180;
             var startAngle = Math.Atan2(target.Y - Y, target.X - X) - (item.NumProjectiles - 1) / 2 * arcGap;
             var prjDesc = item.Projectiles[0]; //Assume only one

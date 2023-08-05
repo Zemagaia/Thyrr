@@ -30,30 +30,36 @@ namespace Shared.resources
     public class ProjectileDesc
     {
         public readonly int BulletType;
-        public readonly string ObjectId;
-        [Description("0")] public DamageTypes DamageType;
-        [Description("1")] public float LifetimeMS;
-        [Description("2")] public float Speed;
         public readonly int Size;
-        [Description("3")] public int MinDamage;
-        [Description("4")] public int MaxDamage;
 
         public readonly bool MultiHit;
         public readonly bool PassesCover;
-        public readonly bool Parametric;
-        public readonly bool Boomerang;
         public readonly bool ParticleTrail;
-        public readonly bool Wavy;
 
-        [Description("5")] public ConditionEffect[] Effects;
-
-        [Description("6")] public float Amplitude;
-        [Description("7")] public float Frequency;
         public readonly float Magnitude;
 
         public readonly float Acceleration;
         public readonly float MSPerAcceleration;
         public readonly float SpeedCap;
+        
+        public DamageTypes DamageType;
+        public float LifetimeMS;
+        public float Speed;
+        public int MinDamage;
+        public int MaxDamage;
+        public ConditionEffect[] Effects;
+        public float Amplitude;
+        public float Frequency;
+        public string ObjectId;
+        public bool Boomerang;
+        public bool Wavy;
+        public bool Parametric;
+        
+        // vvv well, shit??!
+        // not on xml
+        public float ArcGap;
+        public byte ProjCount; // replaces
+        public byte NumProjectiles; // additive
 
         public readonly XElement Root;
         public ProjectileDesc() {}
@@ -158,6 +164,48 @@ namespace Shared.resources
                 key |= 1 << 7;
             }
 
+            if (ObjectId != default)
+            {
+                wtr.WriteUTF(ObjectId);
+                key |= 1 << 8;
+            }
+
+            if (Boomerang != default)
+            {
+                wtr.Write(Boomerang);
+                key |= 1 << 9;
+            }
+
+            if (Wavy != default)
+            {
+                wtr.Write(Wavy);
+                key |= 1 << 10;
+            }
+
+            if (Parametric != default)
+            {
+                wtr.Write(Parametric);
+                key |= 1 << 11;
+            }
+
+            if (ArcGap != default)
+            {
+                wtr.Write(ArcGap);
+                key |= 1 << 12;
+            }
+
+            if (ProjCount != default)
+            {
+                wtr.Write(ProjCount);
+                key |= 1 << 13;
+            }
+
+            if (NumProjectiles != default)
+            {
+                wtr.Write(NumProjectiles);
+                key |= 1 << 14;
+            }
+
             stream.Position = 0;
             wtr.Write(key);
             return stream.ToArray();
@@ -170,7 +218,7 @@ namespace Shared.resources
             var key = rdr.ReadUInt32();
             short len;
             int j;
-            for (var i = 0; i < 8; i++)
+            for (var i = 0; i < 15; i++)
             {
                 if ((key & 1 << i) == 0) continue;
                 switch (i)
@@ -207,6 +255,27 @@ namespace Shared.resources
                         break;
                     case 7:
                         ret.Frequency += rdr.ReadSingle();
+                        break;
+                    case 8:
+                        ret.ObjectId = rdr.ReadUTF();
+                        break;
+                    case 9:
+                        ret.Boomerang = rdr.ReadBoolean();
+                        break;
+                    case 10:
+                        ret.Wavy = rdr.ReadBoolean();
+                        break;
+                    case 11:
+                        ret.Parametric = rdr.ReadBoolean();
+                        break;
+                    case 12:
+                        ret.ArcGap = rdr.ReadSingle();
+                        break;
+                    case 13:
+                        ret.ProjCount = rdr.ReadByte();
+                        break;
+                    case 14:
+                        ret.NumProjectiles = rdr.ReadByte();
                         break;
                 }
             }
@@ -275,6 +344,21 @@ namespace Shared.resources
         public readonly int WisPerTarget;
         public readonly DamageTypes DamageType;
 
+        public readonly int ProjCount;
+        public readonly string ObjId;
+        public readonly int NumProjectiles;
+        public readonly float ArcGap;
+        public readonly float Frequency;
+        public readonly float Amplitude;
+        public readonly int Speed;
+        public readonly int LifetimeMS;
+        public readonly int MinDamage;
+        public readonly int MaxDamage;
+        public readonly bool Parametric;
+        public readonly bool Boomerang;
+        public readonly bool Wavy;
+        public readonly int Times;
+
         public ActivateEffect(XElement e)
         {
             Effect = (ActivateEffects)Enum.Parse(typeof(ActivateEffects), e.Value);
@@ -295,9 +379,6 @@ namespace Shared.resources
 
             if (e.HasAttribute("effect"))
                 ConditionEffect = Utils.GetEffect(e.GetAttribute<string>("effect"));
-
-            if (e.HasAttribute("condEffect"))
-                ConditionEffect = Utils.GetEffect(e.GetAttribute<string>("condEffect"));
 
             if (e.HasAttribute("checkExistingEffect"))
                 CheckExistingEffect = Utils.GetEffect(e.GetAttribute<string>("checkExistingEffect"));
@@ -356,6 +437,20 @@ namespace Shared.resources
             WisDamageBase = e.GetAttribute<float>("wisDmgBase");
             WisPerTarget = e.GetAttribute("wisPerTarget", 10);
             DamageType = e.ParseDamageType("damageType", DamageTypes.Magical);
+            ProjCount = e.ParseInt("@projCount");
+            ObjId = e.ParseString("@objId");
+            NumProjectiles = e.ParseInt("@numProjectiles");
+            ArcGap = e.ParseFloat("@arcGap");
+            Frequency = e.ParseFloat("@frequency");
+            Amplitude = e.ParseFloat("@amplitude");
+            Speed = e.ParseInt("@Speed");
+            LifetimeMS = e.ParseInt("@lifetimeMs");
+            MinDamage = e.ParseInt("@minDamage");
+            MaxDamage = e.ParseInt("@maxDamage");
+            Parametric = e.ParseBool("@parametric");
+            Boomerang = e.ParseBool("@boomerang");
+            Wavy = e.ParseBool("@wavy");
+            Times = e.ParseInt("@times", 5);
         }
     }
 

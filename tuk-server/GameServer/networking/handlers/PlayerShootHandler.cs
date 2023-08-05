@@ -38,17 +38,32 @@ namespace GameServer.networking.handlers
                 return;
             }
             
+            var prjDesc = item.Projectiles[0]; //Assume only one
+            var overrideProjs = player.OverrideWeaponProjDescs;
+            var rm = false;
+            foreach (var dummy in overrideProjs)
+            {
+                if (player.UpdateOverrideProjectile)
+                {
+                    player.OverrideWeaponProjDesc = ProjectileDesc.Import(player.OverrideWeaponProjDescBytes, new ProjectileDesc(prjDesc.Root));
+                    player.UpdateOverrideProjectile = false;
+                }
+
+                prjDesc = player.OverrideWeaponProjDesc;
+                rm = true;
+                break;
+            }
+
+            var numProjs = prjDesc.ProjCount > 0 ? prjDesc.ProjCount : item.NumProjectiles + prjDesc.NumProjectiles;
             // reset shot counter
-            if (packet.Time != player.AcClientLastShot && player.AcShotNum >= item.NumProjectiles)
+            if (packet.Time != player.AcClientLastShot && player.AcShotNum >= numProjs)
                 player.AcShotNum = 0;
 
-            var arcGap = item.ArcGap * Math.PI / 180;
-            var startAngle = packet.Angle - (item.NumProjectiles - 1) / 2 * arcGap;
             var nextShotMs = 1 / player.DexRateOfFire() * 1 / item.RateOfFire;
             // validate shots, number of shots and etc
             if ((packet.Time < player.AcClientLastShot + nextShotMs && player.AcClientLastShot != 0 &&
                  packet.Time != player.AcClientLastShot) ||
-                player.AcShotNum >= item.NumProjectiles || player.HasConditionEffect(ConditionEffects.Stunned))
+                player.AcShotNum >= numProjs || player.HasConditionEffect(ConditionEffects.Stunned))
             {
                 player.DropNextRandom(2);
                 return;
@@ -81,17 +96,9 @@ namespace GameServer.networking.handlers
 
             player.PoisonTippedProjectiles = poisonTippedProjs;
             // create projectile and show other players
-            var prjDesc = item.Projectiles[0]; //Assume only one
-            var overrideProjs = player.OverrideWeaponProjDescs;
             foreach (var proj in overrideProjs)
             {
-                if (player.UpdateOverrideProjectile)
-                {
-                    player.OverrideWeaponProjDesc = ProjectileDesc.Import(player.OverrideWeaponProjDescBytes, new ProjectileDesc(prjDesc.Root));
-                    player.UpdateOverrideProjectile = false;
-                }
-
-                prjDesc = player.OverrideWeaponProjDesc;
+                if (!rm) break;
                 proj.Times--;
                 if (proj.Times < 1)
                 {
@@ -101,7 +108,9 @@ namespace GameServer.networking.handlers
 
                 break;
             }
-
+            
+            var arcGap = (item.ArcGap + prjDesc.ArcGap) * Math.PI / 180;
+            var startAngle = packet.Angle - (numProjs - 1) / 2 * arcGap;
             player.OverrideWeaponProjDescs = overrideProjs;
             if (player.AcClientLastShot == 0) player.AcClientLastShot = packet.Time;
             var prj = player.PlayerShootProjectile(
