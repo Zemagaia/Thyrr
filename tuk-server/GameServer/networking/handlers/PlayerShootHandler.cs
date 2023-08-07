@@ -54,7 +54,7 @@ namespace GameServer.networking.handlers
                 break;
             }
 
-            var numProjs = prjDesc.ProjCount > 0 ? prjDesc.ProjCount : item.NumProjectiles + prjDesc.NumProjectiles;
+            var numProjs = item.NumProjectiles + prjDesc.NumProjectiles;
             // reset shot counter
             if (packet.Time != player.AcClientLastShot && player.AcShotNum >= numProjs)
                 player.AcShotNum = 0;

@@ -58,8 +58,7 @@ namespace Shared.resources
         // vvv well, shit??!
         // not on xml
         public float ArcGap;
-        public byte ProjCount; // replaces
-        public byte NumProjectiles; // additive
+        public byte NumProjectiles;
 
         public readonly XElement Root;
         public ProjectileDesc() {}
@@ -194,16 +193,10 @@ namespace Shared.resources
                 key |= 1 << 12;
             }
 
-            if (ProjCount != default)
-            {
-                wtr.Write(ProjCount);
-                key |= 1 << 13;
-            }
-
             if (NumProjectiles != default)
             {
                 wtr.Write(NumProjectiles);
-                key |= 1 << 14;
+                key |= 1 << 13;
             }
 
             stream.Position = 0;
@@ -218,7 +211,7 @@ namespace Shared.resources
             var key = rdr.ReadUInt32();
             short len;
             int j;
-            for (var i = 0; i < 15; i++)
+            for (var i = 0; i < 14; i++)
             {
                 if ((key & 1 << i) == 0) continue;
                 switch (i)
@@ -269,13 +262,10 @@ namespace Shared.resources
                         ret.Parametric = rdr.ReadBoolean();
                         break;
                     case 12:
-                        ret.ArcGap = rdr.ReadSingle();
+                        ret.ArcGap += rdr.ReadSingle();
                         break;
                     case 13:
-                        ret.ProjCount = rdr.ReadByte();
-                        break;
-                    case 14:
-                        ret.NumProjectiles = rdr.ReadByte();
+                        ret.NumProjectiles += rdr.ReadByte();
                         break;
                 }
             }
@@ -357,7 +347,6 @@ namespace Shared.resources
         public readonly bool Parametric;
         public readonly bool Boomerang;
         public readonly bool Wavy;
-        public readonly int Times;
 
         public ActivateEffect(XElement e)
         {
@@ -450,7 +439,6 @@ namespace Shared.resources
             Parametric = e.ParseBool("@parametric");
             Boomerang = e.ParseBool("@boomerang");
             Wavy = e.ParseBool("@wavy");
-            Times = e.ParseInt("@times", 5);
         }
     }
 

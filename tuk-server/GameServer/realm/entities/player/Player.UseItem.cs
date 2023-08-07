@@ -570,7 +570,6 @@ namespace GameServer.realm.entities
             var desc = new ProjectileDesc()
             {
                 ObjectId = eff.ObjId,
-                ProjCount = (byte)eff.ProjCount,
                 NumProjectiles = (byte)eff.NumProjectiles,
                 ArcGap = eff.ArcGap,
                 Frequency = eff.Frequency,
@@ -589,7 +588,7 @@ namespace GameServer.realm.entities
             };
             OverrideWeaponProjDescs.Add(new OverrideWeaponProjectile()
             {
-                Times = eff.Times,
+                Times = eff.ProjCount,
                 ProjDesc = desc,
             });
         }

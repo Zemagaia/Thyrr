@@ -1091,8 +1091,8 @@ public class Player extends Character {
         var numProjs:int = ((xml.hasOwnProperty("NumProjectiles")) ? int(xml.NumProjectiles) : 1);
         var arcGap:Number = xml.hasOwnProperty("ArcGap") ? Number(xml.ArcGap) : 11.25;
         tProj = this.overrideProjDesc;
-        if (tProj != null) {
-            numProjs = tProj.projCount_ > 0 ? tProj.projCount_ : numProjs + tProj.numProjectiles_;
+        if (tProj != null && isWeapon) {
+            numProjs = numProjs + tProj.numProjectiles_;
             arcGap += tProj.arcGap_;
         }
         arcGap *= Trig.toRadians;

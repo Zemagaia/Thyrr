@@ -37,10 +37,9 @@ public class ProjectileProperties {
     public var root:XML;
 
 
-    private const NUM_PROPS:int = 15;
+    private const NUM_PROPS:int = 14;
     public var key:uint;
     public var arcGap_:Number = 0;
-    public var projCount_:int;
     public var numProjectiles_:int;
 
     public function ProjectileProperties(_arg1:XML = null) {
@@ -159,13 +158,10 @@ public class ProjectileProperties {
                     parametric_ = data.readBoolean();
                     break;
                 case 12:
-                    arcGap_ = data.readFloat();
+                    arcGap_ += data.readFloat();
                     break;
                 case 13:
-                    projCount_ = data.readByte();
-                    break;
-                case 14:
-                    numProjectiles_ = data.readByte();
+                    numProjectiles_ += data.readByte();
                     break;
             }
         }
@@ -216,13 +212,10 @@ public class ProjectileProperties {
                     parametric_ = data.parametric_;
                     break;
                 case 12:
-                    arcGap_ = data.arcGap_;
+                    arcGap_ += data.arcGap_;
                     break;
                 case 13:
-                    projCount_ = data.projCount_;
-                    break;
-                case 14:
-                    numProjectiles_ = data.numProjectiles_;
+                    numProjectiles_ += data.numProjectiles_;
                     break;
             }
         }
